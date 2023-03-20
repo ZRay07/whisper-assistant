@@ -1,0 +1,6 @@
+tensorflow
+tensorflow_hub
+AppOpener
+PyAutoGui
+pycaw.pycaw
+ctypes
