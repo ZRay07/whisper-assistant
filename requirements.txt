@@ -1,6 +1,9 @@
 tensorflow
 tensorflow_hub
+tensorflow_io
 AppOpener
 PyAutoGui
-pycaw.pycaw
-ctypes
+pycaw
+matplotlib
+seaborn
+IPython
