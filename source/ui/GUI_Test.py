@@ -20,9 +20,11 @@ import librosa
 class_ids_list = (['down','go', 'left', 'no', 'right', 'stop', 'up', 'yes'])
 class_id = ['d','g','l','n','r','s','u','y']
 count = 5
+loop = 0
+y_n = ' '
 model_model = tf.saved_model.load('C:/Users/cohent1/Anaconda3/SD/prometheus')
 # Define New Confirmation Window
-
+path = "C:/Users/cohent1/Desktop/output.wav"
 #Use the model
 def use_model(path):
     fin = model_model(tf.constant(str(path)))
@@ -62,6 +64,7 @@ def secd_lrg_num(arr):
 #sec_best_pred = class_ids_list[ind]
 
 def openConfirmationWindow():
+    y_n = ' '
     newWindow = Toplevel(screen) # Record Window Will Open on Top of Previous 
     newWindow.title("Confirmation") # Titles New Window
     newWindow.geometry("1920x1080") # Set Window Size
@@ -76,7 +79,11 @@ def openConfirmationWindow():
     yes.place(relx = 0.25, rely = 0.75, anchor = S) # Places Speak Button
     no = Button(newWindow, text = "No",command=lambda: [No(), newWindow.destroy()], font=('Times 14'), width=50, height=5, bg="red", compound=LEFT, relief=RAISED)
     no.place(relx = 0.75, rely = 0.75, anchor = S)
-    
+    Record()
+    run_up, out = use_model(path)
+    count, ans = veri_n_ind(out)
+    y_n = ans
+    return y_n
 # Define Recording Function
 def Record():
     #Start recording audio and runs through ASR, finds appropriate command
@@ -94,9 +101,8 @@ def Record():
      myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1, dtype = np.int16)
      sd.wait()  # Wait until recording is finished
 #write(filename, sr, myrecording.astype(np.int16))
-     write('output.wav', fs, myrecording) 
+     write(path, fs, myrecording) 
     #This opens the confirmation window
-     openConfirmationWindow()
      return None
     
     
@@ -131,6 +137,20 @@ welcome.place(relx = 0.5, rely = 0.25, anchor = S) # Place Welcome Label at Set 
 quit_label = Button(screen, text = "To Quit Program Say 'No'.", command=screen.destroy, font=('Times 14'), width=50, height=5, bg="red", relief=RAISED) # Create Quit Button
 quit_label.place(relx = 0.5, rely = 0.75, anchor = N) # Places Quit Button
 speak_label = Button(screen, text = "To Begin Recording Say 'Yes'.", command=lambda: [Record(), ToggleRecord()], font=('Times 14'), width=50, height=5, bg="green", compound = LEFT, relief=RAISED) # Create Start Button
+# ans is the model's pred and sec best is the well sec best pred
+Record()
+run_up, out = use_model(path)
+count, ans = veri_n_ind(out) 
+array = run_up[0]
+secd_lrg_num(array)
+ind = secd_lrg_num(array)
+sec_best_pred = class_ids_list[ind]
+while y_n != 'yes' or loop < 10:
+    y_n = openConfirmationWindow()
+    loop += 1
+
+#if y_n == 'yes': 
+    #SEARCH FOR SIMMILAR COMMAND and run function
 speak_label.place(relx = 0.5, rely = 0.65, anchor = S) # Places Speak Button
 screen.mainloop() # Loops Code
 
