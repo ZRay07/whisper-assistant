@@ -1,65 +1,45 @@
-#####
-# This module is responsible for command execution
-# Users can open/close programs by name, set the volume on multiples of 10, scroll up/down
-# 
-# Next goals will be making commands which have more functionality than just the basics
-#   -> such as, opening a browser and accepting a search, setting a calendar reminder for an event, etc.
-#####
-
 import AppOpener        # used for opening / closing applications
-import pyautogui        # used to control mouse cursor, clicks, and keyboard presses
+import pyautogui        # used to control mouse cursor
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume    # used for audio
 from ctypes import cast, POINTER                                # audio
 from comtypes import CLSCTX_ALL                                 # audio
+from asr_module import *
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 volume = cast(interface, POINTER(IAudioEndpointVolume))
 
-userChoice = " "
-
-while(userChoice != "9"):
-    print("What would you like to do?")
-    print("1. Open application")
-    print("2. Close application")
-    print("3. Scroll up")
-    print("4. Scroll down")
-    print("5. Set volume")
-    print("6. Select file")
-    print("7. ")
-    print("8. Make a Google search")
-    print("9. Exit")
-
-    userChoice = input("Enter your choice: ")
-
-    if (userChoice == "1"):
-        print("\n***Open Application***")
-        appChoice = input("Enter the application you'd like to open: ")
+# This function takes in an input string
+# the string should be the predicted output from the ASR module
+def commandExec(userChoice):    
+    if (userChoice == "go"):        # if user says go, open microsoft word
+        print("\n***Open Word***")
+        appChoice = 'Microsoft Word'
         AppOpener.open(appChoice, match_closest=True)
 
-    elif (userChoice == "2"):
-        print("\n***Close Application***")
-        appChoice = input("Enter the application you'd like to close: ")
-        AppOpener.close(appChoice, match_closest=True)
+    elif (userChoice == "no"):      # no -> close word
+        print("\n***Close Word***")
+        appChoice = 'Microsoft Word'
+        AppOpener.close(appChoice)
 
-    elif (userChoice == "3"):
+    elif (userChoice == "up"):      # up -> scroll up
         print("\n***Scroll Up***")
-        pyautogui.scroll(10)        # 10 lines (positive -> scroll up)
-          
-    elif (userChoice == "4"):
+        pyautogui.scroll(10)
+            
+    elif (userChoice == "down"):    # down -> scroll down
         print("\n***Scroll Down***")
-        pyautogui.scroll(-10)       # 10 lines (negative -> scroll down)
+        pyautogui.scroll(-10)
 
-    elif (userChoice == "5"):
+    elif (userChoice == "right"):   # right -> set volume
         print("\n***Set Volume***")
         volChoice = input("(0-10) Enter desired volume level: ")
         volChoice = int(volChoice)
 
         if (volChoice == 0):
             print("Setting volume to 0")
-            volume.SetMasterVolumeLevel(-60.0, None)    # SetMasterVolumeLevel changes total system sound
-                                                                
+            volume.SetMasterVolumeLevel(-60.0, None)
+
         elif (volChoice == 1):
             volume.SetMasterVolumeLevel(-33.0, None)
             print("Setting volume to 10")
@@ -99,17 +79,15 @@ while(userChoice != "9"):
         elif (volChoice == 10):
             volume.SetMasterVolumeLevel(0, None)
             print("Setting volume to 100")
+# end volume control loop            
 
-    elif (userChoice == "6"):
-        print("\n***Select File***")    # Desired functionality: copy  file, rename  file, move file, delete file
-        AppOpener.open("File Explorer")
-         
-        
+    elif (userChoice == "yes"):     # yes -> select file
+        print("\n***Select File***")
 
-    elif (userChoice == "9"):
-        print("\nExiting.")
-        
+    elif (userChoice == "left"):    # left -> 
+        print()        
 
-
-
+    elif (userChoice == "stop"):    # stop ->
+        print()
+# We only have 8 keywords at the moment
 
