@@ -59,7 +59,7 @@ while(userChoice != "9"):
         if (volChoice == 0):
             print("Setting volume to 0")
             volume.SetMasterVolumeLevel(-60.0, None)    # SetMasterVolumeLevel changes total system sound
-                                                                #
+                                                                
         elif (volChoice == 1):
             volume.SetMasterVolumeLevel(-33.0, None)
             print("Setting volume to 10")
