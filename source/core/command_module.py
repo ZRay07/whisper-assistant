@@ -1,5 +1,13 @@
+#####
+# This module is responsible for command execution
+# Users can open/close programs by name, set the volume on multiples of 10, scroll up/down
+# 
+# Next goals will be making commands which have more functionality than just the basics
+#   -> such as, opening a browser and accepting a search, setting a calendar reminder for an event, etc.
+#####
+
 import AppOpener        # used for opening / closing applications
-import pyautogui        # used to control mouse cursor
+import pyautogui        # used to control mouse cursor, clicks, and keyboard presses
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume    # used for audio
 from ctypes import cast, POINTER                                # audio
 from comtypes import CLSCTX_ALL                                 # audio
@@ -37,11 +45,11 @@ while(userChoice != "9"):
 
     elif (userChoice == "3"):
         print("\n***Scroll Up***")
-        pyautogui.scroll(10)
+        pyautogui.scroll(10)        # 10 lines (positive -> scroll up)
           
     elif (userChoice == "4"):
         print("\n***Scroll Down***")
-        pyautogui.scroll(-10)
+        pyautogui.scroll(-10)       # 10 lines (negative -> scroll down)
 
     elif (userChoice == "5"):
         print("\n***Set Volume***")
@@ -50,8 +58,8 @@ while(userChoice != "9"):
 
         if (volChoice == 0):
             print("Setting volume to 0")
-            volume.SetMasterVolumeLevel(-60.0, None)
-
+            volume.SetMasterVolumeLevel(-60.0, None)    # SetMasterVolumeLevel changes total system sound
+                                                                #
         elif (volChoice == 1):
             volume.SetMasterVolumeLevel(-33.0, None)
             print("Setting volume to 10")
@@ -93,8 +101,9 @@ while(userChoice != "9"):
             print("Setting volume to 100")
 
     elif (userChoice == "6"):
-        print("\n***Select File***")
-            
+        print("\n***Select File***")    # Desired functionality: copy  file, rename  file, move file, delete file
+        AppOpener.open("File Explorer")
+         
         
 
     elif (userChoice == "9"):
