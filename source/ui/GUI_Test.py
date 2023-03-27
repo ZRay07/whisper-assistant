@@ -16,18 +16,30 @@ from keras import models
 from scipy.io import wavfile
 from scipy import signal
 import librosa
-# **Change buttons to labels to avoid inputting clicks with mouse** 
+
+###
+# Change buttons to labels to avoid inputting clicks with mouse
+###
 class_ids_list = (['down','go', 'left', 'no', 'right', 'stop', 'up', 'yes'])
 class_id = ['d','g','l','n','r','s','u','y']
 count = 5
 loop = 0
 y_n = ' '
-model_model = tf.saved_model.load('C:/Users/cohent1/Anaconda3/SD/prometheus')
+
+# Load in the model we generated from the ASR_module
+model_model = tf.saved_model.load('saved')
+
+###
 # Define New Confirmation Window
-path = "C:/Users/cohent1/Desktop/output.wav"
-#Use the model
-def use_model(path):
-    fin = model_model(tf.constant(str(path)))
+###
+
+# This audio path specifies where the recording is saved,
+# and is also the path which we will pass into the model
+audio_path = "data/output.wav"
+
+# Use the model
+def use_model(audio_path):
+    fin = model_model(tf.constant(str(audio_path)))
     run_up = fin['predictions'].numpy()
     out = np.array2string(fin['class_names'].numpy())
     return run_up, out
@@ -84,12 +96,15 @@ def openConfirmationWindow():
     count, ans = veri_n_ind(out)
     y_n = ans
     return y_n
-# Define Recording Function
+	
+# Audio Recording Function
 def Record():
     #Start recording audio and runs through ASR, finds appropriate command
      seconds = 1
      fs = 44100
-     #Print into GUI SCREEN
+	 ###
+     # Print into GUI SCREEN
+	 ###
      print('...Recording in 3\n')
      time.sleep(1)
      print('...Recording in 2\n')
@@ -101,8 +116,8 @@ def Record():
      myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1, dtype = np.int16)
      sd.wait()  # Wait until recording is finished
 #write(filename, sr, myrecording.astype(np.int16))
-     write(path, fs, myrecording) 
-    #This opens the confirmation window
+     write(audio_path, fs, myrecording) 
+	# This opens the confirmation window
      return None
     
     
@@ -130,21 +145,23 @@ def ToggleLoop():
 # Creates Main Screen/window with Initial Buttons
 screen = Tk()
 screen.geometry("1920x1080") # Sets Window Size
-screen.title("S.H.E.R.P.A (Super Helpful Enginer Recognizing People's Audio)") #Title of Window
+screen.title("S.H.E.R.P.A (Super Helpful Engine Recognizing People's Audio)") #Title of Window
 screen.resizable(True, True) # Enable Resizeablity 
 welcome = Label(screen, text = "Welcome To S.H.E.R.P.A!", font=('Times 20')) # Creates Welcome Label
 welcome.place(relx = 0.5, rely = 0.25, anchor = S) # Place Welcome Label at Set Location
 quit_label = Button(screen, text = "To Quit Program Say 'No'.", command=screen.destroy, font=('Times 14'), width=50, height=5, bg="red", relief=RAISED) # Create Quit Button
 quit_label.place(relx = 0.5, rely = 0.75, anchor = N) # Places Quit Button
 speak_label = Button(screen, text = "To Begin Recording Say 'Yes'.", command=lambda: [Record(), ToggleRecord()], font=('Times 14'), width=50, height=5, bg="green", compound = LEFT, relief=RAISED) # Create Start Button
+
 # ans is the model's pred and sec best is the well sec best pred
 Record()
-run_up, out = use_model(path)
+run_up, out = use_model(audio_path)
 count, ans = veri_n_ind(out) 
 array = run_up[0]
 secd_lrg_num(array)
 ind = secd_lrg_num(array)
 sec_best_pred = class_ids_list[ind]
+
 while y_n != 'yes' or loop < 10:
     y_n = openConfirmationWindow()
     loop += 1
