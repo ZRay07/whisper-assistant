@@ -7,3 +7,6 @@ pycaw
 matplotlib
 seaborn
 IPython
+pydub
+sounddevice
+librosa
