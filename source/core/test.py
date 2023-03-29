@@ -4,7 +4,7 @@ from scipy.io.wavfile import write
 import tensorflow as tf
 import numpy as np
 from command_module import *
-
+from command_module import commandExec
 # Create an array of the keywords which the model can understand
 keywords = ['down','go', 'left', 'no', 'right', 'stop', 'up', 'yes']
 chKeywords = ['d', 'g',  'l',    'n',  'r',      's',   'u',  'y']
