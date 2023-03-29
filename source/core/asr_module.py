@@ -253,8 +253,8 @@ model.compile(
     metrics=['accuracy'],
 )
 
-# Train the model over 10 epochs
-EPOCHS = 10
+# Train the model over 7 epochs
+EPOCHS = 7
 history = model.fit(
     train_spectrogram_ds,
     validation_data=val_spectrogram_ds,
@@ -357,14 +357,3 @@ export(tf.constant(str(data_dir/'no/01bb6a2a_nohash_0.wav')))
 tf.saved_model.save(export, "saved")
 imported = tf.saved_model.load("saved")
 imported(waveform[tf.newaxis, :])
-
-
-
-
-
-
-
-
-
-
-

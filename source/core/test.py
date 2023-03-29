@@ -91,15 +91,26 @@ def veri_n_ind(out):
 
     return count, ans
 
-Record()
+exitCheck = 0
+while (exitCheck == 0):
+    print("Would you like to run a command?")
+    userChoice = input("Enter yes or no: ")
+    if (userChoice == "yes"):
+        
+        Record()
 
-run_up, out = use_model(audio_path)
-print("out[3]: ", out[3])
+        run_up, out = use_model(audio_path)
+        print("out[3]: ", out[3])
 
-count, ans = veri_n_ind(out)
-print("count: ", count)
-print("ans: ", ans)
+        count, ans = veri_n_ind(out)
+        print("count: ", count)
+        print("ans: ", ans)
 
-ans = keywords[count]
+        ans = keywords[count]
+        print("ans: ", ans)
 
-commandExec(ans)
+        commandExec(ans)
+
+    elif (userChoice == "no"):
+        print("Exiting.")
+        exitCheck = 1
