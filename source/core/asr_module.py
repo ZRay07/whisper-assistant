@@ -18,6 +18,9 @@ from keras import layers
 from keras import models
 from IPython import display
 
+from keras import regularizers
+from keras.layers import Conv2D
+
 # Set the seed value for experiment reproducibility.
 seed = 42
 tf.random.set_seed(seed)
@@ -224,14 +227,25 @@ norm_layer = layers.Normalization()
 # with `Normalization.adapt`.
 norm_layer.adapt(data=train_spectrogram_ds.map(map_func=lambda spec, label: spec))
 
+# Regularizing the layers
+layer64 = layers.Conv2D(64, 3, activation='relu', kernel_regularizer=regularizers.L1(0.005), activity_regularizer=regularizers.L2(0.005))
+
+# layer128 = layers.Conv2D(128, 3, activation='relu', kernel_regularizer=regularizers.L1(0.005), activity_regularizer=regularizers.L2(0.005))
+
 model = models.Sequential([
     layers.Input(shape=input_shape),
+
     # Downsample the input.
-    layers.Resizing(32, 32),
+    layers.Resizing(64, 64),
+
     # Normalize.
     norm_layer,
-    layers.Conv2D(32, 3, activation='relu'),
-    layers.Conv2D(64, 3, activation='relu'),
+
+    # Regularized convolutional layers
+    layer64,
+    #layers.Conv2D(64, 3, activation='relu'),
+    
+    layers.Conv2D(128, 3, activation='relu'),
     layers.MaxPooling2D(),
     layers.Dropout(0.25),
     layers.Flatten(),
