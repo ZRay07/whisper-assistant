@@ -6,9 +6,9 @@ Download the code and unzip it.
 Save the file directory.
 Open command prompt by typing 'cmd' in Windows search bar
 
-You're going to want to create a virtual environment
+You're going to want to create a virtual environment.  
 This stores all of the required packages inside of a folder and keeps them seperate
-from the global Python installation
+from the global Python installation.  
 You can create an environment with
 > python -m venv C:\path\to\project\dir\.venv
 
@@ -17,7 +17,7 @@ Navigate to the directory where the code is unzipped
 > cd C:\path\to\project\dir
 
 Activate the environment with:
-> C:\path\to\project\dir\.venv\Scripts\activate.bat
+> C:\path\to\project\dir\\.\venv\Scripts\activate.bat
 
 You should see a (venv) in the command prompt now preceding the line
 
