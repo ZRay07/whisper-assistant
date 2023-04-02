@@ -29,24 +29,21 @@ np.random.seed(seed)
 # Import the mini speech commands dataset
 DATASET_PATH = 'data/mini_speech_commands'      
 
-def pullKeywords(dataset_Path):
-  data_dir = pathlib.Path(dataset_Path)   # We create a directory to store the audio clips as (directory where project exists)/data/mini_speech_commands
-  if not data_dir.exists():               # Only download the dataset if it doesn't already exist
-    tf.keras.utils.get_file(              # This dataset is offered by Google under a CC BY license
-        'mini_speech_commands.zip',
-        origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
-        extract=True,
-        cache_dir='.', cache_subdir='data')
+
+data_dir = pathlib.Path(DATASET_PATH)   # We create a directory to store the audio clips as (directory where project exists)/data/mini_speech_commands
+if not data_dir.exists():               # Only download the dataset if it doesn't already exist
+  tf.keras.utils.get_file(              # This dataset is offered by Google under a CC BY license
+      'mini_speech_commands.zip',
+      origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
+      extract=True,
+      cache_dir='.', cache_subdir='data')
 
 
-  # The audio clips are stored in 8 folders corresponding to each keyword
-  # We can grab the labels from the folder names
-  commands = np.array(tf.io.gfile.listdir(str(data_dir)))
-  commands = commands[(commands != 'README.md') & (commands != '.DS_Store')]
-  return commands
-
+# The audio clips are stored in 8 folders corresponding to each keyword
+# We can grab the labels from the folder names
+commands = np.array(tf.io.gfile.listdir(str(data_dir)))
+commands = commands[(commands != 'README.md') & (commands != '.DS_Store')]
 print()
-commands = pullKeywords(DATASET_PATH)
 print('Commands:', commands)
 
 # Pull the first character from an array of strings and return character array

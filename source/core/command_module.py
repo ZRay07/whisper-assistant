@@ -1,10 +1,21 @@
+#from AppOpener import open
+#from PIL import Image
+#open("matlab r b")
+#im = Image.open('C:/Users/cohent1/Pictures/Camera Roll/glass.jfif')
+#im.show()
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time 
+
 import AppOpener        # used for opening / closing applications
 import pyautogui        # used to control mouse cursor
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume    # used for audio
 from ctypes import cast, POINTER                                # audio
 from comtypes import CLSCTX_ALL                                 # audio
-from Email_open import sign_in
-from model_interface import *
+from source.core.model_interface import *
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
@@ -16,78 +27,11 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 def commandExec(userChoice):    
     if (userChoice == "go"):        # if user says go, open application
         print("\n***Open Application***")
-        print("\nWhich application would you like to open?")
-        print("\t*yes - Word")
-        print("\t*go - Edge")
-        print("\t*stop - Spotify")
-        print("\t*down - Discord")
-        print("\t*up - ...")
-        print("\t*left - ...")
-        print("\t*right - ...")
-        print("\t*no - Exit")
-        
-        rCheck = checkReady()
-        if (rCheck):
-            Record()
-
-            run_up, out = use_model(audio_path)
-            print("out[3]: ", out[3])
-
-            count, ans = veri_n_ind(out)
-            print("count: ", count)
-            print("ans: ", ans)
-
-            ans = keywords[count]
-            print("ans: ", ans)
-
-        if (ans == "yes"):
-            AppOpener.open("Word", match_closest=True)
-        elif (ans == "go"):
-            AppOpener.open("Edge", match_closest=True)
-        elif (ans == "stop"):
-            AppOpener.open("Spotify", match_closest=True)
-        elif (ans == "down"):
-            AppOpener.open("Discord", match_closest=True)
-        elif (ans == "up"):
-            print()
-
+        openApplication()
 
     elif (userChoice == "no"):      # no -> close application
         print("\n***Close Application***")
-        print("\nWhich application would you like to close?")
-        print("\t*yes - Word")
-        print("\t*go - Edge")
-        print("\t*stop - Spotify")
-        print("\t*down - Discord")
-        print("\t*up - ...")
-        print("\t*left - ...")
-        print("\t*right - ...")
-        print("\t*no - Exit")
-        
-        rCheck = checkReady()
-        if (rCheck):
-            Record()
-
-            run_up, out = use_model(audio_path)
-            print("out[3]: ", out[3])
-
-            count, ans = veri_n_ind(out)
-            print("count: ", count)
-            print("ans: ", ans)
-
-            ans = keywords[count]
-            print("ans: ", ans)
-
-        if (ans == "yes"):
-            AppOpener.open("Word", match_closest=True)
-        elif (ans == "go"):
-            AppOpener.open("Edge", match_closest=True)
-        elif (ans == "stop"):
-            AppOpener.open("Spotify", match_closest=True)
-        elif (ans == "down"):
-            AppOpener.open("Discord", match_closest=True)
-        elif (ans == "up"):
-            print()
+        closeApplication()
 
     elif (userChoice == "up"):      # up -> scroll up
         print("\n***Scroll Up***")
@@ -99,74 +43,7 @@ def commandExec(userChoice):
 
     elif (userChoice == "right"):   # right -> set volume
         print("\n***Set Volume***")
-        print("\nWhat volume would you like to set to?")
-        print("\t*no - 0")
-        print("\t*yes - 10")
-        print("\t*stop - 30")
-        print("\t*down - 50")
-        print("\t*up - 70")
-        print("\t*left - 80")
-        print("\t*right - 80")
-        print("\t*go - 100")
-
-        rCheck = checkReady()
-        if (rCheck):
-            Record()
-
-            run_up, out = use_model(audio_path)
-            print("out[3]: ", out[3])
-
-            count, ans = veri_n_ind(out)
-            print("count: ", count)
-            print("ans: ", ans)
-
-            ans = keywords[count]
-            print("ans: ", ans)
-
-        if (ans == "no"):
-            print("Setting volume to 0")
-            volume.SetMasterVolumeLevel(-60.0, None)
-
-        elif (ans == "yes"):
-            volume.SetMasterVolumeLevel(-33.0, None)
-            print("Setting volume to 10")
-
-#        elif (volChoice == 4):
-#            volume.SetMasterVolumeLevel(-23.4, None)
-#            print("Setting volume to 20")
-
-        elif (ans == "stop"):
-            volume.SetMasterVolumeLevel(-17.8, None)
-            print("Setting volume to 30")
-
-#        elif (volChoice == 4):
-#            volume.SetMasterVolumeLevel(-13.6, None)
-#            print("Setting volume to 40")
-
-        elif (ans == "down"):
-            volume.SetMasterVolumeLevel(-10.2, None)
-            print("Setting volume to 50")
-
-#        elif (volChoice == 6):
-#            volume.SetMasterVolumeLevel(-7.6, None)
-#            print("Setting volume to 60")
-
-        elif (ans == "up"):
-            volume.SetMasterVolumeLevel(-5.3, None)
-            print("Setting volume to 70")
-
-        elif (ans == "left"):
-            volume.SetMasterVolumeLevel(-3.4, None)
-            print("Setting volume to 80")
-
-        elif (ans == "right"):
-            volume.SetMasterVolumeLevel(-1.6, None)
-            print("Setting volume to 90")
-
-        elif (ans == "go"):
-            volume.SetMasterVolumeLevel(0, None)
-            print("Setting volume to 100")
-# end volume control loop            
+        setVolume()           
 
     elif (userChoice == "yes"):     # yes -> select file
         print("\n***Select File***")
@@ -190,4 +67,220 @@ def checkReady():
         rCheck = 0
 
     return rCheck
-    
+
+
+def openApplication():
+    print("\n***Open Application***")
+    print("\nWhich application would you like to open?")
+    print("\t*yes - Word")
+    print("\t*go - Edge")
+    print("\t*stop - Spotify")
+    print("\t*down - Discord")
+    print("\t*up - ...")
+    print("\t*left - ...")
+    print("\t*right - ...")
+    print("\t*no - ...")
+        
+    rCheck = checkReady()
+    if (rCheck):
+
+        Record()
+        confidenceValues, greatestPrediction = use_model(audio_path)
+        
+        # Check with user to make sure we heard the correct command
+        predictionCheck = 0
+        predictionCheck = checkPredictionWithUser(greatestPrediction)
+
+        if (predictionCheck == 0):
+            print()
+        elif (predictionCheck == 1):
+            print("Executing command.")
+        else:
+            print("Say either 'yes' or 'no'")
+
+    if (greatestPrediction == "yes"):
+        AppOpener.open("Word", match_closest=True)
+    elif (greatestPrediction == "go"):
+        AppOpener.open("Edge", match_closest=True)
+    elif (greatestPrediction == "stop"):
+        AppOpener.open("Spotify", match_closest=True)
+    elif (greatestPrediction == "down"):
+        AppOpener.open("Discord", match_closest=True)
+    elif (greatestPrediction == "up"):
+            print()
+
+def closeApplication():
+    print("\n***Close Application***")
+    print("\nWhich application would you like to close?")
+    print("\t*yes - Word")
+    print("\t*go - Edge")
+    print("\t*stop - Spotify")
+    print("\t*down - Discord")
+    print("\t*up - ...")
+    print("\t*left - ...")
+    print("\t*right - ...")
+    print("\t*no - ...")
+        
+    rCheck = checkReady()
+    if (rCheck):
+
+        Record()
+        confidenceValues, greatestPrediction = use_model(audio_path)
+        
+        # Check with user to make sure we heard the correct command
+        predictionCheck = 0
+        predictionCheck = checkPredictionWithUser(greatestPrediction)
+
+        if (predictionCheck == 0):
+            print()
+        elif (predictionCheck == 1):
+            print("Executing command.")
+        else:
+            print("Say either 'yes' or 'no'")
+
+    if (greatestPrediction == "yes"):
+        AppOpener.close("Word", match_closest=True)
+    elif (greatestPrediction == "go"):
+        AppOpener.close("Edge", match_closest=True)
+    elif (greatestPrediction == "stop"):
+        AppOpener.close("Spotify", match_closest=True)
+    elif (greatestPrediction == "down"):
+        AppOpener.close("Discord", match_closest=True)
+    elif (greatestPrediction == "up"):
+            print()
+
+
+def setVolume():
+    print("\nWhat volume would you like to set to?")
+    print("\t*no - 0")
+    print("\t*yes - 10")
+    print("\t*stop - 30")
+    print("\t*down - 50")
+    print("\t*up - 70")
+    print("\t*left - 80")
+    print("\t*right - 80")
+    print("\t*go - 100")
+
+    rCheck = checkReady()
+    if (rCheck):
+            
+        Record()
+
+        confidenceValues, greatestPrediction = use_model(audio_path)
+        
+        # Check with user to make sure we heard the correct command
+        predictionCheck = 0
+        predictionCheck = checkPredictionWithUser(greatestPrediction)
+
+        if (predictionCheck == 0):
+            print()
+        elif (predictionCheck == 1):
+            print("Executing command.")
+        else:
+            print("Say either 'yes' or 'no'")
+
+        if (greatestPrediction == "no"):
+            print("Setting volume to 0")
+            volume.SetMasterVolumeLevel(-60.0, None)
+
+        elif (greatestPrediction == "yes"):
+            volume.SetMasterVolumeLevel(-33.0, None)
+            print("Setting volume to 10")
+
+#        elif (volChoice == 4):
+#            volume.SetMasterVolumeLevel(-23.4, None)
+#            print("Setting volume to 20")
+
+        elif (greatestPrediction == "stop"):
+            volume.SetMasterVolumeLevel(-17.8, None)
+            print("Setting volume to 30")
+
+#        elif (volChoice == 4):
+#            volume.SetMasterVolumeLevel(-13.6, None)
+#            print("Setting volume to 40")
+
+        elif (greatestPrediction == "down"):
+            volume.SetMasterVolumeLevel(-10.2, None)
+            print("Setting volume to 50")
+
+#        elif (volChoice == 6):
+#            volume.SetMasterVolumeLevel(-7.6, None)
+#            print("Setting volume to 60")
+
+        elif (greatestPrediction == "up"):
+            volume.SetMasterVolumeLevel(-5.3, None)
+            print("Setting volume to 70")
+
+        elif (greatestPrediction == "left"):
+            volume.SetMasterVolumeLevel(-3.4, None)
+            print("Setting volume to 80")
+
+        elif (greatestPrediction == "right"):
+            volume.SetMasterVolumeLevel(-1.6, None)
+            print("Setting volume to 90")
+
+        elif (greatestPrediction == "go"):
+            volume.SetMasterVolumeLevel(0, None)
+            print("Setting volume to 100")
+# end volume control loop 
+
+
+def sign_in():
+    driver = webdriver.Firefox()
+
+    #so the pages have time to load 
+    wait = WebDriverWait(driver, 30)
+
+    driver.get("https://outlook.live.com/owa/")
+    #time.sleep(3)
+    #ele = (driver.find_element(By.LINK_TEXT,"Sign in"))
+
+    #ele.click()
+        
+    #This is an alternative method
+    # Wait for the Sign in link to become available
+    ele = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "Sign in")))
+    ele.click()
+
+    # Wait for the email input field to become available
+    el1 = wait.until(EC.presence_of_element_located((By.NAME, "loginfmt")))
+
+
+    #email = driver.find_element(By.XPATH, "//form[input/@name='email']")
+    #email = driver.find_element(By.XPATH, "//form[@id='loginForm']/input[1]")
+    #email = driver.find_element(By.XPATH, "//input[@name='email']")
+    #time.sleep(2)
+    #el1 = ( driver.find_element(By.NAME, "loginfmt"))
+    user = "exampleUser@wit.edu"
+    el1.send_keys(user)
+
+    el1.send_keys(Keys.RETURN)
+    time.sleep(2)
+    #keyword = "geeksforgeeks"
+    el2 = wait.until(EC.presence_of_element_located((By.NAME, "passwd")))
+    passwerd = "examplePassword"
+    el2.send_keys(passwerd)
+    el2.send_keys(Keys.RETURN)
+    el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "button--link"))) 
+    el3.click()
+    time.sleep(2)
+    #el4 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "method-select-chevron"))) 
+    #el4.click()
+
+    elements = driver.find_elements(By.CLASS_NAME, "method-select-chevron")
+    #This for loop helped identify which element to click
+    #for e in elements:
+    #    print(e)
+    elements[3].click()
+    time.sleep(15)
+
+    el5 = wait.until(EC.presence_of_element_located((By.ID,"trust-browser-button")))
+    el5.click()
+
+    #Find the yes button
+    elements2 = wait.until(EC.presence_of_element_located((By.ID,"idSIButton9")))
+    elements2.click()
+
+    #The lines below are meant to start a new email but the id is incorrect - fix later
+    #el4 = wait.until(EC.presence_of_element_located((By.ID, "id__248")))
+    #el4.click()
