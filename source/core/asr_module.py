@@ -29,20 +29,35 @@ np.random.seed(seed)
 # Import the mini speech commands dataset
 DATASET_PATH = 'data/mini_speech_commands'      
 
-data_dir = pathlib.Path(DATASET_PATH)   # We create a directory to store the audio clips as (directory where project exists)/data/mini_speech_commands
-if not data_dir.exists():               # Only download the dataset if it doesn't already exist
-  tf.keras.utils.get_file(              # This dataset is offered by Google under a CC BY license
-      'mini_speech_commands.zip',
-      origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
-      extract=True,
-      cache_dir='.', cache_subdir='data')
-  
-# The audio clips are stored in 8 folders corresponding to each keyword
-# We can grab the labels from the folder names
-commands = np.array(tf.io.gfile.listdir(str(data_dir)))
-commands = commands[(commands != 'README.md') & (commands != '.DS_Store')]
+def pullKeywords(dataset_Path):
+  data_dir = pathlib.Path(dataset_Path)   # We create a directory to store the audio clips as (directory where project exists)/data/mini_speech_commands
+  if not data_dir.exists():               # Only download the dataset if it doesn't already exist
+    tf.keras.utils.get_file(              # This dataset is offered by Google under a CC BY license
+        'mini_speech_commands.zip',
+        origin="http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
+        extract=True,
+        cache_dir='.', cache_subdir='data')
+
+
+  # The audio clips are stored in 8 folders corresponding to each keyword
+  # We can grab the labels from the folder names
+  commands = np.array(tf.io.gfile.listdir(str(data_dir)))
+  commands = commands[(commands != 'README.md') & (commands != '.DS_Store')]
+  return commands
+
 print()
+commands = pullKeywords(DATASET_PATH)
 print('Commands:', commands)
+
+# Pull the first character from an array of strings and return character array
+# [yes, no, down] -> [y, n, d]
+def pullCharacters(arr_str):
+    wordCount = 0
+    arr_ch = []
+    for word in arr_str:
+        arr_ch[wordCount] = word[0]
+
+    return arr_ch
 
 ###
 # Now that we have our dataset, we split into a training dataset and a validation data set

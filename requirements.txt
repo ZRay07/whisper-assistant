@@ -10,3 +10,5 @@ IPython
 pydub
 sounddevice
 librosa
+selenium
+noisereduce

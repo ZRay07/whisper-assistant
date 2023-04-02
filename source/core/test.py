@@ -2,8 +2,8 @@
 # Text UI
 #####
 
-from command_module import commandExec
-from model_interface import *
+from source.core.command_module import commandExec
+from source.core.model_interface import *
 
 # Run until user chooses to exit
 exitCheck = 0

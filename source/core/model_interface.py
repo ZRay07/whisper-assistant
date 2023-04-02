@@ -6,16 +6,27 @@
 #####
 
 import time
+import pathlib
 import sounddevice as sd
 from scipy.io.wavfile import write
 from scipy.io import wavfile
 import tensorflow as tf
 import numpy as np
 import noisereduce as nr
+from source.core.asr_module import pullKeywords
+from source.core.asr_module import pullCharacters
 
-# Create an array of the keywords which the model can understand
-keywords = ['down','go', 'left', 'no', 'right', 'stop', 'up', 'yes']
-chKeywords = ['d', 'g',  'l',    'n',  'r',      's',   'u',  'y']
+# Create an array of the keywords which the model understands
+keywords = pullKeywords('data/mini_speech_commands')
+for word in keywords:
+    print()
+    print(keywords)
+
+# Create a character array of the first letter of the keywords
+ch_keywords = pullCharacters(keywords)
+for character in keywords:
+    print()
+    print(character)
 
 # Load the saved model
 sherpa_asr = tf.saved_model.load('saved')
@@ -86,3 +97,4 @@ def veri_n_ind(out):
             ans = chKeywords[i]
 
     return count, ans
+
