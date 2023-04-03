@@ -2,9 +2,9 @@
 **Speech -> Text -> Command**
 
 ## Installation
-Download the code and unzip it.
-Save the file directory.
-Open command prompt by typing 'cmd' in Windows search bar
+* Download the code and unzip it.  
+* Save the file directory.  
+* Open command prompt by typing 'cmd' in Windows search bar
 
 You're going to want to create a virtual environment.  
 This stores all of the required packages inside of a folder and keeps them seperate
