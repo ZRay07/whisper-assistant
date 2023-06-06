@@ -25,6 +25,7 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
 def commandExec(userChoice):    
+
     if (userChoice == "Open application" or "Open app"):        # if user says go, open application
         print("\n***Open Application***")
         openApplication()
