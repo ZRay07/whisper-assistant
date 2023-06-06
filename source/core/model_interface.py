@@ -13,6 +13,7 @@ from scipy.io import wavfile
 import tensorflow as tf
 import numpy as np
 import noisereduce as nr
+import soundfile as sf
 
 # Create an array of the keywords which the model understands
 keywords = ['down', 'go', 'left', 'no', 'right', 'stop', 'up', 'yes']
@@ -47,7 +48,7 @@ def Record():
     # myRecording becomes a numpy.ndarray – The recorded data.
     #####
 
-    myRecording = sd.rec(int(seconds * sampleRate), samplerate=sampleRate, channels=1, dtype = np.int16)
+    myRecording = sd.rec(int(seconds * sampleRate), samplerate=sampleRate, channels=1, dtype = np.float64)
     sd.wait()  # Wait until recording is finished
 
     #####
@@ -62,7 +63,6 @@ def Record():
     wavfile.write("data/output.wav", rate, reduced_noise)
 
     return None
-
 
 def use_model(audio_path):
     modelOutput = sherpa_asr(tf.constant(str(audio_path)))

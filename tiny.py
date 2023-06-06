@@ -3,7 +3,9 @@ from transformers import WhisperProcessor, WhisperForConditionalGeneration, Auto
 import numpy as np
 import soundfile as sf
 from datasets import load_dataset
-data, srate =sf.read("C:/Users/cohent1/Documents/Senior_yr/Senior_Design/using_model/Senior_Design-main/Senior_Design-main/data/mini_speech_commands/down/00b01445_nohash_1.wav")
+from source.core.model_interface import Record
+
+data, srate =sf.read("data/mini_speech_commands/down/00b01445_nohash_1.wav")
 def use_model(data):
     processor = AutoProcessor.from_pretrained("openai/whisper-tiny.en")
     model = AutoModelForSpeechSeq2Seq.from_pretrained("openai/whisper-tiny.en")
@@ -16,3 +18,10 @@ def use_model(data):
 
 best_guess = use_model(data)
 print(best_guess)
+
+Record()
+data, sr = sf.read("data/output.wav")
+
+result = use_model(data)
+print(result)
+
