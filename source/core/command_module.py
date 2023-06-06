@@ -25,34 +25,34 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
 def commandExec(userChoice):    
-    if (userChoice == "go"):        # if user says go, open application
+    if (userChoice == "Open application" or "Open app"):        # if user says go, open application
         print("\n***Open Application***")
         openApplication()
 
-    elif (userChoice == "no"):      # no -> close application
+    elif (userChoice == "Close application" or "Close app"):      # no -> close application
         print("\n***Close Application***")
         closeApplication()
 
-    elif (userChoice == "up"):      # up -> scroll up
+    elif (userChoice == "Scroll up"):      # up -> scroll up
         print("\n***Scroll Up***")
         pyautogui.scroll(10)
             
-    elif (userChoice == "down"):    # down -> scroll down
+    elif (userChoice == "Scroll down"):    # down -> scroll down
         print("\n***Scroll Down***")
         pyautogui.scroll(-10)
 
-    elif (userChoice == "right"):   # right -> set volume
+    elif (userChoice == "Set volume"):   # right -> set volume
         print("\n***Set Volume***")
         setVolume()           
 
     elif (userChoice == "yes"):     # yes -> select file
         print("\n***Select File***")
 
-    elif (userChoice == "left"):    # left -> email sign in
+    elif (userChoice == "Sign into email" or "email sign in" or "send an email"):    # left -> email sign in
         print("\n***Email sign-in***") 
         sign_in()       
 
-    elif (userChoice == "stop"):    # stop -> Exit
+    elif (userChoice == "Exit"):    # stop -> Exit
         print("***Exiting***")
 # We only have 8 keywords at the moment
 
@@ -251,14 +251,14 @@ def sign_in():
     #email = driver.find_element(By.XPATH, "//input[@name='email']")
     #time.sleep(2)
     #el1 = ( driver.find_element(By.NAME, "loginfmt"))
-    user = "exampleUser@wit.edu"
+    user = "sherpaemail361@gmail.com"
     el1.send_keys(user)
 
     el1.send_keys(Keys.RETURN)
     time.sleep(2)
     #keyword = "geeksforgeeks"
     el2 = wait.until(EC.presence_of_element_located((By.NAME, "passwd")))
-    passwerd = "examplePassword"
+    passwerd = "dummypassword"
     el2.send_keys(passwerd)
     el2.send_keys(Keys.RETURN)
     el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "button--link"))) 
