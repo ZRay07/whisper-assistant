@@ -26,203 +26,121 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 # the string should be the predicted output from the ASR module
 def commandExec(userChoice):    
 
-    if (userChoice == "Open application" or "Open app"):        # if user says go, open application
+    print("userChoice: " + userChoice)
+    print(type(userChoice))
+
+    if (userChoice == "Open application" or "Open app" or "Open application." or "Open app."):        # Open application
         print("\n***Open Application***")
         openApplication()
 
-    elif (userChoice == "Close application" or "Close app"):      # no -> close application
+    elif (userChoice == "Close application" or "close application" or "Close app" or "Close application." or "Close app."):      # Close application
         print("\n***Close Application***")
         closeApplication()
 
-    elif (userChoice == "Scroll up"):      # up -> scroll up
+    elif (userChoice == "Scroll up" or "Scroll up."):      # Scroll up
         print("\n***Scroll Up***")
         pyautogui.scroll(10)
             
-    elif (userChoice == "Scroll down"):    # down -> scroll down
+    elif (userChoice == "Scroll down" or "Scroll down."):    # Scroll down
         print("\n***Scroll Down***")
         pyautogui.scroll(-10)
 
-    elif (userChoice == "Set volume"):   # right -> set volume
+    elif (userChoice == "Set volume" or "Set volume."):   # Set volume
         print("\n***Set Volume***")
         setVolume()           
 
-    elif (userChoice == "yes"):     # yes -> select file
-        print("\n***Select File***")
+    elif (userChoice == "Navigate mouse and keyboard" or "Navigate mouse and keyboard."):
+        print("\n***Navigate mouse + keyboard***")
 
-    elif (userChoice == "Sign into email" or "email sign in" or "send an email"):    # left -> email sign in
+    elif (userChoice == "Sign into email." or "Email sign in." or "Send an email."):    # Email sign in
         print("\n***Email sign-in***") 
         sign_in()       
 
-    elif (userChoice == "Exit"):    # stop -> Exit
+    elif (userChoice == "Exit"):    # Exit
         print("***Exiting***")
-# We only have 8 keywords at the moment
 
-def checkReady():
-    rCheck = " "
-    print("\nAre you ready to record?")
-    rCheck = input("Enter yes when ready: ")
-
-    if (rCheck == "yes"):
-        rCheck = 1
     else:
-        rCheck = 0
+        print("Try again...")
 
-    return rCheck
 
 
 def openApplication():
-    print("\n***Open Application***")
     print("\nWhich application would you like to open?")
-    print("\t*yes - Word")
-    print("\t*go - Edge")
-    print("\t*stop - Spotify")
-    print("\t*down - Discord")
-    print("\t*up - ...")
-    print("\t*left - ...")
-    print("\t*right - ...")
-    print("\t*no - ...")
-        
-    rCheck = checkReady()
-    if (rCheck):
+    print("\t*Word")
+    print("\t*Edge")
+    print("\t*Spotify")
+    print("\t*Discord")
 
-        Record()
-        confidenceValues, greatestPrediction = use_model(audio_path)
-        
-        # Check with user to make sure we heard the correct command
-        predictionCheck = 0
-        predictionCheck = checkPredictionWithUser(greatestPrediction)
+    microphone.record()
+    prediction = whisper.use_model(RECORD_PATH)
 
-        if (predictionCheck == 0):
-            print()
-        elif (predictionCheck == 1):
-            print("Executing command.")
-        else:
-            print("Say either 'yes' or 'no'")
-
-    if (greatestPrediction == "yes"):
-        AppOpener.open("Word", match_closest=True)
-    elif (greatestPrediction == "go"):
-        AppOpener.open("Edge", match_closest=True)
-    elif (greatestPrediction == "stop"):
-        AppOpener.open("Spotify", match_closest=True)
-    elif (greatestPrediction == "down"):
-        AppOpener.open("Discord", match_closest=True)
-    elif (greatestPrediction == "up"):
-            print()
+    print("Opening " + prediction)
+    AppOpener.open(prediction)
 
 def closeApplication():
-    print("\n***Close Application***")
     print("\nWhich application would you like to close?")
-    print("\t*yes - Word")
-    print("\t*go - Edge")
-    print("\t*stop - Spotify")
-    print("\t*down - Discord")
-    print("\t*up - ...")
-    print("\t*left - ...")
-    print("\t*right - ...")
-    print("\t*no - ...")
-        
-    rCheck = checkReady()
-    if (rCheck):
+    print("\t*Word")
+    print("\t*Edge")
+    print("\t*Spotify")
+    print("\t*Discord")
 
-        Record()
-        confidenceValues, greatestPrediction = use_model(audio_path)
-        
-        # Check with user to make sure we heard the correct command
-        predictionCheck = 0
-        predictionCheck = checkPredictionWithUser(greatestPrediction)
+    microphone.record()
+    prediction = whisper.use_model(RECORD_PATH)
 
-        if (predictionCheck == 0):
-            print()
-        elif (predictionCheck == 1):
-            print("Executing command.")
-        else:
-            print("Say either 'yes' or 'no'")
-
-    if (greatestPrediction == "yes"):
-        AppOpener.close("Word", match_closest=True)
-    elif (greatestPrediction == "go"):
-        AppOpener.close("Edge", match_closest=True)
-    elif (greatestPrediction == "stop"):
-        AppOpener.close("Spotify", match_closest=True)
-    elif (greatestPrediction == "down"):
-        AppOpener.close("Discord", match_closest=True)
-    elif (greatestPrediction == "up"):
-            print()
+    print("Closing " + prediction)
+    AppOpener.close(prediction)
 
 
 def setVolume():
     print("\nWhat volume would you like to set to?")
-    print("\t*no - 0")
-    print("\t*yes - 10")
-    print("\t*stop - 30")
-    print("\t*down - 50")
-    print("\t*up - 70")
-    print("\t*left - 80")
-    print("\t*right - 80")
-    print("\t*go - 100")
+    print("*** MUST BE AN INCREMENT OF 10 ***")
 
-    rCheck = checkReady()
-    if (rCheck):
-            
-        Record()
+    microphone.record()
+    prediction = whisper.use_model(RECORD_PATH)
 
-        confidenceValues, greatestPrediction = use_model(audio_path)
-        
-        # Check with user to make sure we heard the correct command
-        predictionCheck = 0
-        predictionCheck = checkPredictionWithUser(greatestPrediction)
+    if (prediction == "0"):
+        print("Setting volume to 0")
+        volume.SetMasterVolumeLevel(-60.0, None)
 
-        if (predictionCheck == 0):
-            print()
-        elif (predictionCheck == 1):
-            print("Executing command.")
-        else:
-            print("Say either 'yes' or 'no'")
+    elif (prediction == "10"):
+        volume.SetMasterVolumeLevel(-33.0, None)
+        print("Setting volume to 10")
 
-        if (greatestPrediction == "0"):
-            print("Setting volume to 0")
-            volume.SetMasterVolumeLevel(-60.0, None)
+    elif (prediction == "20"):
+        volume.SetMasterVolumeLevel(-23.4, None)
+        print("Setting volume to 20")
 
-        elif (greatestPrediction == "10"):
-            volume.SetMasterVolumeLevel(-33.0, None)
-            print("Setting volume to 10")
+    elif (prediction == "30"):
+        volume.SetMasterVolumeLevel(-17.8, None)
+        print("Setting volume to 30")
 
-        elif (greatestPrediction == "20"):
-            volume.SetMasterVolumeLevel(-23.4, None)
-            print("Setting volume to 20")
+    elif (prediction == "40"):
+        volume.SetMasterVolumeLevel(-13.6, None)
+        print("Setting volume to 40")
 
-        elif (greatestPrediction == "30"):
-            volume.SetMasterVolumeLevel(-17.8, None)
-            print("Setting volume to 30")
+    elif (prediction == "50"):
+        volume.SetMasterVolumeLevel(-10.2, None)
+        print("Setting volume to 50")
 
-        elif (greatestPrediction == "40"):
-            volume.SetMasterVolumeLevel(-13.6, None)
-            print("Setting volume to 40")
+    elif (prediction == "60"):
+        volume.SetMasterVolumeLevel(-7.6, None)
+        print("Setting volume to 60")
 
-        elif (greatestPrediction == "50"):
-            volume.SetMasterVolumeLevel(-10.2, None)
-            print("Setting volume to 50")
+    elif (prediction == "70"):
+        volume.SetMasterVolumeLevel(-5.3, None)
+        print("Setting volume to 70")
 
-        elif (greatestPrediction == "60"):
-            volume.SetMasterVolumeLevel(-7.6, None)
-            print("Setting volume to 60")
+    elif (prediction == "80"):
+        volume.SetMasterVolumeLevel(-3.4, None)
+        print("Setting volume to 80")
 
-        elif (greatestPrediction == "70"):
-            volume.SetMasterVolumeLevel(-5.3, None)
-            print("Setting volume to 70")
+    elif (prediction == "90"):
+        volume.SetMasterVolumeLevel(-1.6, None)
+        print("Setting volume to 90")
 
-        elif (greatestPrediction == "80"):
-            volume.SetMasterVolumeLevel(-3.4, None)
-            print("Setting volume to 80")
-
-        elif (greatestPrediction == "90"):
-            volume.SetMasterVolumeLevel(-1.6, None)
-            print("Setting volume to 90")
-
-        elif (greatestPrediction == "100"):
-            volume.SetMasterVolumeLevel(0, None)
-            print("Setting volume to 100")
+    elif (prediction == "100"):
+        volume.SetMasterVolumeLevel(0, None)
+        print("Setting volume to 100")
 # end volume control loop 
 
 
@@ -285,3 +203,4 @@ def sign_in():
     #The lines below are meant to start a new email but the id is incorrect - fix later
     #el4 = wait.until(EC.presence_of_element_located((By.ID, "id__248")))
     #el4.click()
+

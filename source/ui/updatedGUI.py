@@ -40,24 +40,24 @@ class mainScreen:
         self.cmd_bar = Frame(self.left_frame, width = 315, height = 300, bg = "white")
         self.cmd_bar.grid(row = 2, column = 0)
 
-        self.go_button = Button(self.cmd_bar, text = "GO - Open Application", command = openApplication, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.no_button = Button(self.cmd_bar, text = "NO - Close Application", command = closeApplication, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.up_button = Button(self.cmd_bar, text = "UP - Scroll Up", command = pyautogui.scroll(10), activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.down_button = Button(self.cmd_bar, text = "DOWN - Scroll Down", command = pyautogui.scroll(-10), activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.right_button = Button(self.cmd_bar, text = "RIGHT - Set Volume", command = setVolume, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.yes_button = Button(self.cmd_bar, text = "YES - Navigate Mouse + Keyboard", command = mouseControl, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.left_button = Button(self.cmd_bar, text = "LEFT - Email sign-in", command = sign_in, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.stop_button = Button(self.cmd_bar, text = "STOP - Exit", command = self.root.quit, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = openApplication, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = closeApplication, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = pyautogui.scroll(10), activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = pyautogui.scroll(-10), activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", command = mouseControl, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = sign_in, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.exit_button = Button(self.cmd_bar, text = "Exit", command = self.root.quit, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
 
         # Place the buttons in the frame
-        self.go_button.grid(row = 0, column = 0, padx = 10, pady = 10)
-        self.no_button.grid(row = 1, column = 0, padx = 10, pady = 10)
-        self.up_button.grid(row = 2, column = 0, padx = 10, pady = 10)
-        self.down_button.grid(row = 3, column = 0, padx = 10, pady = 10)
-        self.right_button.grid(row = 4, column = 0, padx = 10, pady = 10)
-        self.yes_button.grid(row = 5, column = 0, padx = 10, pady = 10)
-        self.left_button.grid(row = 6, column = 0, padx = 10, pady = 10)
-        self.stop_button.grid(row = 7, column = 0, padx = 10, pady = 10)
+        self.openApp_button.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.closeApp_button.grid(row = 1, column = 0, padx = 10, pady = 10)
+        self.scrollUp_button.grid(row = 2, column = 0, padx = 10, pady = 10)
+        self.scrollDown_button.grid(row = 3, column = 0, padx = 10, pady = 10)
+        self.setVol_button.grid(row = 4, column = 0, padx = 10, pady = 10)
+        self.mouseControl_button.grid(row = 5, column = 0, padx = 10, pady = 10)
+        self.emailSignIn_button.grid(row = 6, column = 0, padx = 10, pady = 10)
+        self.exit_button.grid(row = 7, column = 0, padx = 10, pady = 10)
 
     def drawRightFrame(self):
         # Create right frame
@@ -75,16 +75,17 @@ class mainScreen:
         # Add record button
         # *** in the future -> activate record by speaking a keyword
         self.record_button = Button(self.right_frame, text = "When ready to record, say [keyword]", font = "Times 14",
-                                     bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = recordAndUseModel)
+                                     bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.recordAndUseModel)
         self.record_button.grid(row = 1, column = 0, padx = 10, pady = 10)
 
+    def recordAndUseModel(self):
+        microphone.record()
+        self.prediction = whisper.use_model(RECORD_PATH)
 
-def recordAndUseModel():
-    Record()
+        print("Prediction: " + self.prediction)
 
-    confidenceValues, greatestPrediction = use_model(audio_path)
+        commandExec(self.prediction)
 
-    commandExec(greatestPrediction)
 
 class mouseControl():
     def __init__(self):
