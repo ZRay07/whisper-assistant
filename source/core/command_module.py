@@ -180,47 +180,47 @@ def setVolume():
         else:
             print("Say either 'yes' or 'no'")
 
-        if (greatestPrediction == "no"):
+        if (greatestPrediction == "0"):
             print("Setting volume to 0")
             volume.SetMasterVolumeLevel(-60.0, None)
 
-        elif (greatestPrediction == "yes"):
+        elif (greatestPrediction == "10"):
             volume.SetMasterVolumeLevel(-33.0, None)
             print("Setting volume to 10")
 
-#        elif (volChoice == 4):
-#            volume.SetMasterVolumeLevel(-23.4, None)
-#            print("Setting volume to 20")
+        elif (greatestPrediction == "20"):
+            volume.SetMasterVolumeLevel(-23.4, None)
+            print("Setting volume to 20")
 
-        elif (greatestPrediction == "stop"):
+        elif (greatestPrediction == "30"):
             volume.SetMasterVolumeLevel(-17.8, None)
             print("Setting volume to 30")
 
-#        elif (volChoice == 4):
-#            volume.SetMasterVolumeLevel(-13.6, None)
-#            print("Setting volume to 40")
+        elif (greatestPrediction == "40"):
+            volume.SetMasterVolumeLevel(-13.6, None)
+            print("Setting volume to 40")
 
-        elif (greatestPrediction == "down"):
+        elif (greatestPrediction == "50"):
             volume.SetMasterVolumeLevel(-10.2, None)
             print("Setting volume to 50")
 
-#        elif (volChoice == 6):
-#            volume.SetMasterVolumeLevel(-7.6, None)
-#            print("Setting volume to 60")
+        elif (greatestPrediction == "60"):
+            volume.SetMasterVolumeLevel(-7.6, None)
+            print("Setting volume to 60")
 
-        elif (greatestPrediction == "up"):
+        elif (greatestPrediction == "70"):
             volume.SetMasterVolumeLevel(-5.3, None)
             print("Setting volume to 70")
 
-        elif (greatestPrediction == "left"):
+        elif (greatestPrediction == "80"):
             volume.SetMasterVolumeLevel(-3.4, None)
             print("Setting volume to 80")
 
-        elif (greatestPrediction == "right"):
+        elif (greatestPrediction == "90"):
             volume.SetMasterVolumeLevel(-1.6, None)
             print("Setting volume to 90")
 
-        elif (greatestPrediction == "go"):
+        elif (greatestPrediction == "100"):
             volume.SetMasterVolumeLevel(0, None)
             print("Setting volume to 100")
 # end volume control loop 

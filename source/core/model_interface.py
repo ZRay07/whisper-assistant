@@ -26,7 +26,7 @@ audio_path = "data/output.wav"
 
 # A function for recording a 1 second clip of audio
 def Record():
-    seconds = 1
+    seconds = 3
     sampleRate = 16000
     print('...Recording in 3\n')
     time.sleep(1)      
@@ -48,7 +48,7 @@ def Record():
     # myRecording becomes a numpy.ndarray – The recorded data.
     #####
 
-    myRecording = sd.rec(int(seconds * sampleRate), samplerate=sampleRate, channels=1, dtype = np.float64)
+    myRecording = sd.rec(int(seconds * sampleRate), samplerate=sampleRate, channels=1 )#, dtype = np.float64)
     sd.wait()  # Wait until recording is finished
 
     #####
@@ -56,11 +56,11 @@ def Record():
     #####
     write(audio_path, sampleRate, myRecording)
 
-    rate, data = wavfile.read("data/output.wav")
+    # rate, data = wavfile.read("data/output.wav")
 
     # perform noise reduction
-    reduced_noise = nr.reduce_noise(y=data, sr=rate)
-    wavfile.write("data/output.wav", rate, reduced_noise)
+#    reduced_noise = nr.reduce_noise(y=data, sr=rate)
+#    wavfile.write("data/output.wav", rate, reduced_noise)
 
     return None
 
