@@ -29,30 +29,30 @@ def commandExec(userChoice):
     print("userChoice: " + userChoice)
     print(type(userChoice))
 
-    if (userChoice == "Open application" or "Open app" or "Open application." or "Open app."):        # Open application
+    if (userChoice == "Open application." or userChoice == "open application" or userChoice == "Open app."):        # Open application
         print("\n***Open Application***")
         openApplication()
 
-    elif (userChoice == "Close application" or "close application" or "Close app" or "Close application." or "Close app."):      # Close application
+    elif (userChoice == "Close application." or userChoice == "close application" or userChoice == "Close app" or userChoice == "Close application." or userChoice == "Close app."):      # Close application
         print("\n***Close Application***")
         closeApplication()
 
-    elif (userChoice == "Scroll up" or "Scroll up."):      # Scroll up
+    elif (userChoice == "Scroll up" or userChoice == "Scroll up."):      # Scroll up
         print("\n***Scroll Up***")
         pyautogui.scroll(10)
             
-    elif (userChoice == "Scroll down" or "Scroll down."):    # Scroll down
+    elif (userChoice == "Scroll down" or userChoice == "Scroll down."):    # Scroll down
         print("\n***Scroll Down***")
         pyautogui.scroll(-10)
 
-    elif (userChoice == "Set volume" or "Set volume."):   # Set volume
+    elif (userChoice == "Set volume" or userChoice == "Set volume."):   # Set volume
         print("\n***Set Volume***")
         setVolume()           
 
-    elif (userChoice == "Navigate mouse and keyboard" or "Navigate mouse and keyboard."):
+    elif (userChoice == "Navigate mouse and keyboard" or userChoice == "Navigate mouse and keyboard."):
         print("\n***Navigate mouse + keyboard***")
 
-    elif (userChoice == "Sign into email." or "Email sign in." or "Send an email."):    # Email sign in
+    elif (userChoice == "Sign into email." or userChoice == "Email sign in." or userChoice == "Send an email."):    # Email sign in
         print("\n***Email sign-in***") 
         sign_in()       
 
@@ -92,55 +92,73 @@ def closeApplication():
 
 
 def setVolume():
-    print("\nWhat volume would you like to set to?")
-    print("*** MUST BE AN INCREMENT OF 10 ***")
+    userConfirmation = False
+    while (userConfirmation == False):
+        print("\nWhat volume would you like to set to?")
+        print("*** MUST BE AN INCREMENT OF 10 ***")
 
-    microphone.record()
-    prediction = whisper.use_model(RECORD_PATH)
+        microphone.record()
+        prediction = whisper.use_model(RECORD_PATH)
 
-    if (prediction == "0"):
-        print("Setting volume to 0")
-        volume.SetMasterVolumeLevel(-60.0, None)
+        if (prediction == "0" or prediction == "0." or prediction == "Zero" or prediction == "zero"):
+            volume.SetMasterVolumeLevel(-60.0, None)
+            print("Setting volume to 0")
+            userConfirmation = True
 
-    elif (prediction == "10"):
-        volume.SetMasterVolumeLevel(-33.0, None)
-        print("Setting volume to 10")
+        elif (prediction == "10" or prediction == "10."):
+            volume.SetMasterVolumeLevel(-33.0, None)
+            print("Setting volume to 10")
+            userConfirmation = True
 
-    elif (prediction == "20"):
-        volume.SetMasterVolumeLevel(-23.4, None)
-        print("Setting volume to 20")
+        elif (prediction == "20"):
+            volume.SetMasterVolumeLevel(-23.4, None)
+            print("Setting volume to 20")
+            userConfirmation = True
 
-    elif (prediction == "30"):
-        volume.SetMasterVolumeLevel(-17.8, None)
-        print("Setting volume to 30")
+        elif (prediction == "30"):
+            volume.SetMasterVolumeLevel(-17.8, None)
+            print("Setting volume to 30")
+            userConfirmation = True
 
-    elif (prediction == "40"):
-        volume.SetMasterVolumeLevel(-13.6, None)
-        print("Setting volume to 40")
+        elif (prediction == "40"):
+            volume.SetMasterVolumeLevel(-13.6, None)
+            print("Setting volume to 40")
+            userConfirmation = True
 
-    elif (prediction == "50"):
-        volume.SetMasterVolumeLevel(-10.2, None)
-        print("Setting volume to 50")
+        elif (prediction == "50"):
+            volume.SetMasterVolumeLevel(-10.2, None)
+            print("Setting volume to 50")
+            userConfirmation = True
 
-    elif (prediction == "60"):
-        volume.SetMasterVolumeLevel(-7.6, None)
-        print("Setting volume to 60")
+        elif (prediction == "60"):
+            volume.SetMasterVolumeLevel(-7.6, None)
+            print("Setting volume to 60")
+            userConfirmation = True
 
-    elif (prediction == "70"):
-        volume.SetMasterVolumeLevel(-5.3, None)
-        print("Setting volume to 70")
+        elif (prediction == "70"):
+            volume.SetMasterVolumeLevel(-5.3, None)
+            print("Setting volume to 70")
+            userConfirmation = True
 
-    elif (prediction == "80"):
-        volume.SetMasterVolumeLevel(-3.4, None)
-        print("Setting volume to 80")
+        elif (prediction == "80"):
+            volume.SetMasterVolumeLevel(-3.4, None)
+            print("Setting volume to 80")
+            userConfirmation = True
 
-    elif (prediction == "90"):
-        volume.SetMasterVolumeLevel(-1.6, None)
-        print("Setting volume to 90")
+        elif (prediction == "90"):
+            volume.SetMasterVolumeLevel(-1.6, None)
+            print("Setting volume to 90")
+            userConfirmation = True
 
-    elif (prediction == "100"):
-        volume.SetMasterVolumeLevel(0, None)
-        print("Setting volume to 100")
+        elif (prediction == "100"):
+            volume.SetMasterVolumeLevel(0, None)
+            print("Setting volume to 100")
+            userConfirmation = True
+
+        else:
+            print("We heard: " + prediction)
+            userConfirmation = False
+
 # end volume control loop 
 
 
