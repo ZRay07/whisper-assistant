@@ -195,7 +195,7 @@ def sign_in():
     time.sleep(2)
     #keyword = "geeksforgeeks"
     el2 = wait.until(EC.presence_of_element_located((By.NAME, "passwd")))
-    passwerd = "dummypassword"
+    passwerd = "Dummypassword"
     el2.send_keys(passwerd)
     el2.send_keys(Keys.RETURN)
     el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "button--link"))) 

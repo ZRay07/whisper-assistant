@@ -40,14 +40,14 @@ class mainScreen:
         self.cmd_bar = Frame(self.left_frame, width = 315, height = 300, bg = "white")
         self.cmd_bar.grid(row = 2, column = 0)
 
-        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = openApplication, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = closeApplication, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = pyautogui.scroll(10), activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = pyautogui.scroll(-10), activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", command = mouseControl, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = sign_in, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.exit_button = Button(self.cmd_bar, text = "Exit", command = self.root.quit, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = openApplication, bg = "grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = closeApplication, bg = "grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = pyautogui.scroll(10), bg = "grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = pyautogui.scroll(-10), bg = "grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, bg = "grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "grey", command = mouseControl, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = sign_in, bg = "grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.exit_button = Button(self.cmd_bar, text = "Exit", command = self.root.quit, bg = "grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
 
         # Place the buttons in the frame
         self.openApp_button.grid(row = 0, column = 0, padx = 10, pady = 10)
