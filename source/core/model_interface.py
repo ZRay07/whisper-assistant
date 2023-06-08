@@ -14,13 +14,12 @@ class Recorder:
 
     def __init__(self):
         self.recordFrequency = 16000
-        self.recordDuration = 5
 
-    def record(self):
+    def record(self, recordDuration):
         print("Listening...")
  
         # Start recorder with the given values
-        self.recording = sd.rec(int(self.recordDuration * self.recordFrequency),
+        self.recording = sd.rec(int(recordDuration * self.recordFrequency),
                                 samplerate = self.recordFrequency, channels = 1, dtype = np.float64)
  
         # Record audio for the given number of seconds
