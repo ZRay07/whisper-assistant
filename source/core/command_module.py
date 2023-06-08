@@ -41,11 +41,11 @@ def commandExec(userChoice):
 
     elif (userChoice == "Scroll up" or userChoice == "Scroll up."):      # Scroll up
         print("\n***Scroll Up***")
-        pyautogui.scroll(10)
+        pyautogui.scroll(100)
             
     elif (userChoice == "Scroll down" or userChoice == "Scroll down."):    # Scroll down
         print("\n***Scroll Down***")
-        pyautogui.scroll(-10)
+        pyautogui.scroll(-100)
 
     elif (userChoice == "Set volume" or userChoice == "Set volume."):   # Set volume
         print("\n***Set Volume***")
@@ -59,9 +59,12 @@ def commandExec(userChoice):
         print("\n***Email sign-in***") 
         sign_in()       
 
-    elif (userChoice == "Exit"):    # Exit
+    elif (userChoice == "Exit" or userChoice == "Exit."):    # Exit
         print("***Exiting***")
 
+    elif (userChoice == "Google search" or userChoice == "google search" or userChoice == "Google search." or userChoice == "google search."  ):
+        print("\nSearching now...\n")
+        google_search()
     else:
         print("Try again...")
 
@@ -163,6 +166,23 @@ def setVolume():
             userConfirmation = False
 
 # end volume control loop 
+
+def google_search():
+    microphone.record(10)
+    prediction = whisper.use_model(RECORD_PATH)
+    driver = webdriver.Firefox()
+
+    #so the pages have time to load 
+    wait = WebDriverWait(driver, 30)
+    #Go to google
+    driver.get("https://www.google.com/")
+    
+    #Find the search bar and enter what the user wants to search
+    ele = wait.until(EC.element_to_be_clickable((By.ID, "APjFqb")))
+    ele.send_keys(prediction)
+    ele.send_keys(Keys.RETURN)
+    time.sleep(2)
+    #ele.click()
 
 
 def sign_in():

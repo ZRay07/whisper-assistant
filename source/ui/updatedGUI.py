@@ -13,7 +13,7 @@ class mainScreen:
         self.root.config(bg = "skyblue")     # set the background color
 
         # Set the starting size of the window and its location
-        self.root.geometry("1100x620+480+200")
+        self.root.geometry("1100x700+480+200")
 
         self.drawRightFrame()
         self.drawLeftFrame()
