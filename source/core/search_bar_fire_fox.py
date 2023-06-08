@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time 
+from tkinter import*
 #from model_interface import*
 #This function is meant to conduct a google search
 
@@ -25,4 +26,11 @@ def google_search():
     time.sleep(2)
     #ele.click()
 
-google_search()
+#google_search()
+
+def act_sub_level():
+        sub = Toplevel()
+        sub.title("Sub Window for web navigation")
+        sub.minsize(200,200)
+        sub.config(bg = "Skyblue")
+        sub.geometry("1100x700+480+200")
