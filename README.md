@@ -43,7 +43,8 @@ Now that you have your virtual environment activated, install the required packa
 ```
 pip install -r requirements.txt
 ```
-You should be able to run the program now.
+You should be able to run the program now
+
 
 ## Tutorial / User Manual
 * Navigate to the dir where the project exists
@@ -54,7 +55,7 @@ python -m source.ui.ui
 
 You should see this window, built with Tkinter.
 
-![alt text](https://github.com/TationtoC/Senior_Design/blob/test_branch/readME/sherpaMainWindow.PNG "SHERPA Main Window")
+![Image](/Senior_Design/sherpaMainWindow.png "SHERPA Main Window")
 
 * In the left frame, you will see there is a list of commands.
     1. Open / Close Application

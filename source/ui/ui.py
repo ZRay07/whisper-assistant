@@ -26,7 +26,7 @@ class mainScreen:
         self.left_frame.grid(row = 0, column = 0, padx = 10, pady = 10)       # Places the frame onto the window
 
         # Adding image to the left hand frame
-        self.mountainImage = PhotoImage(file = "mountain3.gif")
+        self.mountainImage = PhotoImage(file = "source/ui/images/mountain3.gif")
         self.small_image = self.mountainImage.subsample(3 , 3)
         Label(self.left_frame, image = self.small_image).grid(row = 0, column = 0, padx = 10, pady = 10)
 
