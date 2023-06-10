@@ -54,7 +54,7 @@ python -m source.ui.ui
 
 You should see this window, built with Tkinter.
 
-![alt text](readME/sherpaMainWindow.png "SHERPA Main Window")
+![alt text](SherpaMainWindow.png "SHERPA Main Window")
 
 * In the left frame, you will see there is a list of commands.
     1. Open / Close Application
