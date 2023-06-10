@@ -26,7 +26,7 @@ class mainScreen:
         self.left_frame.grid(row = 0, column = 0, padx = 10, pady = 10)       # Places the frame onto the window
 
         # Adding image to the left hand frame
-        self.mountainImage = PhotoImage(file = "mountain3.gif")
+        self.mountainImage = PhotoImage(file = "source/ui/images/mountain3.gif")
         self.small_image = self.mountainImage.subsample(3 , 3)
         Label(self.left_frame, image = self.small_image).grid(row = 0, column = 0, padx = 10, pady = 10)
 
@@ -93,11 +93,27 @@ class mainScreen:
         self.recordDurationLabel.set("Record Duration")
 
         self.recordDuration_label = Label(self.right_frame, height = 1, width = 30, bg = "light cyan", relief = "solid", textvariable = self.recordDurationLabel, wraplength = 200)
-        self.recordDuration_label.grid(row = 2, column = 1, padx = 10, pady = 10)
+        self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
+
+        # Add area to show predicted command
+        self.prediction_bar = Frame(self.right_frame, width = 375, height = 100,
+                                     bg = "light grey", borderwidth = 2, relief = "solid")
+        self.prediction_bar.grid(row = 3, column = 0, columnspan = 1, padx = 10, pady = 10)
+
+        self.weHeard_label = Label(self.prediction_bar, height = 1, width = 10, text = "We heard: ", bg = "light grey")
+        self.weHeard_label.grid(row = 0, column = 0, padx = 10, pady = 10)
+
+        self.predictionLabel = StringVar()
+        self.predictionLabel.set("Predicted commands will appear here.")
+
+        self.prediction_label = Label(self.prediction_bar, height = 1, width = 30, bg = "light grey", textvariable = self.predictionLabel, wraplength = 250)
+        self.prediction_label.grid(row = 0, column = 1, padx = 10, pady = 10)
+
 
     def recordAndUseModel(self):
         microphone.record(3)
         self.prediction = whisper.use_model(RECORD_PATH)
+        self.predictionLabel.set(self.prediction)
 
         print("Prediction: " + self.prediction)
 
