@@ -5,3 +5,11 @@ soundfile
 Pathlib
 transformers
 datasets
+torch
+selenium
+AppOpener
+pyautogui
+pycaw
+sounddevice
+wavio
+keyboard

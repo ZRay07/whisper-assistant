@@ -1,71 +1,139 @@
-from tkinter import * # Import Library
-from tkinter import ttk # Import Other Parts of Library
+from tkinter import *
+from source.core.command_module import *
+from source.core.model_interface import *
+import keyboard
 
-# **Change buttons to labels to avoid inputting clicks with mouse** 
+# The first screen to be displayed to users
+class mainScreen:
+    def __init__(self):
+        # Create root window
+        self.root = Tk()
+        self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
+        self.root.minsize(200, 200)          # set a min size of 200 x 200 pixels
+        self.root.config(bg = "skyblue")     # set the background color
 
-# Define New Confirmation Window
-def openConfirmationWindow():
-    newWindow = Toplevel(screen) # Record Window Will Open on Top of Previous 
-    newWindow.title("Confirmation") # Titles New Window
-    newWindow.geometry("1920x1080") # Set Window Size
-    message = Label(newWindow, text = "Program detected the following command:", font=('Times 20')) # Create Label
-    message.place(relx = 0.5, rely = 0.25, anchor = N) # Places Label
-    #place detected word here
-    yesno = Label(newWindow, text = "Is this the outcome you requested?\n Say 'Yes' or 'No'", font=('Times 20')) # Create Label
-    yesno.place(relx = 0.5, rely = 0.50, anchor = N) # Places Label
-    yes = Button(newWindow, text = "Yes", command=lambda: [Yes(),newWindow.destroy()], font=('Times 14'), width=50, height=5, bg="green", compound=LEFT, relief=RAISED)
-    yes.place(relx = 0.25, rely = 0.75, anchor = S) # Places Speak Button
-    no = Button(newWindow, text = "No",command=lambda: [No(), newWindow.destroy()], font=('Times 14'), width=50, height=5, bg="red", compound=LEFT, relief=RAISED)
-    no.place(relx = 0.75, rely = 0.75, anchor = S)
-    
-def countdown(count):
-    # change text in label        
-    label['text'] = count
-    if count > 0:
-        # call countdown again after 1000ms (1s)
-        screen.after(1000, countdown, count-1)
+        # Set the starting size of the window and its location
+        self.root.geometry("1100x700+480+200")
 
-# Define Recording Function
-def Record():
-    #Start recording audio and runs through ASR, finds appropriate command
-    print("User says command")
-    openConfirmationWindow()
-    
-# Define Yes Function
-def Yes():
-    print("Executes program")
-    ToggleLoop()
-    
-# Define No Function
-def No():
-    print("Loops back to recording section")
-    ToggleLoop()
-    
-# Define Toggle Function
-def ToggleRecord():
-    speak_label.destroy()
-    toggle = Button(screen, text = "Recording", font=('Times 14'), width=50, height=5, bg="yellow", compound=LEFT, relief=RAISED) # Create Start Button
-    toggle.place(relx = 0.5, rely = 0.65, anchor = S) # Place Toggle Button
+        self.drawRightFrame()
+        self.drawLeftFrame()
+        self.root = mainloop()
 
-# Define Other Toggle Function
-def ToggleLoop():
-    speak_label = Button(screen, text = "To Begin Recording Say 'Yes'.", command=lambda: [Record(), ToggleRecord()], font=('Times 14'), width=50, height=5, bg="green", compound = LEFT, relief=RAISED) # Create Start Button
-    speak_label.place(relx = 0.5, rely = 0.65, anchor = S) # Places Speak Button
-        
-# Creates Main Screen/window with Initial Buttons
-screen = Tk()
-screen.geometry("1920x1080") # Sets Window Size
-screen.title("S.H.E.R.P.A (Super Helpful Enginer Recognizing People's Audio)") #Title of Window
-screen.resizable(True, True) # Enable Resizeablity 
-begin = Label(screen, text = "Recording will begin in", font=('Times 20'))
-begin.place(relx=0.5, rely=0.375, anchor = S)
-label = Label(screen, font=('Times 20'))
-label.place(relx = 0.5, rely = 0.4)   
-countdown(5)
-welcome = Label(screen, text = "Welcome To S.H.E.R.P.A!", font=('Times 20')) # Creates Welcome Label
-welcome.place(relx = 0.5, rely = 0.25, anchor = S) # Place Welcome Label at Set Location
-quit_label = Button(screen, text = "To Quit Program Say 'No'.", command=screen.destroy, font=('Times 14'), width=50, height=5, bg="red", relief=RAISED) # Create Quit Button
-quit_label.place(relx = 0.5, rely = 0.75, anchor = N) # Places Quit Button
-speak_label = Button(screen, text = "To Begin Recording Say 'Yes'.", command=lambda: [Record(), ToggleRecord()], font=('Times 14'), width=50, height=5, bg="green", compound = LEFT, relief=RAISED) # Create Start Button
-speak_label.place(relx = 0.5, rely = 0.65, anchor = S) # Places Speak Button
-screen.mainloop() # Loops Code
+    def drawLeftFrame(self):
+        # Create left frame
+        self.left_frame = Frame(self.root, width = 315, height = 530,
+                                 bg = "white", borderwidth = 2, relief = "raised")
+        self.left_frame.grid(row = 0, column = 0, padx = 10, pady = 10)       # Places the frame onto the window
+
+        # Adding image to the left hand frame
+        self.mountainImage = PhotoImage(file = "source/ui/images/mountain3.gif")
+        self.small_image = self.mountainImage.subsample(3 , 3)
+        Label(self.left_frame, image = self.small_image).grid(row = 0, column = 0, padx = 10, pady = 10)
+
+        # Label the left hand frame
+        self.cmd_label = Label(self.left_frame, text = "Speech Commands", font = "times 18", bg = "white")
+        self.cmd_label.grid(row = 1, column = 0, padx = 10, pady = 10)
+
+        # Add speech commands below label
+        # Use buttons so we can use the GUI
+        self.cmd_bar = Frame(self.left_frame, width = 315, height = 300, bg = "white")
+        self.cmd_bar.grid(row = 2, column = 0)
+
+        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = openApplication, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = closeApplication, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = pyautogui.scroll(10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = pyautogui.scroll(-10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "light grey", command = mouseControl, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = sign_in, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.exit_button = Button(self.cmd_bar, text = "Exit", command = self.root.quit, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+
+        # Place the buttons in the frame
+        self.openApp_button.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.closeApp_button.grid(row = 1, column = 0, padx = 10, pady = 10)
+        self.scrollUp_button.grid(row = 2, column = 0, padx = 10, pady = 10)
+        self.scrollDown_button.grid(row = 3, column = 0, padx = 10, pady = 10)
+        self.setVol_button.grid(row = 4, column = 0, padx = 10, pady = 10)
+        self.mouseControl_button.grid(row = 5, column = 0, padx = 10, pady = 10)
+        self.emailSignIn_button.grid(row = 6, column = 0, padx = 10, pady = 10)
+        self.exit_button.grid(row = 7, column = 0, padx = 10, pady = 10)
+
+    def drawRightFrame(self):
+        # Create right frame
+        self.right_frame = Frame(self.root, width = 750, height = 530,
+                                 bg = "white", borderwidth = 2, relief = "raised")
+        self.right_frame.grid(row = 0, column = 1, padx = 10, pady = 10)
+
+        # Ensure the frame does not shrink to fit widget size
+        self.right_frame.grid_propagate(False)
+
+        # Label the right frame
+        self.sherpa_label = Label(self.right_frame, text = "Welcome to S.H.E.R.P.A.", font = "Times 20", bg = "white")
+        self.sherpa_label.grid(row = 0, column = 0, padx = 10, pady = 10)
+
+        # Add record button
+        # *** in the future -> activate record by speaking a keyword
+        self.record_button = Button(self.right_frame, text = "When ready to record, say [keyword]", font = "Times 14",
+                                     bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.recordAndUseModel)
+        self.record_button.grid(row = 1, column = 0, padx = 10, pady = 10)
+
+        self.transcribedLabel = StringVar()
+        self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
+
+        # Add a transcription box
+        self.transcription_label = Label(self.right_frame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.transcribedLabel, wraplength = 200)
+        self.transcription_label.grid(row = 0, column = 1, padx = 10, pady = 10)
+
+        # Add a transcribe button
+        self.transcribe_button = Button(self.right_frame, text = "Transcribe", font = "Times 14",
+                                     bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.transcribeSpeech)
+        self.transcribe_button.grid(row = 1, column = 1, padx = 10, pady = 5)
+
+        self.recordDurationLabel = StringVar()
+        self.recordDurationLabel.set("Record Duration")
+
+        self.recordDuration_label = Label(self.right_frame, height = 1, width = 30, bg = "light cyan", relief = "solid", textvariable = self.recordDurationLabel, wraplength = 200)
+        self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
+
+        # Add area to show predicted command
+        self.prediction_bar = Frame(self.right_frame, width = 375, height = 100,
+                                     bg = "light grey", borderwidth = 2, relief = "solid")
+        self.prediction_bar.grid(row = 3, column = 0, columnspan = 1, padx = 10, pady = 10)
+
+        self.weHeard_label = Label(self.prediction_bar, height = 1, width = 10, text = "We heard: ", bg = "light grey")
+        self.weHeard_label.grid(row = 0, column = 0, padx = 10, pady = 10)
+
+        self.predictionLabel = StringVar()
+        self.predictionLabel.set("Predicted commands will appear here.")
+
+        self.prediction_label = Label(self.prediction_bar, height = 1, width = 30, bg = "light grey", textvariable = self.predictionLabel, wraplength = 250)
+        self.prediction_label.grid(row = 0, column = 1, padx = 10, pady = 10)
+
+
+    def recordAndUseModel(self):
+        microphone.record(3)
+        self.prediction = whisper.use_model(RECORD_PATH)
+        self.predictionLabel.set(self.prediction)
+
+        print("Prediction: " + self.prediction)
+
+        commandExec(self.prediction)
+
+    def transcribeSpeech(self):
+        # TO-DO: Figure out a way to ask how long the user would like to record for
+
+        #self.recordDurationLabel.set("How long would you like to record for? (in seconds)")
+
+        #microphone.record(3)
+        #self.prediction = whisper.use_model(RECORD_PATH)
+        #self.recordDurationLabel.set(self.prediction)
+
+        microphone.record(15)   #int(self.prediction))
+        self.prediction = whisper.use_model(RECORD_PATH)
+
+        self.transcribedLabel.set(self.prediction)
+         
+
+if __name__ == '__main__':
+    mainScreen()
+
