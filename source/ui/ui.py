@@ -96,18 +96,18 @@ class mainScreen:
         self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
 
         # Add area to show predicted command
-        self.prediction_bar = Frame(self.right_frame, width = 375, height = 100,
+        self.prediction_bar = Frame(self.right_frame, width = 375, height = 500,
                                      bg = "light grey", borderwidth = 2, relief = "solid")
-        self.prediction_bar.grid(row = 3, column = 0, columnspan = 1, padx = 10, pady = 10)
+        self.prediction_bar.grid(row = 3, column = 0, columnspan = 1, padx = 5, pady = 5)
 
         self.weHeard_label = Label(self.prediction_bar, height = 1, width = 10, text = "We heard: ", bg = "light grey")
-        self.weHeard_label.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.weHeard_label.grid(row = 0, column = 0, padx = 5, pady = 10)
 
         self.predictionLabel = StringVar()
         self.predictionLabel.set("Predicted commands will appear here.")
 
-        self.prediction_label = Label(self.prediction_bar, height = 1, width = 30, bg = "light grey", textvariable = self.predictionLabel, wraplength = 250)
-        self.prediction_label.grid(row = 0, column = 1, padx = 10, pady = 10)
+        self.prediction_label = Label(self.prediction_bar, height = 1, width = 40, bg = "light grey", textvariable = self.predictionLabel, wraplength = 500)
+        self.prediction_label.grid(row = 0, column = 1, padx = 1, pady = 10)
 
 
     def recordAndUseModel(self):
