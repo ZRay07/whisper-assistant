@@ -55,7 +55,7 @@ def commandExec(userChoice):
         print("\n***Navigate mouse + keyboard***")
         mouseControl()
 
-    elif (userChoice == "Sign into email." or userChoice == "Email sign in." or userChoice == "Send an email."):    # Email sign in
+    elif (userChoice == "Sign into email." or userChoice == "Email sign in." or userChoice == "Send an email." or userChoice == "Email Sign In" or userChoice == "Email sign it" or userChoice == "Email Sign In."):    # Email sign in
         print("\n***Email sign-in***") 
         sign_in()       
 
