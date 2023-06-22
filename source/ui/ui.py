@@ -146,10 +146,10 @@ class mainScreen:
         self.transcribedLabel.set("")
         self.transcribedLabel.set(string)
     #These were needed for threading
-    #def rec_3sec(self):
-    #    microphone.record(3)
-    #    self.pred_name = whisper.use_model(RECORD_PATH)
-    #    return self.pred_name
+    def rec_3sec(self):
+        microphone.record(3)
+        self.pred_word = whisper.use_model(RECORD_PATH)
+        return self.pred_word
     
     def format_email(self, string):
         punc_list = '''!()-[]{};*:'"\,<>./?_~'''
@@ -187,7 +187,7 @@ class mainScreen:
             #if correct - > 
             if if_yes == "Yes" or "Yes." or "yes" or "yes.": 
                 
-            #prompt user for email -> if correct write to a .txt
+            #prompt user for email -> 
                 self.transcribedLabel.set("")
                 self.transcribedLabel.set("What is your email?")
                 #This should update the screen
@@ -203,21 +203,59 @@ class mainScreen:
                 self.root.update_idletasks()
                 self.root.update()
                 time.sleep(2)
+                #Verify
+                if_yes = " "
                 microphone.record(3)
                 if_yes = whisper.use_model(RECORD_PATH)
+                
                 if if_yes == "Yes" or "Yes." or "yes" or "yes.":    
-                    self.account = {
-                        "name" : self.pred_name ,
-                        "email" : self.pred_email ,
-                        "domain": self.domain
-                       # "password" : 
-                        }
-                    with open("source/my_account.txt", "w") as f:
-                        f.write(self.account.get("name") + " " + self.account.get("email"))
-            else:
-                self.setlabel("Please try again")
-                self.root.update_idletasks()
-                self.root.update()
+                    self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
+                    #This should update the screen
+                    self.root.update_idletasks()
+                    self.root.update()
+                    self.domain = self.rec_3sec()
+                    self.setlabel("I heard: " + self.domain + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
+                    #This should update the screen
+                    self.root.update_idletasks()
+                    self.root.update()
+                    time.sleep(2)
+                    #Verify
+                    if_yes = " "
+                    microphone.record(3)
+                    if_yes = whisper.use_model(RECORD_PATH)
+                    #Add a password if you like
+                    if  if_yes == "Yes" or "Yes." or "yes" or "yes.":
+                        self.setlabel("Would you like to add a password? Yes or No.")
+                        self.root.update_idletasks()
+                        self.root.update()
+                        if_yes = " "
+                        if_yes = self.rec_3sec()
+                        if if_yes == "Yes" or "Yes." or "yes" or "yes.": 
+                            self.setlabel("What would you like your password to be?")
+                            self.root.update_idletasks()
+                            self.root.update()
+                            time.sleep(1)
+                            self.password = self.rec_3sec()
+                            self.setlabel("I heard: " + self.password + "\n Is this correct?\nSay 'Yes', or anything else.\n")
+                    #This should update the screen
+                            self.root.update_idletasks()
+                            self.root.update()
+                            time.sleep(2)
+                            if_yes = " "
+                            if_yes = self.rec_3sec()
+                    if if_yes == "Yes" or "Yes." or "yes" or "yes.":    
+                            self.account = {
+                                "name" : self.pred_name ,
+                                "email" : self.pred_email ,
+                                "domain": self.domain , 
+                                "password" : self.password 
+                                }
+                            with open("source/my_account.txt", "w") as f:
+                                f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain"))
+                else:
+                    self.setlabel("Please try again")
+                    self.root.update_idletasks()
+                    self.root.update()
             
 
             
