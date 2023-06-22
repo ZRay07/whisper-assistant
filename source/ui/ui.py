@@ -2,7 +2,7 @@ from tkinter import *
 from source.core.command_module import *
 from source.core.model_interface import *
 import keyboard
-
+import threading
 # The first screen to be displayed to users
 class mainScreen:
     def __init__(self):
@@ -47,7 +47,7 @@ class mainScreen:
         self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "light grey", command = mouseControl, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = sign_in, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.exit_button = Button(self.cmd_bar, text = "Exit", command = self.root.quit, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-
+        
         # Place the buttons in the frame
         self.openApp_button.grid(row = 0, column = 0, padx = 10, pady = 10)
         self.closeApp_button.grid(row = 1, column = 0, padx = 10, pady = 10)
@@ -76,7 +76,9 @@ class mainScreen:
         self.record_button = Button(self.right_frame, text = "When ready to record, say [keyword]", font = "Times 14",
                                      bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.recordAndUseModel)
         self.record_button.grid(row = 1, column = 0, padx = 10, pady = 10)
-
+        self.create_account_butt = Button(self.right_frame, text = "Create Account", command = self.create_account, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.create_account_butt.grid(row = 4, column = 0, padx = 10, pady = 10 )
+       
         self.transcribedLabel = StringVar()
         self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
 
@@ -89,11 +91,11 @@ class mainScreen:
                                      bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.transcribeSpeech)
         self.transcribe_button.grid(row = 1, column = 1, padx = 10, pady = 5)
 
-        self.recordDurationLabel = StringVar()
-        self.recordDurationLabel.set("Record Duration")
+       # self.recordDurationLabel = StringVar()
+        #self.recordDurationLabel.set("Record Duration")
 
-        self.recordDuration_label = Label(self.right_frame, height = 1, width = 30, bg = "light cyan", relief = "solid", textvariable = self.recordDurationLabel, wraplength = 200)
-        self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
+       # self.recordDuration_label = Label(self.right_frame, height = 1, width = 30, bg = "light cyan", relief = "solid", textvariable = self.recordDurationLabel, wraplength = 200)
+       # self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
 
         # Add area to show predicted command
         self.prediction_bar = Frame(self.right_frame, width = 375, height = 500,
@@ -101,13 +103,20 @@ class mainScreen:
         self.prediction_bar.grid(row = 3, column = 0, columnspan = 1, padx = 5, pady = 5)
 
         self.weHeard_label = Label(self.prediction_bar, height = 1, width = 10, text = "We heard: ", bg = "light grey")
-        self.weHeard_label.grid(row = 0, column = 0, padx = 5, pady = 10)
+        self.weHeard_label.grid(row = 0, column = 0, padx = 0, pady = 10)
 
         self.predictionLabel = StringVar()
         self.predictionLabel.set("Predicted commands will appear here.")
 
         self.prediction_label = Label(self.prediction_bar, height = 1, width = 40, bg = "light grey", textvariable = self.predictionLabel, wraplength = 500)
-        self.prediction_label.grid(row = 0, column = 1, padx = 1, pady = 10)
+        self.prediction_label.grid(row = 0, column = 1, padx = 0, pady = 10)
+
+        #This is the create account button
+       # self.create_account_bar = Frame(self.right_frame, width = 375, height = 250
+                                  #      bg = "light grey", borderwidth = 2, relief = "solid")
+      #  self.create_account_bar.grid(row = 4, column = 0, columnspan = 1, padx = 0, pady = 0 )
+      #  self.create_account_label = Label(self.create_account_bar, height = 1, width = 40, bg = "light grey", textvariable = self.create_account_label, wraplength = 500)
+      #  self.create_account_label.grid(row = 0, column = 1, padx = 0, pady = 10)
 
 
     def recordAndUseModel(self):
@@ -116,7 +125,7 @@ class mainScreen:
         self.predictionLabel.set(self.prediction)
 
         print("Prediction: " + self.prediction)
-
+        #A wait func might allow the above line to complete first
         commandExec(self.prediction)
 
     def transcribeSpeech(self):
@@ -132,7 +141,89 @@ class mainScreen:
         self.prediction = whisper.use_model(RECORD_PATH)
 
         self.transcribedLabel.set(self.prediction)
-         
+    #These were needed for threading
+    def setlabel(self, string):
+        self.transcribedLabel.set("")
+        self.transcribedLabel.set(string)
+    #These were needed for threading
+    #def rec_3sec(self):
+    #    microphone.record(3)
+    #    self.pred_name = whisper.use_model(RECORD_PATH)
+    #    return self.pred_name
+    
+    def format_email(self, string):
+        punc_list = '''!()-[]{};*:'"\,<>./?_~'''
+        for i in string:
+            if i in punc_list:
+                string = string.replace(i,"")
+        
+        string = string.replace(" ", "")
+        print(string)
+
+    def create_account(self):
+           #THIS IS THE OLD METHOD
+           #Prompt user to give a name
+            self.transcribedLabel.set("")
+            self.transcribedLabel.set("Please give me your name.")
+            self.setlabel("please give me your name.\n")
+            #This should update the screen
+            self.root.update_idletasks()
+            self.root.update()
+            microphone.record(3)
+            self.pred_name = whisper.use_model(RECORD_PATH)
+            #display the name
+            #THIS IS WITH THREADING
+            #t_label1 = threading.thread(target = self.setlabel, args = "please give me your name.\n")
+            
+            #t_record = threading.thread(target = self.rec_3sec)
+            self.transcribedLabel.set("")
+            self.transcribedLabel.set("I heard " + self.pred_name + "Is this correct?\nSay 'Yes', 'Exit', or anything else.")
+            #This should update the screen
+            self.root.update_idletasks()
+            self.root.update()
+            time.sleep(2)
+            microphone.record(3)
+            if_yes = whisper.use_model(RECORD_PATH)
+            #if correct - > 
+            if if_yes == "Yes" or "Yes." or "yes" or "yes.": 
+                
+            #prompt user for email -> if correct write to a .txt
+                self.transcribedLabel.set("")
+                self.transcribedLabel.set("What is your email?")
+                #This should update the screen
+                self.root.update_idletasks()
+                self.root.update()
+                microphone.record(4)
+                self.pred_email = whisper.use_model(RECORD_PATH)
+                  #This removes spaces and punctuation from the email
+                self.pred_email = self.format_email(self.pred_email)
+                self.transcribedLabel.set("")
+                self.transcribedLabel.set("I heard: " + self.pred_email + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
+                #This should update the screen
+                self.root.update_idletasks()
+                self.root.update()
+                time.sleep(2)
+                microphone.record(3)
+                if_yes = whisper.use_model(RECORD_PATH)
+                if if_yes == "Yes" or "Yes." or "yes" or "yes.":    
+                    self.account = {
+                        "name" : self.pred_name ,
+                        "email" : self.pred_email ,
+                        "domain": self.domain
+                       # "password" : 
+                        }
+                    with open("source/my_account.txt", "w") as f:
+                        f.write(self.account.get("name") + " " + self.account.get("email"))
+            else:
+                self.setlabel("Please try again")
+                self.root.update_idletasks()
+                self.root.update()
+            
+
+            
+        #This one should overwrite any previous data
+
+
 
 if __name__ == '__main__':
     mainScreen()
