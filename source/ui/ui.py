@@ -78,6 +78,10 @@ class mainScreen:
         self.record_button.grid(row = 1, column = 0, padx = 10, pady = 10)
         self.create_account_butt = Button(self.right_frame, text = "Create Account", command = self.create_account, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.create_account_butt.grid(row = 4, column = 0, padx = 10, pady = 10 )
+
+        self.Add_contact_butt = Button(self.right_frame, text = "Add Contact", command = self.add_contact, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.Add_contact_butt.grid(row = 5, column = 0, padx = 10, pady = 10 )
+       
        
         self.transcribedLabel = StringVar()
         self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
@@ -118,7 +122,10 @@ class mainScreen:
       #  self.create_account_label = Label(self.create_account_bar, height = 1, width = 40, bg = "light grey", textvariable = self.create_account_label, wraplength = 500)
       #  self.create_account_label.grid(row = 0, column = 1, padx = 0, pady = 10)
 
-
+    def update_screen(self):
+         self.root.update_idletasks()
+         self.root.update()
+    
     def recordAndUseModel(self):
         microphone.record(3)
         self.prediction = whisper.use_model(RECORD_PATH)
@@ -158,7 +165,61 @@ class mainScreen:
                 string = string.replace(i,"")
         
         string = string.replace(" ", "")
-        print(string)
+        return string
+
+    def add_contact(self):
+        
+         self.setlabel("Please give me their name.")
+         self.update_screen()
+         microphone.record(3)
+         self.pred_name = whisper.use_model(RECORD_PATH)
+         self.setlabel.set("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+         self.update_screen()
+         microphone.record(4)
+         if_yes1 = whisper.use_model(RECORD_PATH)
+
+         if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes."):
+              #Stuff
+              self.setlabel.set("What is their email?")
+              self.update_screen()
+              microphone.record(3)
+              self.pred_email = whisper.use_model(RECORD_PATH)
+              self.setlabel.set("I heard " + self.pred_email + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+              self.update_screen()
+              microphone.record(4)
+              if_yes2 = whisper.use_model(RECORD_PATH)
+              
+              if(if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes."):
+                    self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
+                    self.update_screen()
+                    microphone.record(3)
+                    self.pred_domain = whisper.use_model(RECORD_PATH)
+                    self.setlabel.set("I heard " + self.pred_domain + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+                    self.update_screen()
+                    microphone.record(4)
+                    if_yes3 = whisper.use_model(RECORD_PATH)
+                    if(if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes."):
+                         self.account = {
+                                        "name" : self.pred_name ,
+                                        "email" : self.pred_email ,
+                                        "domain": self.domain , 
+                         }
+                         with open("source/my_account.txt", "w") as f:
+                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + "\n")
+
+              else:
+                    self.setlabel("Please try again")
+                    self.update_screen()    
+
+         else:
+            self.setlabel("Please try again")
+            self.update_screen()
+
+
+
+
+
+
 
     def create_account(self):
            #THIS IS THE OLD METHOD
@@ -167,8 +228,7 @@ class mainScreen:
             self.transcribedLabel.set("Please give me your name.")
             self.setlabel("please give me your name.\n")
             #This should update the screen
-            self.root.update_idletasks()
-            self.root.update()
+            self.update_screen()
             microphone.record(3)
             self.pred_name = whisper.use_model(RECORD_PATH)
             #display the name
@@ -177,16 +237,15 @@ class mainScreen:
             
             #t_record = threading.thread(target = self.rec_3sec)
             self.transcribedLabel.set("")
-            self.transcribedLabel.set("I heard " + self.pred_name + "Is this correct?\nSay 'Yes', 'Exit', or anything else.")
+            self.transcribedLabel.set("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
             #This should update the screen
-            self.root.update_idletasks()
-            self.root.update()
-            time.sleep(2)
-            microphone.record(3)
-            if_yes = whisper.use_model(RECORD_PATH)
+            self.update_screen()
+            microphone.record(4)
+            if_yes1 = whisper.use_model(RECORD_PATH)
             #if correct - > 
-            if if_yes == "Yes" or "Yes." or "yes" or "yes.": 
-                
+            print(if_yes1)
+            if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes."): 
+                print(if_yes1)
             #prompt user for email -> 
                 self.transcribedLabel.set("")
                 self.transcribedLabel.set("What is your email?")
@@ -200,62 +259,84 @@ class mainScreen:
                 self.transcribedLabel.set("")
                 self.transcribedLabel.set("I heard: " + self.pred_email + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
                 #This should update the screen
-                self.root.update_idletasks()
-                self.root.update()
+                self.update_screen()
                 time.sleep(2)
                 #Verify
-                if_yes = " "
                 microphone.record(3)
-                if_yes = whisper.use_model(RECORD_PATH)
-                
-                if if_yes == "Yes" or "Yes." or "yes" or "yes.":    
+                if_yes2 = whisper.use_model(RECORD_PATH)
+                print(if_yes2)
+                time.sleep(5)
+            
+                if (if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes."):   
+                    print(if_yes2) 
                     self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
                     #This should update the screen
-                    self.root.update_idletasks()
-                    self.root.update()
+                    self.update_screen()
                     self.domain = self.rec_3sec()
                     self.setlabel("I heard: " + self.domain + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
                     #This should update the screen
-                    self.root.update_idletasks()
-                    self.root.update()
+                    self.update_screen()
                     time.sleep(2)
                     #Verify
-                    if_yes = " "
                     microphone.record(3)
-                    if_yes = whisper.use_model(RECORD_PATH)
+                    if_yes3 = whisper.use_model(RECORD_PATH)
                     #Add a password if you like
-                    if  if_yes == "Yes" or "Yes." or "yes" or "yes.":
+                    print(if_yes3)
+                    time.sleep(5)
+                    if  (if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes."):
                         self.setlabel("Would you like to add a password? Yes or No.")
-                        self.root.update_idletasks()
-                        self.root.update()
-                        if_yes = " "
-                        if_yes = self.rec_3sec()
-                        if if_yes == "Yes" or "Yes." or "yes" or "yes.": 
+                        self.update_screen()
+                
+                        if_yes4 = self.rec_3sec()
+                        if (if_yes4 == "Yes" or if_yes4 == "Yes." or if_yes4 == "yes" or if_yes4 == "yes."): 
+                            print(if_yes4)
                             self.setlabel("What would you like your password to be?")
-                            self.root.update_idletasks()
-                            self.root.update()
+                            self.update_screen()
                             time.sleep(1)
                             self.password = self.rec_3sec()
                             self.setlabel("I heard: " + self.password + "\n Is this correct?\nSay 'Yes', or anything else.\n")
                     #This should update the screen
-                            self.root.update_idletasks()
-                            self.root.update()
+                            self.update_screen()
                             time.sleep(2)
-                            if_yes = " "
-                            if_yes = self.rec_3sec()
-                    if if_yes == "Yes" or "Yes." or "yes" or "yes.":    
-                            self.account = {
-                                "name" : self.pred_name ,
-                                "email" : self.pred_email ,
-                                "domain": self.domain , 
-                                "password" : self.password 
-                                }
-                            with open("source/my_account.txt", "w") as f:
-                                f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain"))
-                else:
+                            if_yes5 = self.rec_3sec()
+                            if (if_yes5 == "Yes" or if_yes5 == "Yes." or if_yes5 == "yes" or if_yes5 == "yes."):    
+                                    self.account = {
+                                        "name" : self.pred_name ,
+                                        "email" : self.pred_email ,
+                                        "domain": self.domain , 
+                                        "password" : self.password 
+                                        }
+                                    with open("source/my_account.txt", "w") as f:
+                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + " " + self.account.get("password") )
+                            else:
+                                 self.account = {
+                                        "name" : self.pred_name ,
+                                        "email" : self.pred_email ,
+                                        "domain": self.domain , 
+                                        "password" : self.password 
+                                        }
+                                 with open("source/my_account.txt", "w") as f:
+                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain"))
+                        elif (if_yes4 != "Yes" or if_yes4 != "Yes." or if_yes4 != "yes" or if_yes4 != "yes."): 
+                            self.setlabel("Please try again")
+                            self.update_screen()
+                    elif (if_yes3 != "Yes" or if_yes3 != "Yes." or if_yes3 != "yes" or if_yes3 != "yes."): 
+                        self.account = {
+                            "name" : self.pred_name ,
+                            "email" : self.pred_email ,
+                            "domain": self.domain , 
+                            }
+                        with open("source/my_account.txt", "w") as f:
+                            f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain"))
+                        self.setlabel("Stored everything but the password. Please try again")
+                        self.update_screen()
+                elif (if_yes2 != "Yes" or if_yes2 != "Yes." or if_yes2 != "yes" or if_yes2 != "yes."): 
                     self.setlabel("Please try again")
-                    self.root.update_idletasks()
-                    self.root.update()
+                    self.update_screen()
+            elif (if_yes1 != "Yes" or if_yes1 != "Yes." or if_yes1 != "yes" or if_yes1 != "yes."): 
+                    self.setlabel("Please try again")
+                    self.update_screen()
+                    
             
 
             

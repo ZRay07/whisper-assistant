@@ -1,4 +1,4 @@
-
+import time
 
 #Def create_account:
     #part 1 prompt for name    
@@ -33,4 +33,14 @@ def format_email(string):
     string = string.replace(" ", "")
     print(string)
 
-format_email("T. Cohen West")
+def exp_contact_list():
+    with open("source/contact_list.txt", "w") as f:
+        f.write("Tyler Cohen tcohenwest gobblety154\n" + "Devin Chen Dchen1 furryornah\n" + "Zach Ray zray1 beastmode\n")
+        f.close()
+    with open("source/contact_list.txt", "r") as f:
+        contacts = f.readlines()
+        for line in contacts:
+            print(line)
+
+exp_contact_list()
+#format_email("T. Cohen West")
