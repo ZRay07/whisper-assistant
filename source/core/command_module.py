@@ -53,7 +53,7 @@ def commandExec(userChoice):
 
     elif (userChoice == "Navigate mouse and keyboard" or userChoice == "Navigate mouse and keyboard." or userChoice == "Mouse control." or userChoice == "mouse control"):
         print("\n***Navigate mouse + keyboard***")
-        mouseControl()
+        mouseGrid()
 
     elif (userChoice == "Sign into email." or userChoice == "Email sign in." or userChoice == "Send an email." or userChoice == "Email Sign In" or userChoice == "Email sign it" or userChoice == "Email Sign In."):    # Email sign in
         print("\n***Email sign-in***") 
@@ -245,10 +245,9 @@ def sign_in():
     #el4 = wait.until(EC.presence_of_element_located((By.ID, "id__248")))
     #el4.click()
 
-class mouseControl():
+class mouseGrid():
     def __init__(self):
         print("***Mouse Control***")
-
         self.userChoiceFlag = 0
 
         # Open a new window
@@ -261,6 +260,17 @@ class mouseControl():
 
         self.screenHeight = self.mouseGrid.winfo_screenheight()
         self.screenWidth = self.mouseGrid.winfo_screenwidth()
+
+        # These variables store the center position's of the color grid
+        self.redCenter = [self.screenWidth / 3 / 2, self.screenHeight / 3 / 2, 1]
+        self.greenCenter = [self.screenWidth / 3 / 2, self.screenHeight / 3 / 2 + self.screenHeight / 3, 1]
+        self.blueCenter = [self.screenWidth / 3 / 2, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
+        self.purpleCenter = [self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2, 1]
+        self.yellowCenter = [self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2 + self.screenHeight / 3, 1]
+        self.whiteCenter = [self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
+        self.blackCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2, 1]
+        self.orangeCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + self.screenHeight / 3, 1]
+        self.pinkCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
 
         # Make 9 frames (3 * 3 grid)
         # One for each portion of the grid
@@ -280,7 +290,7 @@ class mouseControl():
         self.b1.grid(row = 0, column = 1, padx = 0, pady = 0)
         self.b1.grid_propagate(False)
 
-        self.b2 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "orange")
+        self.b2 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "gold")
         self.b2.grid(row = 1, column = 1, padx = 0, pady = 0)
         self.b2.grid_propagate(False)
 
@@ -292,15 +302,15 @@ class mouseControl():
         self.c1.grid(row = 0, column = 2, padx = 0, pady = 0)
         self.c1.grid_propagate(False)
 
-        self.c2 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "cyan")
+        self.c2 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "orange red")
         self.c2.grid(row = 1, column = 2, padx = 0, pady = 0)
         self.c2.grid_propagate(False)
 
-        self.c3 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "grey")
+        self.c3 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "deep pink")
         self.c3.grid(row = 2, column = 2, padx = 0, pady = 0)
         self.c3.grid_propagate(False)
 
-        self.inputBox = Text(self.c1, height = 1, width = 5, border = 2, relief = "solid")
+        self.inputBox = Text(self.c1, height = 1, width = 10, border = 2, relief = "solid")
         self.inputBox.grid(row = 0, column = 0,sticky = NE)
 
         self.submit_button = Button(self.c1, text = "Submit", command = self.getUserChoice, border = 2, relief = "solid")
@@ -309,89 +319,248 @@ class mouseControl():
         self.mouseGrid.mainloop()
 
     def getUserChoice(self):
-        self.userChoice = self.inputBox.get(1.0, "end-1c")
-        self.displaySubgrid()
+        self.inputBoxChoice = self.inputBox.get(1.0, "end-1c")
+
+        if (self.inputBoxChoice == "Record"):
+            self.userChoice = recordAndUseModel()
+            self.displaySubgrid()
+            
+
+        elif (self.inputBoxChoice == "Red" or self.inputBoxChoice == "Green" or self.inputBoxChoice == "Blue" or
+              self.inputBoxChoice == "Purple" or self.inputBoxChoice == "Yellow" or self.inputBoxChoice == "White" or
+              self.inputBoxChoice == "Black" or self.inputBoxChoice == "Orange" or self.inputBoxChoice == "Pink"):
+            self.displaySubgrid()
+        
+        else:
+            print("Enter a correct input")
 
     def displaySubgrid(self):
-        print("Displaying subgrid")
+        self.displayFlag = 0
 
-        if (self.userChoice == "A1"):
+        if (self.userChoice == "Red." or self.userChoice == "Red" or self.userChoice == "red"):      # top left
             self.subgrid = Canvas(self.a1, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2, self.screenHeight / 3 / 2)
-            #self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.redCenter[0], self.redCenter[1], self.redCenter[2])
+            self.displayFlag = 1
         
-        elif (self.userChoice == "A2"):
+        elif (self.userChoice == "Green." or self.userChoice == "Green" or self.userChoice == "green"):  # middle left
             self.subgrid = Canvas(self.a2, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2, self.screenHeight / 3 / 2 + self.screenHeight / 3)
-            #self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.greenCenter[0], self.greenCenter[1], self.greenCenter[2])
+            self.displayFlag = 1
 
-        elif (self.userChoice == "A3"):
+        elif (self.userChoice == "Blue." or self.userChoice == "Blue" or self.userChoice == "blue"):   # bottom left
             self.subgrid = Canvas(self.a3, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3)
-            #self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.blueCenter[0], self.blueCenter[1], self.blueCenter[2])
+            self.displayFlag = 1
 
-        elif (self.userChoice == "B1"):
+        elif (self.userChoice == "Purple." or self.userChoice == "Purple" or self.userChoice == "purple"): # top center
             self.subgrid = Canvas(self.b1, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2)
-            self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.purpleCenter[0], self.purpleCenter[1], self.purpleCenter[2])
+            self.displayFlag = 1
 
-        elif (self.userChoice == "B2"):
+        elif (self.userChoice == "Yellow." or self.userChoice == "Yellow" or self.userChoice == "yellow"): # center
             self.subgrid = Canvas(self.b2, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2 + self.screenHeight / 3)
-            self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.yellowCenter[0], self.yellowCenter[1], self.yellowCenter[2])
+            self.displayFlag = 1
 
-        elif (self.userChoice == "B3"):
+        elif (self.userChoice == "White." or self.userChoice == "White" or self.userChoice == "white"):  # bottom center
             self.subgrid = Canvas(self.b3, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3)
-            self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.whiteCenter[0], self.whiteCenter[1], self.whiteCenter[2])
+            self.displayFlag = 1
 
-        elif (self.userChoice == "C1"):
+        elif (self.userChoice == "Black." or self.userChoice == "Black" or self.userChoice == "black"):  # top right
             self.subgrid = Canvas(self.c1, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2)
-            self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.blackCenter[0], self.blackCenter[1], self.blackCenter[2])
+            self.displayFlag = 1
 
-        elif (self.userChoice == "C2"):
+        elif (self.userChoice == "Orange." or self.userChoice == "Orange" or self.userChoice == "orange"):   # middle right
             self.subgrid = Canvas(self.c2, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + self.screenHeight / 3)
-            self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.orangeCenter[0], self.orangeCenter[1], self.orangeCenter[2])
+            self.displayFlag = 1
 
-        elif (self.userChoice == "C3"):
+        elif (self.userChoice == "Pink." or self.userChoice == "Pink" or self.userChoice == "pink"):   # bottom right
             self.subgrid = Canvas(self.c3, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3)
-            self.moveCursorWithArrowKeys()
+            pyautogui.moveTo(self.pinkCenter[0], self.pinkCenter[1], self.pinkCenter[2])
+            self.displayFlag = 1
 
-        # Place the canvas onto user choice location
-        self.subgrid.grid(padx = 0, pady = 0)
+        if (self.displayFlag):
+            print("Displaying subgrid...")
 
-        # Draw horizontal lines
-        self.subgrid.create_line(0, self.screenHeight / 9, self.screenWidth / 3, self.screenHeight / 9, width = 5)  
-        self.subgrid.create_line(0, self.screenHeight * 2 / 9, self.screenWidth / 3, self.screenHeight * 2 / 9, width = 5)
+            # Draw horizontal lines
+            self.subgrid.create_line(0, self.screenHeight / 9, self.screenWidth / 3, self.screenHeight / 9, width = 5)  
+            self.subgrid.create_line(0, self.screenHeight * 2 / 9, self.screenWidth / 3, self.screenHeight * 2 / 9, width = 5)
 
-        # Draw vertical lines
-        self.subgrid.create_line(self.screenWidth / 9, 0, self.screenWidth / 9, self.screenHeight / 3, width = 5)
-        self.subgrid.create_line(self.screenWidth * 2 / 9, 0, self.screenWidth * 2 / 9, self.screenHeight / 3, width = 5)
+            # Draw vertical lines
+            self.subgrid.create_line(self.screenWidth / 9, 0, self.screenWidth / 9, self.screenHeight / 3, width = 5)
+            self.subgrid.create_line(self.screenWidth * 2 / 9, 0, self.screenWidth * 2 / 9, self.screenHeight / 3, width = 5)
+
+            # Place the canvas onto user choice location
+            self.subgrid.grid(padx = 0, pady = 0)
+
+            self.mouseGrid.update_idletasks()
+            self.mouseGrid.update()
+
+            self.dynamicInstructionText = StringVar()
+            self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
+
+            if (self.userChoice == "Red." or self.userChoice == "red"):
+                self.dynamicInstruction_label = Label(self.c1, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
+                self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
+
+            else:
+                self.dynamicInstruction_label = Label(self.a1, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
+                self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
+
+            self.mouseGrid.update_idletasks()
+            self.mouseGrid.update()
+
+            print("Say 'yes' to specify a subgrid.")
+            time.sleep(3)
+
+            self.userChoice = recordAndUseModel()
+
+            if (self.userChoice == "Yes." or self.userChoice == "yes"):
+                self.moveToInnerPosition()
+                self.mouseOrKeyboardAction()
+
+            else:
+                self.mouseOrKeyboardAction()
+
+        else:
+            print("Incorrect input. Say the color which you'd like your cursor to be in...")
+
+
 
     def moveToInnerPosition(self):
-        print("***Type 1-9 to move to an inner grid position***")
+        print("Say 1-9 to move to an inner grid position")
+        print("OR say EXIT or CANCEL if the cursor is where you want it.")
 
-    def moveCursorWithArrowKeys(self):
-        while True:
-            try: 
-                if keyboard.is_pressed('w'):
-                    print("moving cursor up...")
-                    pyautogui.moveRel(x = 0, y = -10)
+        time.sleep(5)
 
-                elif keyboard.is_pressed('a'):
-                    print("moving cursor left...")
-                    pyautogui.moveRel(x = -10, y = 0)
+        self.currentMouseX, self.currentMouseY = pyautogui.position()   # Get the XY position of the mouse.
 
-                elif keyboard.is_pressed('s'):
-                    print("moving cursor down...")
-                    pyautogui.moveRel(x = 0, y = 10)
+        self.userChoice = recordAndUseModel()
 
-                elif keyboard.is_pressed('d'):
-                    print("moving cursor right...")
-                    pyautogui.moveRel(x = 10, y = 0)
-            except:
-                break       # anything other than wasd will break out the loop
-   
+        if (self.userChoice == "1"):
+            print("Moving to 1...")
+            pyautogui.move(-(self.screenWidth / 9), -(self.screenHeight / 9), 0.5)
+
+        elif (self.userChoice == "2"):
+            print("Moving to 2...")
+            pyautogui.move(0, -(self.screenHeight / 9), 0.5)
+
+        elif (self.userChoice == "3"):
+            print("Moving to 3...")
+            pyautogui.move((self.screenWidth / 9), -(self.screenHeight / 9), 0.5)
+
+        elif (self.userChoice == "4"):
+            print("Moving to 4...")
+            pyautogui.move(-(self.screenWidth / 9), 0, 0.5)
+
+        # 5 is the center
+
+        elif (self.userChoice == "6"):
+            print("Moving to 6...")
+            pyautogui.move((self.screenWidth / 9), 0, 0.5)
+
+        elif (self.userChoice == "7"):
+            print("Moving to 7...")
+            pyautogui.move(-(self.screenWidth / 9), (self.screenHeight / 9), 0.5)
+
+        elif (self.userChoice == "8"):
+            print("Moving to 8...")
+            pyautogui.move(0, (self.screenHeight / 9), 0.5)
+
+        elif (self.userChoice == "9"):
+            print("Moving to 9...")
+            pyautogui.move((self.screenWidth / 9), (self.screenHeight / 9), 0.5)
+
+        elif (self.userChoice == "Exit." or self.userChoice == "exit" or self.userChoice == "Cancel." or self.userChoice == "cancel"):
+            print("Cancelling...")
+
+    def mouseOrKeyboardAction(self):
+        self.mouseOrKeyboardFlag = 0
+
+        while(self.mouseOrKeyboardFlag == 0):
+
+            print("***Options***")
+            print("* Left click, right click")
+            print("* Type something, key press")
+            print("* Get more specific")
+            print("* I'm done")
+
+            time.sleep(5)
+
+            self.userChoice = recordAndUseModel()
+
+            if (self.userChoice == "Click." or self.userChoice == "click" or self.userChoice == "Left click." or self.userChoice == "left click"): # or self.userChoice == "you"):
+                self.mouseGrid.wm_state("iconic")
+                time.sleep(0.2)
+                pyautogui.leftClick()
+
+            elif (self.userChoice == "Right click." or self.userChoice == "right click"):
+                self.mouseGrid.wm_state("iconic")
+                time.sleep(0.2)
+                pyautogui.rightClick()
+
+            elif (self.userChoice == "Type something." or self.userChoice == "type something"): # or self.userChoice == "you"):
+                self.mouseGrid.wm_state("iconic")
+                time.sleep(0.2)
+                pyautogui.leftClick()
+
+                print("Speak what you would like to type.")
+                time.sleep(3)
+
+                microphone.record(10)
+                self.prediction = whisper.use_model(RECORD_PATH)
+
+                pyautogui.write(self.prediction, interval=0.25)
+
+            elif (self.userChoice == "Key press." or self.userChoice == "key press"):
+                print("Which key would you like to press?")
+                self.prediction = recordAndUseModel()
+
+            elif (self.userChoice == "Get more specific." or self.userChoice == "get more specific"):
+                print("Get more specific...")
+                self.getMoreSpecific()
+
+            elif (self.userChoice == "I'm done." or self.userChoice == "i'm done"):
+                self.mouseOrKeyboardFlag = 1
+
+
+    def getMoreSpecific(self):
+        self.finalChoiceFlag = 0
+
+        while (self.finalChoiceFlag == 0):
+            print("Say left, right, up, or down.")
+            print("If your cursor is at the position you want, say 'I'm done.'")
+
+            time.sleep(5)
+
+            self.userChoice = recordAndUseModel()
+
+            if (self.userChoice == "Left." or self.userChoice == "left"):
+                pyautogui.move(-15, 0, 0.2)
+
+            elif (self.userChoice == "Right." or self.userChoice == "right"):
+                pyautogui.move(15, 0, 0.2)
+
+            elif (self.userChoice == "Up." or self.userChoice == "up"):
+                pyautogui.move(0, -15, 0.2)
+
+            elif (self.userChoice == "Down." or self.userChoice == "down" or self.userChoice == "Down!"):
+                pyautogui.move(0, 15, 0.2)
+
+            elif (self.userChoice == "I'm done." or self.userChoice == "i'm done"):
+                self.finalChoiceFlag = 1
+
+
+
+
+def recordAndUseModel():
+    microphone.record(3)
+    prediction = whisper.use_model(RECORD_PATH)
+
+    print("We heard " + prediction)
+
+    return prediction
+    
