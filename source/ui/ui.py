@@ -173,40 +173,44 @@ class mainScreen:
          self.update_screen()
          microphone.record(3)
          self.pred_name = whisper.use_model(RECORD_PATH)
-         self.setlabel.set("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+         self.setlabel("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
          self.update_screen()
          microphone.record(4)
          if_yes1 = whisper.use_model(RECORD_PATH)
-
-         if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes."):
+         print(if_yes1)
+         if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes." or if_yes1 == "Yeah." or if_yes1 =="Yeah"):
               #Stuff
-              self.setlabel.set("What is their email?")
+              print(if_yes1)
+              self.setlabel("What is their email?")
               self.update_screen()
               microphone.record(3)
               self.pred_email = whisper.use_model(RECORD_PATH)
-              self.setlabel.set("I heard " + self.pred_email + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+              self.pred_email = self.format_email(self.pred_email)
+              self.setlabel("I heard " + self.pred_email + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
               self.update_screen()
               microphone.record(4)
               if_yes2 = whisper.use_model(RECORD_PATH)
               
-              if(if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes."):
+              if(if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes." or if_yes2 == "Yeah." or if_yes2 =="Yeah"):
                     self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
                     self.update_screen()
                     microphone.record(3)
                     self.pred_domain = whisper.use_model(RECORD_PATH)
-                    self.setlabel.set("I heard " + self.pred_domain + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+                    self.setlabel("I heard " + self.pred_domain + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
                     self.update_screen()
                     microphone.record(4)
                     if_yes3 = whisper.use_model(RECORD_PATH)
-                    if(if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes."):
+                    if(if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes." or if_yes3 == "Yeah." or if_yes3 =="Yeah"):
                          self.account = {
                                         "name" : self.pred_name ,
                                         "email" : self.pred_email ,
-                                        "domain": self.domain , 
+                                        "domain": self.pred_domain , 
                          }
                          with open("source/my_account.txt", "w") as f:
                                         f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + "\n")
-
+                    else: 
+                         self.setlabel("Please try again")
+                         self.update_screen() 
               else:
                     self.setlabel("Please try again")
                     self.update_screen()    
@@ -224,118 +228,126 @@ class mainScreen:
     def create_account(self):
            #THIS IS THE OLD METHOD
            #Prompt user to give a name
-            self.transcribedLabel.set("")
-            self.transcribedLabel.set("Please give me your name.")
-            self.setlabel("please give me your name.\n")
-            #This should update the screen
-            self.update_screen()
-            microphone.record(3)
-            self.pred_name = whisper.use_model(RECORD_PATH)
-            #display the name
-            #THIS IS WITH THREADING
-            #t_label1 = threading.thread(target = self.setlabel, args = "please give me your name.\n")
-            
-            #t_record = threading.thread(target = self.rec_3sec)
-            self.transcribedLabel.set("")
-            self.transcribedLabel.set("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
-            #This should update the screen
-            self.update_screen()
-            microphone.record(4)
-            if_yes1 = whisper.use_model(RECORD_PATH)
-            #if correct - > 
-            print(if_yes1)
-            if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes."): 
-                print(if_yes1)
-            #prompt user for email -> 
-                self.transcribedLabel.set("")
-                self.transcribedLabel.set("What is your email?")
-                #This should update the screen
-                self.root.update_idletasks()
-                self.root.update()
-                microphone.record(4)
-                self.pred_email = whisper.use_model(RECORD_PATH)
-                  #This removes spaces and punctuation from the email
-                self.pred_email = self.format_email(self.pred_email)
-                self.transcribedLabel.set("")
-                self.transcribedLabel.set("I heard: " + self.pred_email + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
-                #This should update the screen
-                self.update_screen()
-                time.sleep(2)
-                #Verify
-                microphone.record(3)
-                if_yes2 = whisper.use_model(RECORD_PATH)
-                print(if_yes2)
-                time.sleep(5)
-            
-                if (if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes."):   
-                    print(if_yes2) 
-                    self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
+            confirm = False
+            correct = False
+            while confirm == False or  correct == False:
+                    self.transcribedLabel.set("")
+                    self.transcribedLabel.set("Please give me your name.")
+                    self.setlabel("please give me your name.\n")
                     #This should update the screen
                     self.update_screen()
-                    self.domain = self.rec_3sec()
-                    self.setlabel("I heard: " + self.domain + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
-                    #This should update the screen
-                    self.update_screen()
-                    time.sleep(2)
-                    #Verify
                     microphone.record(3)
-                    if_yes3 = whisper.use_model(RECORD_PATH)
-                    #Add a password if you like
-                    print(if_yes3)
-                    time.sleep(5)
-                    if  (if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes."):
-                        self.setlabel("Would you like to add a password? Yes or No.")
-                        self.update_screen()
-                
-                        if_yes4 = self.rec_3sec()
-                        if (if_yes4 == "Yes" or if_yes4 == "Yes." or if_yes4 == "yes" or if_yes4 == "yes."): 
-                            print(if_yes4)
-                            self.setlabel("What would you like your password to be?")
-                            self.update_screen()
-                            time.sleep(1)
-                            self.password = self.rec_3sec()
-                            self.setlabel("I heard: " + self.password + "\n Is this correct?\nSay 'Yes', or anything else.\n")
+                    self.pred_name = whisper.use_model(RECORD_PATH)
+                    #display the name
+                    #THIS IS WITH THREADING
+                    #t_label1 = threading.thread(target = self.setlabel, args = "please give me your name.\n")
+                    
+                    #t_record = threading.thread(target = self.rec_3sec)
+                    self.transcribedLabel.set("")
+                    self.transcribedLabel.set("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'No' or 'Exit'.")
                     #This should update the screen
+                    self.update_screen()
+                    microphone.record(4)
+                    if_yes1 = whisper.use_model(RECORD_PATH)
+                    #if correct - > 
+                    print(if_yes1)
+                    if(if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes." or if_yes1 == "Yeah." or if_yes1 =="Yeah"):
+                        confirm = True 
+                        correct = True
+                    else:
+                        confirm = False
+                        correct = False
+                    
+                    if (confirm == True): 
+                        #We have to toggle correct or it makes an inf loop
+                        while (correct == True):
+                    #   print(if_yes1)
+                    #prompt user for email -> 
+                            self.transcribedLabel.set("")
+                            self.transcribedLabel.set("What is your email?")
+                            #This should update the screen
+                            self.root.update_idletasks()
+                            self.root.update()
+                            microphone.record(4)
+                            self.pred_email = whisper.use_model(RECORD_PATH)
+                            #This removes spaces and punctuation from the email
+                            self.pred_email = self.format_email(self.pred_email)
+                            self.transcribedLabel.set("")
+                            self.transcribedLabel.set("I heard: " + self.pred_email + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
+                            #This should update the screen
                             self.update_screen()
-                            time.sleep(2)
-                            if_yes5 = self.rec_3sec()
-                            if (if_yes5 == "Yes" or if_yes5 == "Yes." or if_yes5 == "yes" or if_yes5 == "yes."):    
-                                    self.account = {
-                                        "name" : self.pred_name ,
-                                        "email" : self.pred_email ,
-                                        "domain": self.domain , 
-                                        "password" : self.password 
-                                        }
-                                    with open("source/my_account.txt", "w") as f:
-                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + " " + self.account.get("password") )
+                            #time.sleep(2)
+                            #Verify
+                            microphone.record(3)
+                            if_yes2 = whisper.use_model(RECORD_PATH)
+                            print(if_yes2)
+                            #time.sleep(5)
+                            if (if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes."or if_yes2 == "Yeah." or if_yes2 =="Yeah"):
+                                 correct = False
+                                 print(if_yes2)
                             else:
-                                 self.account = {
-                                        "name" : self.pred_name ,
-                                        "email" : self.pred_email ,
-                                        "domain": self.domain , 
-                                        "password" : self.password 
-                                        }
-                                 with open("source/my_account.txt", "w") as f:
-                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain"))
-                        elif (if_yes4 != "Yes" or if_yes4 != "Yes." or if_yes4 != "yes" or if_yes4 != "yes."): 
-                            self.setlabel("Please try again")
-                            self.update_screen()
-                    elif (if_yes3 != "Yes" or if_yes3 != "Yes." or if_yes3 != "yes" or if_yes3 != "yes."): 
-                        self.account = {
-                            "name" : self.pred_name ,
-                            "email" : self.pred_email ,
-                            "domain": self.domain , 
-                            }
-                        with open("source/my_account.txt", "w") as f:
-                            f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain"))
-                        self.setlabel("Stored everything but the password. Please try again")
-                        self.update_screen()
-                elif (if_yes2 != "Yes" or if_yes2 != "Yes." or if_yes2 != "yes" or if_yes2 != "yes."): 
-                    self.setlabel("Please try again")
-                    self.update_screen()
-            elif (if_yes1 != "Yes" or if_yes1 != "Yes." or if_yes1 != "yes" or if_yes1 != "yes."): 
-                    self.setlabel("Please try again")
-                    self.update_screen()
+                                 correct = True
+                        if (correct == False):   
+                            
+                            while(correct == False):
+                                self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
+                                #This should update the screen
+                                self.update_screen()
+                                self.pred_domain = self.rec_3sec()
+                                self.setlabel("I heard: " + self.pred_domain + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
+                                #This should update the screen
+                                self.update_screen()
+                                #time.sleep(2)
+                                #Verify
+                                microphone.record(3)
+                                if_yes3 = whisper.use_model(RECORD_PATH)
+                                #Add a password if you like
+                                print(if_yes3)
+                                if  (if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes." or if_yes3 == "Yeah." or if_yes3 =="Yeah"):
+                                    correct = True
+                                else:
+                                     correct = False
+                                    
+                            if(confirm == True):        
+                                
+                                while confirm == True:
+                                    self.setlabel("Would you like to add a password? Yes or No.")
+                                    self.update_screen()
+
+                                    if_yes4 = self.rec_3sec()
+                                    if (if_yes4 == "Yes" or if_yes4 == "Yes." or if_yes4 == "yes" or if_yes4 == "yes."): 
+                                        print(if_yes4)
+                                        self.setlabel("What would you like your password to be?")
+                                        self.update_screen()
+                                    # time.sleep(1)
+                                        self.pred_password = self.rec_3sec()
+                                        self.setlabel("I heard: " + self.pred_password + "\n Is this correct?\nSay 'Yes', or anything else.\n")
+                                #This should update the screen
+                                        self.update_screen()
+                                        if_yes5 = self.rec_3sec()
+                                        if (if_yes5 == "Yes" or if_yes5 == "Yes." or if_yes5 == "yes" or if_yes5 == "yes."):
+                                            confirm = False
+                                
+                                    
+                                            if (confirm == False):    
+                                                    self.account = {
+                                                        "name" : self.pred_name ,
+                                                        "email" : self.pred_email ,
+                                                        "domain": self.pred_domain , 
+                                                        "password" : self.pred_password 
+                                                        }
+                                                    with open("source/my_account.txt", "w") as f:
+                                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + " " + self.account.get("password") )
+                                    else:
+                                        self.account = {
+                                                "name" : self.pred_name ,
+                                                "email" : self.pred_email ,
+                                                "domain": self.pred_domain , 
+                                                "password" : self.pred_password 
+                                                }
+                                        with open("source/my_account.txt", "w") as f:
+                                                f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain"))
+                            
                     
             
 
