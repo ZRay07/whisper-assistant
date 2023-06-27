@@ -167,6 +167,49 @@ def setVolume():
 
 # end volume control loop 
 
+def pull_contact(string):
+    with open("source/my_account.txt", "r") as f:
+         contacts = f.readlines()
+
+         for line in contacts:
+            extr = line.partition(" ")
+            first_name = extr[0]
+            extr_2 = extr[2].partition(" ")
+            last_name = extr_2[0]
+            extr_3 = extr_2[2].partition(" ")
+            email = extr_3[0]
+            domain = extr_3[2]
+            if (first_name + " " + last_name == string):
+                contact = {
+                    'name' : first_name + " " + last_name,
+                    'email' : email , 
+                    'domain' : domain
+                }
+            
+            #copy string until second " " is found 
+            #compare with user input
+            #If same pull the info from the line and save as dict
+    return contact.get('name'), contact.get('email'), contact.get('domain')
+
+
+def account_info_in():
+    with open("source/my_account.txt", "r") as f:
+         contacts = f.readlines()
+         for line in contacts:
+            extr = line.partition(" ")
+            first_name = extr[0]
+            extr_2 = extr[2].partition(" ")
+            last_name = extr_2[0]
+            extr_3 = extr_2[2].partition(" ")
+            email = extr_3[0]
+            domain = extr_3[2]
+            contact = {
+                    'name' : first_name + " " + last_name,
+                    'email' : email , 
+                    'domain' : domain
+                }
+    return contact.get('name'), contact.get('email'), contact.get('domain')
+
 def google_search():
     microphone.record(10)
     prediction = whisper.use_model(RECORD_PATH)
@@ -186,6 +229,7 @@ def google_search():
 
 
 def sign_in():
+    name, email, domain = account_info_in()
     driver = webdriver.Firefox()
 
     #so the pages have time to load 
