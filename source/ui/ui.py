@@ -202,7 +202,8 @@ class mainScreen:
                         confirm = False
                 else: 
                         confirm = True
-                if(confirm == False):                                          
+            if(confirm == False):  
+                while confirm == False:                                        
                     self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
                     self.update_screen()
                     microphone.record(3)
@@ -217,18 +218,19 @@ class mainScreen:
                                         "email" : self.pred_email ,
                                         "domain": self.pred_domain , 
                         }
-                        with open("source/my_account.txt", "w") as f:
+                        with open("source/contact_list.txt", "a") as f:
                                         f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + "\n")
+                        confirm = True
                     else: 
                         self.setlabel("Please try again")
                         self.update_screen() 
+                        confirm = False
             else:
                     self.setlabel("Please try again")
-                    self.update_screen()    
+                    self.update_screen() 
+                    confirm = True
+           
 
-        else:
-            self.setlabel("Please try again")
-            self.update_screen()
 
 
 
