@@ -247,14 +247,13 @@ def sign_in():
 
 class mouseGrid():
     def __init__(self):
-        print("***Mouse Control***")
         self.userChoiceFlag = 0
 
         # Open a new window
         self.mouseGrid = Tk()
 
         # Make this window transparent
-        self.mouseGrid.attributes("-alpha", 0.5, "-fullscreen", TRUE)
+        self.mouseGrid.attributes("-alpha", 0.3, "-fullscreen", TRUE)
 
         #mouseGrid.geometry("1919x1079")
 
@@ -272,8 +271,13 @@ class mouseGrid():
         self.orangeCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + self.screenHeight / 3, 1]
         self.pinkCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
 
+        self.drawColorGrid()
+
+        self.mouseGrid.mainloop()
+
         # Make 9 frames (3 * 3 grid)
         # One for each portion of the grid
+    def drawColorGrid(self):
         self.a1 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "red")
         self.a1.grid(row = 0, column = 0)
         self.a1.grid_propagate(False)
@@ -316,7 +320,16 @@ class mouseGrid():
         self.submit_button = Button(self.c1, text = "Submit", command = self.getUserChoice, border = 2, relief = "solid")
         self.submit_button.grid(row = 1, column = 0, sticky = NE)
 
-        self.mouseGrid.mainloop()
+    def deleteColorGrid(self):
+        self.a1.destroy()
+        self.a2.destroy()
+        self.a3.destroy()
+        self.b1.destroy()
+        self.b2.destroy()
+        self.b3.destroy()
+        self.c1.destroy()
+        self.c2.destroy()
+        self.c3.destroy()
 
     def getUserChoice(self):
         self.inputBoxChoice = self.inputBox.get(1.0, "end-1c")
@@ -330,6 +343,19 @@ class mouseGrid():
               self.inputBoxChoice == "Purple" or self.inputBoxChoice == "Yellow" or self.inputBoxChoice == "White" or
               self.inputBoxChoice == "Black" or self.inputBoxChoice == "Orange" or self.inputBoxChoice == "Pink"):
             self.displaySubgrid()
+
+        elif (self.inputBoxChoice == "Destroy"):
+            self.deleteColorGrid()
+
+            self.mouseGrid.update_idletasks()
+            self.mouseGrid.update()
+
+            time.sleep(5)
+
+            self.drawColorGrid()
+
+            self.mouseGrid.update_idletasks()
+            self.mouseGrid.update()
         
         else:
             print("Enter a correct input")
@@ -400,9 +426,9 @@ class mouseGrid():
             self.mouseGrid.update()
 
             self.dynamicInstructionText = StringVar()
-            self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
+            
 
-            if (self.userChoice == "Red." or self.userChoice == "red"):
+            if (self.userChoice == "Red." or self.userChoice == "Red" or self.userChoice == "red"):
                 self.dynamicInstruction_label = Label(self.c1, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
                 self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
 
@@ -410,15 +436,17 @@ class mouseGrid():
                 self.dynamicInstruction_label = Label(self.a1, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
                 self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
 
+            self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
+            
             self.mouseGrid.update_idletasks()
             self.mouseGrid.update()
 
-            print("Say 'yes' to specify a subgrid.")
+            print("\nSay 'Get more specific' to specify a subgrid.")
             time.sleep(3)
 
             self.userChoice = recordAndUseModel()
 
-            if (self.userChoice == "Yes." or self.userChoice == "yes"):
+            if (self.userChoice == "Yes." or self.userChoice == "Yes" or self.userChoice == "yes"):
                 self.moveToInnerPosition()
                 self.mouseOrKeyboardAction()
 
@@ -431,7 +459,7 @@ class mouseGrid():
 
 
     def moveToInnerPosition(self):
-        print("Say 1-9 to move to an inner grid position")
+        print("\nSay 1-9 to move to an inner grid position")
         print("OR say EXIT or CANCEL if the cursor is where you want it.")
 
         time.sleep(5)
@@ -482,8 +510,8 @@ class mouseGrid():
 
         while(self.mouseOrKeyboardFlag == 0):
 
-            print("***Options***")
-            print("* Left click, right click")
+            print("\n***Options***")
+            print("* Left click, double click, right click")
             print("* Type something, key press")
             print("* Get more specific")
             print("* I'm done")
@@ -496,6 +524,11 @@ class mouseGrid():
                 self.mouseGrid.wm_state("iconic")
                 time.sleep(0.2)
                 pyautogui.leftClick()
+
+            elif (self.userChoice == "Double click." or self.userChoice == "Double click" or self.userChoice == "double click"):
+                self.mouseGrid.wm_state("iconic")
+                time.sleep(0.2)
+                pyautogui.doubleClick()
 
             elif (self.userChoice == "Right click." or self.userChoice == "right click"):
                 self.mouseGrid.wm_state("iconic")
