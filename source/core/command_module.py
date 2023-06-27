@@ -18,8 +18,12 @@ from comtypes import CLSCTX_ALL                                 # audio
 from source.core.model_interface import *
 import keyboard
 from tkinter import *
+import jellyfish
 
-
+print(jellyfish.jaro_winkler_similarity("Red", "red"))
+print(jellyfish.jaro_winkler_similarity("Red", "Pink"))
+print(jellyfish.jaro_winkler_similarity("Red", "red."))
+      
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -31,40 +35,41 @@ def commandExec(userChoice):
 
     print("userChoice: " + userChoice)
 
-    if (userChoice == "Open application." or userChoice == "open application" or userChoice == "Open app."):        # Open application
+    if (jellyfish.jaro_winkler_similarity(userChoice, "Open application") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Open app") > 0.85):      # Open application
         print("\n***Open Application***")
         openApplication()
 
-    elif (userChoice == "Close application." or userChoice == "close application" or userChoice == "Close app" or userChoice == "Close application." or userChoice == "Close app."):      # Close application
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Close application") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Close app") > 0.85):      # Close application
         print("\n***Close Application***")
         closeApplication()
 
-    elif (userChoice == "Scroll up" or userChoice == "Scroll up."):      # Scroll up
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll up") > 0.9):      # Scroll up
         print("\n***Scroll Up***")
         pyautogui.scroll(100)
             
-    elif (userChoice == "Scroll down" or userChoice == "Scroll down."):    # Scroll down
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll down") > 0.9):    # Scroll down
         print("\n***Scroll Down***")
         pyautogui.scroll(-100)
 
-    elif (userChoice == "Set volume" or userChoice == "Set volume."):   # Set volume
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Set volume") > 0.85):   # Set volume
         print("\n***Set Volume***")
         setVolume()           
 
-    elif (userChoice == "Navigate mouse and keyboard" or userChoice == "Navigate mouse and keyboard." or userChoice == "Mouse control." or userChoice == "mouse control"):
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
         print("\n***Navigate mouse + keyboard***")
         mouseGrid()
 
-    elif (userChoice == "Sign into email." or userChoice == "Email sign in." or userChoice == "Send an email." or userChoice == "Email Sign In" or userChoice == "Email sign it" or userChoice == "Email Sign In."):    # Email sign in
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
         print("\n***Email sign-in***") 
         sign_in()       
 
-    elif (userChoice == "Exit" or userChoice == "Exit."):    # Exit
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
         print("***Exiting***")
 
-    elif (userChoice == "Google search" or userChoice == "google search" or userChoice == "Google search." or userChoice == "google search."  ):
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
         print("\nSearching now...\n")
         google_search()
+
     else:
         print("Try again...")
 
@@ -98,8 +103,8 @@ def closeApplication():
 
 
 def setVolume():
-    userConfirmation = False
-    while (userConfirmation == False):
+    numberFlag = False
+    while (numberFlag == False):
         print("\nWhat volume would you like to set to?")
         print("*** MUST BE AN INCREMENT OF 10 ***")
 
@@ -109,61 +114,61 @@ def setVolume():
         if (prediction == "0" or prediction == "0." or prediction == "Zero" or prediction == "zero"):
             volume.SetMasterVolumeLevel(-60.0, None)
             print("Setting volume to 0")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "10" or prediction == "10."):
             volume.SetMasterVolumeLevel(-33.0, None)
             print("Setting volume to 10")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "20"):
             volume.SetMasterVolumeLevel(-23.4, None)
             print("Setting volume to 20")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "30"):
             volume.SetMasterVolumeLevel(-17.8, None)
             print("Setting volume to 30")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "40"):
             volume.SetMasterVolumeLevel(-13.6, None)
             print("Setting volume to 40")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "50"):
             volume.SetMasterVolumeLevel(-10.2, None)
             print("Setting volume to 50")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "60"):
             volume.SetMasterVolumeLevel(-7.6, None)
             print("Setting volume to 60")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "70"):
             volume.SetMasterVolumeLevel(-5.3, None)
             print("Setting volume to 70")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "80"):
             volume.SetMasterVolumeLevel(-3.4, None)
             print("Setting volume to 80")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "90"):
             volume.SetMasterVolumeLevel(-1.6, None)
             print("Setting volume to 90")
-            userConfirmation = True
+            numberFlag = True
 
         elif (prediction == "100"):
             volume.SetMasterVolumeLevel(0, None)
             print("Setting volume to 100")
-            userConfirmation = True
+            numberFlag = True
 
         else:
             print("We heard: " + prediction)
-            userConfirmation = False
+            numberFlag = False
 
 # end volume control loop 
 
@@ -322,58 +327,58 @@ class mouseGrid():
         # Make 9 frames (3 * 3 grid)
         # One for each portion of the grid
     def drawColorGrid(self):
-        self.a1 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "red")
-        self.a1.grid(row = 0, column = 0)
-        self.a1.grid_propagate(False)
+        self.redFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "red")
+        self.redFrame.grid(row = 0, column = 0)
+        self.redFrame.grid_propagate(False)
 
-        self.a2 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "green")
-        self.a2.grid(row = 1, column = 0, padx = 0, pady = 0)
-        self.a2.grid_propagate(False)
+        self.greenFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "green")
+        self.greenFrame.grid(row = 1, column = 0, padx = 0, pady = 0)
+        self.greenFrame.grid_propagate(False)
 
-        self.a3 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "blue")
-        self.a3.grid(row = 2, column = 0, padx = 0, pady = 0)
-        self.a3.grid_propagate(False)
+        self.blueFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "blue")
+        self.blueFrame.grid(row = 2, column = 0, padx = 0, pady = 0)
+        self.blueFrame.grid_propagate(False)
 
-        self.b1 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "purple")
-        self.b1.grid(row = 0, column = 1, padx = 0, pady = 0)
-        self.b1.grid_propagate(False)
+        self.purpleFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "purple")
+        self.purpleFrame.grid(row = 0, column = 1, padx = 0, pady = 0)
+        self.purpleFrame.grid_propagate(False)
 
-        self.b2 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "gold")
-        self.b2.grid(row = 1, column = 1, padx = 0, pady = 0)
-        self.b2.grid_propagate(False)
+        self.yellowFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "gold")
+        self.yellowFrame.grid(row = 1, column = 1, padx = 0, pady = 0)
+        self.yellowFrame.grid_propagate(False)
 
-        self.b3 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "white")
-        self.b3.grid(row = 2, column = 1, padx = 0, pady = 0)
-        self.b3.grid_propagate(False)
+        self.whiteFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "white")
+        self.whiteFrame.grid(row = 2, column = 1, padx = 0, pady = 0)
+        self.whiteFrame.grid_propagate(False)
 
-        self.c1 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "black")
-        self.c1.grid(row = 0, column = 2, padx = 0, pady = 0)
-        self.c1.grid_propagate(False)
+        self.blackFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "black")
+        self.blackFrame.grid(row = 0, column = 2, padx = 0, pady = 0)
+        self.blackFrame.grid_propagate(False)
 
-        self.c2 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "orange red")
-        self.c2.grid(row = 1, column = 2, padx = 0, pady = 0)
-        self.c2.grid_propagate(False)
+        self.orangeFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "orange red")
+        self.orangeFrame.grid(row = 1, column = 2, padx = 0, pady = 0)
+        self.orangeFrame.grid_propagate(False)
 
-        self.c3 = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "deep pink")
-        self.c3.grid(row = 2, column = 2, padx = 0, pady = 0)
-        self.c3.grid_propagate(False)
+        self.pinkFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "deep pink")
+        self.pinkFrame.grid(row = 2, column = 2, padx = 0, pady = 0)
+        self.pinkFrame.grid_propagate(False)
 
-        self.inputBox = Text(self.c1, height = 1, width = 10, border = 2, relief = "solid")
+        self.inputBox = Text(self.blackFrame, height = 1, width = 10, border = 2, relief = "solid")
         self.inputBox.grid(row = 0, column = 0,sticky = NE)
 
-        self.submit_button = Button(self.c1, text = "Submit", command = self.getUserChoice, border = 2, relief = "solid")
+        self.submit_button = Button(self.blackFrame, text = "Submit", command = self.getUserChoice, border = 2, relief = "solid")
         self.submit_button.grid(row = 1, column = 0, sticky = NE)
 
     def deleteColorGrid(self):
-        self.a1.destroy()
-        self.a2.destroy()
-        self.a3.destroy()
-        self.b1.destroy()
-        self.b2.destroy()
-        self.b3.destroy()
-        self.c1.destroy()
-        self.c2.destroy()
-        self.c3.destroy()
+        self.redFrame.destroy()
+        self.greenFrame.destroy()
+        self.blueFrame.destroy()
+        self.purpleFrame.destroy()
+        self.yellowFrame.destroy()
+        self.whiteFrame.destroy()
+        self.blackFrame.destroy()
+        self.orangeFrame.destroy()
+        self.pinkFrame.destroy()
 
     def getUserChoice(self):
         self.inputBoxChoice = self.inputBox.get(1.0, "end-1c")
@@ -407,48 +412,48 @@ class mouseGrid():
     def displaySubgrid(self):
         self.displayFlag = 0
 
-        if (self.userChoice == "Red." or self.userChoice == "Red" or self.userChoice == "red"):      # top left
-            self.subgrid = Canvas(self.a1, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        if (jellyfish.jaro_winkler_similarity(self.userChoice, "Red") > 0.7):      # top left
+            self.subgrid = Canvas(self.redFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.redCenter[0], self.redCenter[1], self.redCenter[2])
             self.displayFlag = 1
         
-        elif (self.userChoice == "Green." or self.userChoice == "Green" or self.userChoice == "green"):  # middle left
-            self.subgrid = Canvas(self.a2, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Green") > 0.85):  # middle left
+            self.subgrid = Canvas(self.greenFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.greenCenter[0], self.greenCenter[1], self.greenCenter[2])
             self.displayFlag = 1
 
-        elif (self.userChoice == "Blue." or self.userChoice == "Blue" or self.userChoice == "blue"):   # bottom left
-            self.subgrid = Canvas(self.a3, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Blue") > 0.85):   # bottom left
+            self.subgrid = Canvas(self.blueFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.blueCenter[0], self.blueCenter[1], self.blueCenter[2])
             self.displayFlag = 1
 
-        elif (self.userChoice == "Purple." or self.userChoice == "Purple" or self.userChoice == "purple"): # top center
-            self.subgrid = Canvas(self.b1, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Purple") > 0.85): # top center
+            self.subgrid = Canvas(self.purpleFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.purpleCenter[0], self.purpleCenter[1], self.purpleCenter[2])
             self.displayFlag = 1
 
-        elif (self.userChoice == "Yellow." or self.userChoice == "Yellow" or self.userChoice == "yellow"): # center
-            self.subgrid = Canvas(self.b2, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Yellow") > 0.85): # center
+            self.subgrid = Canvas(self.yellowFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.yellowCenter[0], self.yellowCenter[1], self.yellowCenter[2])
             self.displayFlag = 1
 
-        elif (self.userChoice == "White." or self.userChoice == "White" or self.userChoice == "white"):  # bottom center
-            self.subgrid = Canvas(self.b3, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "White") > 0.85):  # bottom center
+            self.subgrid = Canvas(self.whiteFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.whiteCenter[0], self.whiteCenter[1], self.whiteCenter[2])
             self.displayFlag = 1
 
-        elif (self.userChoice == "Black." or self.userChoice == "Black" or self.userChoice == "black"):  # top right
-            self.subgrid = Canvas(self.c1, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Black") > 0.85):  # top right
+            self.subgrid = Canvas(self.blackFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.blackCenter[0], self.blackCenter[1], self.blackCenter[2])
             self.displayFlag = 1
 
-        elif (self.userChoice == "Orange." or self.userChoice == "Orange" or self.userChoice == "orange"):   # middle right
-            self.subgrid = Canvas(self.c2, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Orange") > 0.85):   # middle right
+            self.subgrid = Canvas(self.orangeFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.orangeCenter[0], self.orangeCenter[1], self.orangeCenter[2])
             self.displayFlag = 1
 
-        elif (self.userChoice == "Pink." or self.userChoice == "Pink" or self.userChoice == "pink"):   # bottom right
-            self.subgrid = Canvas(self.c3, width = self.screenWidth / 3, height = self.screenHeight / 3)
+        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Pink") > 0.7):   # bottom right
+            self.subgrid = Canvas(self.pinkFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
             pyautogui.moveTo(self.pinkCenter[0], self.pinkCenter[1], self.pinkCenter[2])
             self.displayFlag = 1
 
@@ -473,11 +478,11 @@ class mouseGrid():
             
 
             if (self.userChoice == "Red." or self.userChoice == "Red" or self.userChoice == "red"):
-                self.dynamicInstruction_label = Label(self.c1, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
+                self.dynamicInstruction_label = Label(self.blackFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
                 self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
 
             else:
-                self.dynamicInstruction_label = Label(self.a1, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
+                self.dynamicInstruction_label = Label(self.redFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
                 self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
 
             self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
@@ -490,7 +495,7 @@ class mouseGrid():
 
             self.userChoice = recordAndUseModel()
 
-            if (self.userChoice == "Yes." or self.userChoice == "Yes" or self.userChoice == "yes"):
+            if (self.userChoice == "Get more specific." or self.userChoice == "Get more specific" or self.userChoice == "get more specific"):
                 self.moveToInnerPosition()
                 self.mouseOrKeyboardAction()
 
