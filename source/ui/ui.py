@@ -168,30 +168,41 @@ class mainScreen:
         return string
 
     def add_contact(self):
-        
-         self.setlabel("Please give me their name.")
-         self.update_screen()
-         microphone.record(3)
-         self.pred_name = whisper.use_model(RECORD_PATH)
-         self.setlabel("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
-         self.update_screen()
-         microphone.record(4)
-         if_yes1 = whisper.use_model(RECORD_PATH)
-         print(if_yes1)
-         if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes." or if_yes1 == "Yeah." or if_yes1 =="Yeah"):
-              #Stuff
-              print(if_yes1)
-              self.setlabel("What is their email?")
-              self.update_screen()
-              microphone.record(3)
-              self.pred_email = whisper.use_model(RECORD_PATH)
-              self.pred_email = self.format_email(self.pred_email)
-              self.setlabel("I heard " + self.pred_email + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
-              self.update_screen()
-              microphone.record(4)
-              if_yes2 = whisper.use_model(RECORD_PATH)
-              
-              if(if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes." or if_yes2 == "Yeah." or if_yes2 =="Yeah"):
+         confirm = False
+         while confirm == False:
+            self.setlabel("Please give me their name.")
+            self.update_screen()
+            microphone.record(3)
+            self.pred_name = whisper.use_model(RECORD_PATH)
+            self.setlabel("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+            self.update_screen()
+            microphone.record(4)
+            if_yes1 = whisper.use_model(RECORD_PATH)
+            print(if_yes1)
+            if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes." or if_yes1 == "Yeah." or if_yes1 =="Yeah"):
+                confirm = True
+                #Stuff
+            
+                print(if_yes1)
+            else: 
+                 confirm = False
+            while confirm == True:     
+                self.setlabel("What is their email?")
+                self.update_screen()
+                microphone.record(3)
+                self.pred_email = whisper.use_model(RECORD_PATH)
+                self.pred_email = self.format_email(self.pred_email)
+                self.setlabel("I heard " + self.pred_email + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+                self.update_screen()
+                microphone.record(4)
+                if_yes2 = whisper.use_model(RECORD_PATH)
+            
+                if(if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes." or if_yes2 == "Yeah." or if_yes2 =="Yeah"):
+                        #Have to toggle this to exit the loop
+                        confirm = False
+                else: 
+                        confirm = True
+                if(confirm == False):                                          
                     self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
                     self.update_screen()
                     microphone.record(3)
@@ -201,21 +212,21 @@ class mainScreen:
                     microphone.record(4)
                     if_yes3 = whisper.use_model(RECORD_PATH)
                     if(if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes." or if_yes3 == "Yeah." or if_yes3 =="Yeah"):
-                         self.account = {
+                        self.account = {
                                         "name" : self.pred_name ,
                                         "email" : self.pred_email ,
                                         "domain": self.pred_domain , 
-                         }
-                         with open("source/my_account.txt", "w") as f:
+                        }
+                        with open("source/my_account.txt", "w") as f:
                                         f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + "\n")
                     else: 
-                         self.setlabel("Please try again")
-                         self.update_screen() 
-              else:
+                        self.setlabel("Please try again")
+                        self.update_screen() 
+            else:
                     self.setlabel("Please try again")
                     self.update_screen()    
 
-         else:
+        else:
             self.setlabel("Please try again")
             self.update_screen()
 
