@@ -4,10 +4,6 @@ data
 saved
 geckodriver.log
 *.pyc
-<<<<<<< HEAD
 *.app_data.json
 venv
-=======
-venv
-*.app_data.json
->>>>>>> 090aad4fbb530e5c7dcd15b1b1e625eccbaf1c33
+
