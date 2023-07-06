@@ -53,40 +53,50 @@ def commandExec(userChoice):
     if (userChoiceSplit[0] == "Open" or userChoiceSplit[0] == "open"):        # Open application
         print("\n***Open Application***")
         appName = userChoiceSplit[-1]
+        beepgood()
         openApplication(appName)
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Close application") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Close app") > 0.85):      # Close application
         print("\n***Close Application***")
+        beepgood()
         closeApplication()
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll up") > 0.9):      # Scroll up
         print("\n***Scroll Up***")
+        beepgood()
         scrollUp(100)
             
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll down") > 0.9):    # Scroll down
         print("\n***Scroll Down***")
+        beepgood()
         scrollDown(100)
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Set volume") > 0.85):   # Set volume
         print("\n***Set Volume***")
+        beepgood()
         setVolume()           
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
         print("\n***Navigate mouse + keyboard***")
+        beepgood()
         mouseGrid()
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
-        print("\n***Email sign-in***") 
+        print("\n***Email sign-in***")
+        beepgood()
         sign_in()       
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
+        beepgood()
         print("***Exiting***")
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
         print("\nSearching now...\n")
+        beepgood()
         google_search()
 
     else:
+        beepbad()
         print("Try again...")
 
 
