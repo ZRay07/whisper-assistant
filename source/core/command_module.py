@@ -18,6 +18,7 @@ from comtypes import CLSCTX_ALL                                 # audio
 from source.core.model_interface import *
 import keyboard
 from tkinter import *
+import jellyfish
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
