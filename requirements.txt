@@ -13,3 +13,4 @@ pycaw
 sounddevice
 wavio
 keyboard
+jellyfish
