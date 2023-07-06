@@ -20,10 +20,6 @@ import keyboard
 from tkinter import *
 import jellyfish
 
-print(jellyfish.jaro_winkler_similarity("Red", "red"))
-print(jellyfish.jaro_winkler_similarity("Red", "Pink"))
-print(jellyfish.jaro_winkler_similarity("Red", "red."))
-
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -32,12 +28,14 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
 def commandExec(userChoice):    
-
     print("userChoice: " + userChoice)
 
-    if (jellyfish.jaro_winkler_similarity(userChoice, "Open application") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Open app") > 0.85):      # Open application
+    userChoiceSplit = userChoice.split()
+
+    if (userChoiceSplit[0] == "Open" or userChoiceSplit[0] == "open"):        # Open application
         print("\n***Open Application***")
-        openApplication()
+        appName = userChoiceSplit[-1]
+        openApplication(appName)
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Close application") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Close app") > 0.85):      # Close application
         print("\n***Close Application***")
@@ -45,11 +43,11 @@ def commandExec(userChoice):
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll up") > 0.9):      # Scroll up
         print("\n***Scroll Up***")
-        pyautogui.scroll(100)
+        scrollUp(100)
             
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll down") > 0.9):    # Scroll down
         print("\n***Scroll Down***")
-        pyautogui.scroll(-100)
+        scrollDown(100)
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Set volume") > 0.85):   # Set volume
         print("\n***Set Volume***")
@@ -75,18 +73,27 @@ def commandExec(userChoice):
 
 
 
-def openApplication():
-    print("\nWhich application would you like to open?")
-    print("\t*Word")
-    print("\t*Edge")
-    print("\t*Spotify")
-    print("\t*Discord")
+def openApplication(appName):
+    
+    if (appName == "application." or appName == "application" or appName == "app." or appName == "app"):
+        print("\nWhich application would you like to open?")
+        print("\t*Word")
+        print("\t*Edge")
+        print("\t*Spotify")
+        print("\t*Discord")
 
-    microphone.record(3)
-    prediction = whisper.use_model(RECORD_PATH)
+        microphone.record(3)
+        appName = whisper.use_model(RECORD_PATH)
 
-    print("Opening " + prediction)
-    AppOpener.open(prediction)
+    try:
+        AppOpener.open(appName, throw_error = True)
+        return True
+    except Exception as e:
+        return False
+
+
+
+
 
 def closeApplication():
     print("\nWhich application would you like to close?")
@@ -100,6 +107,13 @@ def closeApplication():
 
     print("Closing " + prediction)
     AppOpener.close(prediction)
+
+def scrollUp(scrollAmount):
+    pyautogui.scroll(scrollAmount)
+    
+def scrollDown(scrollAmount):
+    pyautogui.scroll(-(scrollAmount))
+
 
 
 def setVolume():
@@ -169,6 +183,8 @@ def setVolume():
         else:
             print("We heard: " + prediction)
             numberFlag = False
+
+    return True
 
 # end volume control loop 
 
@@ -650,4 +666,7 @@ def recordAndUseModel():
     print("We heard " + prediction)
 
     return prediction
-    
+
+
+if __name__ == "__main__":
+    print("This should only run if called from cmd line")    
