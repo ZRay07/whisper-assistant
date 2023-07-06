@@ -20,10 +20,6 @@ import keyboard
 from tkinter import *
 import jellyfish
 
-print(jellyfish.jaro_winkler_similarity("Red", "red"))
-print(jellyfish.jaro_winkler_similarity("Red", "Pink"))
-print(jellyfish.jaro_winkler_similarity("Red", "red."))
-
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
