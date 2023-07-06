@@ -132,7 +132,7 @@ class mainScreen:
         microphone.record(3)
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
-
+        
         print("Prediction: " + self.prediction)
         #A wait func might allow the above line to complete first
         commandExec(self.prediction)

@@ -29,12 +29,12 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 
 #audio beep functions
 def beepgood():
-    winsound.Beep(1000, 1000)
-    winsound.Beep(1250, 1000)
+    winsound.Beep(1000, 250)
+    winsound.Beep(1500, 250)
 
 def beepbad():
-    winsound.Beep(1000, 1000)
-    winsound.Beep(750, 1000)
+    winsound.Beep(1000, 250)
+    winsound.Beep(500, 250)
 
 #example text to speech function
 def tts():
