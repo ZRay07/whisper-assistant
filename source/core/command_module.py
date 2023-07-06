@@ -20,7 +20,7 @@ import keyboard
 from tkinter import *
 import jellyfish
 import winsound # for creating beeps
-import pyttsx3  # for text to speech if needed
+import pyttsx3  # for text to speech if needed (ex: says begin recording)
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
