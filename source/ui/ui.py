@@ -14,7 +14,6 @@ class mainScreen:
 
         # Set the starting size of the window and its location
         self.root.geometry("1100x700+480+200")
-
         self.drawRightFrame()
         self.drawLeftFrame()
         self.root = mainloop()
@@ -232,9 +231,10 @@ class mainScreen:
            
 
 
-
-
-
+    #Call this and use root as the input. Brings window to the foreground.
+    def bring_to_front(root): 
+         root.attributes('-topmost', 1)
+         root.attributes('-topmost', 0)
 
 
 
