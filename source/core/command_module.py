@@ -19,11 +19,21 @@ from source.core.model_interface import *
 import keyboard
 from tkinter import *
 import jellyfish
+import winsound # for creating beeps
+import pyttsx3  # for text to speech
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 volume = cast(interface, POINTER(IAudioEndpointVolume))
+
+def beepgood():
+    winsound.Beep(1000, 1000)
+    winsound.Beep(1250, 1000)
+
+def beepbad():
+    winsound.Beep(1000, 1000)
+    winsound.Beep(750, 1000)
 
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
@@ -92,9 +102,6 @@ def openApplication(appName):
         return False
 
 
-
-
-
 def closeApplication():
     print("\nWhich application would you like to close?")
     print("\t*Word")
@@ -113,8 +120,6 @@ def scrollUp(scrollAmount):
     
 def scrollDown(scrollAmount):
     pyautogui.scroll(-(scrollAmount))
-
-
 
 def setVolume():
     numberFlag = False
