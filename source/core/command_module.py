@@ -667,6 +667,5 @@ def recordAndUseModel():
 
     return prediction
 
-
 if __name__ == "__main__":
     print("This should only run if called from cmd line")    
