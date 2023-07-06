@@ -236,13 +236,17 @@ def account_info_in():
             last_name = extr_2[0]
             extr_3 = extr_2[2].partition(" ")
             email = extr_3[0]
-            domain = extr_3[2]
+            extr_4 = extr_3[2].partition(" ")
+            domain = extr_4[0]
+            extr_5 = extr_4[2]
+            password = extr_5
             contact = {
                     'name' : first_name + " " + last_name,
                     'email' : email , 
-                    'domain' : domain
+                    'domain' : domain,
+                    'password' : password
                 }
-    return contact.get('name'), contact.get('email'), contact.get('domain')
+    return contact.get('name'), contact.get('email'), contact.get('domain'), contact.get('password')
 
 def google_search():
     microphone.record(10)

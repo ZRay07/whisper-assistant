@@ -47,7 +47,7 @@ class mainScreen:
         self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = pyautogui.scroll(-10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "light grey", command = mouseGrid, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command =lambda: [sign_in,bring_to_front] bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = lambda:[sign_in,bring_to_front], bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.exit_button = Button(self.cmd_bar, text = "Exit", command = self.root.quit, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         
         # Place the buttons in the frame
