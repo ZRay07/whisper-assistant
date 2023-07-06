@@ -223,13 +223,17 @@ def account_info_in():
             last_name = extr_2[0]
             extr_3 = extr_2[2].partition(" ")
             email = extr_3[0]
-            domain = extr_3[2]
+            extr_4 = extr_3[2].partition(" ")
+            domain = extr_4[0]
+            extr_5 = extr_4[2]
+            password = extr_5
             contact = {
                     'name' : first_name + " " + last_name,
                     'email' : email , 
-                    'domain' : domain
+                    'domain' : domain,
+                    'password' : password
                 }
-    return contact.get('name'), contact.get('email'), contact.get('domain')
+    return contact.get('name'), contact.get('email'), contact.get('domain'), contact.get('password')
 
 def google_search():
     microphone.record(10)
@@ -250,75 +254,76 @@ def google_search():
 
 
 def sign_in():
-    name, email, domain = account_info_in()
+    name, email, domain, password = account_info_in()
+    web_list = ["https://proton.me/mail", "https://outlook.live.com/owa/", "google.com/gmail/about"]
+#FORMAT DOMAIN TO MIMIC THE BELOW:
     driver = webdriver.Firefox()
-
-    #so the pages have time to load 
     wait = WebDriverWait(driver, 30)
-
-    driver.get("https://outlook.live.com/owa/")
-    #time.sleep(3)
-    #ele = (driver.find_element(By.LINK_TEXT,"Sign in"))
-
-    #ele.click()
-        
-    #This is an alternative method
-    # Wait for the Sign in link to become available
-    ele = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "Sign in")))
-    ele.click()
-
-    # Wait for the email input field to become available
-    el1 = wait.until(EC.presence_of_element_located((By.NAME, "loginfmt")))
+    if (domain == "Proton"):
+        driver.get(web_list[0])
 
 
-    #email = driver.find_element(By.XPATH, "//form[input/@name='email']")
-    #email = driver.find_element(By.XPATH, "//form[@id='loginForm']/input[1]")
-    #email = driver.find_element(By.XPATH, "//input[@name='email']")
-    #time.sleep(2)
-    #el1 = ( driver.find_element(By.NAME, "loginfmt"))
-    user = "sherpaemail361@gmail.com"
-    el1.send_keys(user)
+    elif (domain == "Outlook" or domain == "Gmail"):
+        driver.get(web_list[1])
+        ele = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "Sign in")))
+        ele.click()
 
-    el1.send_keys(Keys.RETURN)
-    time.sleep(2)
-    #keyword = "geeksforgeeks"
-    el2 = wait.until(EC.presence_of_element_located((By.NAME, "passwd")))
-    passwerd = "Dummypassword"
-    el2.send_keys(passwerd)
-    el2.send_keys(Keys.RETURN)
-    el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "button--link"))) 
-    el3.click()
-    time.sleep(2)
-    #el4 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "method-select-chevron"))) 
-    #el4.click()
+        # Wait for the email input field to become available
+        el1 = wait.until(EC.presence_of_element_located((By.NAME, "loginfmt")))
 
-    elements = driver.find_elements(By.CLASS_NAME, "method-select-chevron")
-    #This for loop helped identify which element to click
-    #for e in elements:
-    #    print(e)
-    elements[3].click()
-    time.sleep(15)
 
-    el5 = wait.until(EC.presence_of_element_located((By.ID,"trust-browser-button")))
-    el5.click()
+        #email = driver.find_element(By.XPATH, "//form[input/@name='email']")
+        #email = driver.find_element(By.XPATH, "//form[@id='loginForm']/input[1]")
+        #email = driver.find_element(By.XPATH, "//input[@name='email']")
+        #time.sleep(2)
+        #el1 = ( driver.find_element(By.NAME, "loginfmt"))
+        user = email + "@" + domain + ".com"
+        el1.send_keys(user)
 
-    #Find the yes button
-    elements2 = wait.until(EC.presence_of_element_located((By.ID,"idSIButton9")))
-    elements2.click()
+        el1.send_keys(Keys.RETURN)
+        time.sleep(2)
+        #keyword = "geeksforgeeks"
+        el2 = wait.until(EC.presence_of_element_located((By.NAME, "passwd")))
+        el2.send_keys(password)
+        el2.send_keys(Keys.RETURN)
+        el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "button--link"))) 
+        el3.click()
+        time.sleep(2)
+        #el4 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "method-select-chevron"))) 
+        #el4.click()
+
+        elements = driver.find_elements(By.CLASS_NAME, "method-select-chevron")
+        #This for loop helped identify which element to click
+        #for e in elements:
+        #    print(e)
+        elements[3].click()
+        time.sleep(15)
+
+        el5 = wait.until(EC.presence_of_element_located((By.ID,"trust-browser-button")))
+        el5.click()
+
+        #Find the yes button
+        elements2 = wait.until(EC.presence_of_element_located((By.ID,"idSIButton9")))
+        elements2.click()
 
     #The lines below are meant to start a new email but the id is incorrect - fix later
     #el4 = wait.until(EC.presence_of_element_located((By.ID, "id__248")))
     #el4.click()
 
+
+    #so the pages have time to load 
+    
+
 class mouseGrid():
     def __init__(self):
+        print("***Mouse Control***")
         self.userChoiceFlag = 0
 
         # Open a new window
         self.mouseGrid = Tk()
 
         # Make this window transparent
-        self.mouseGrid.attributes("-alpha", 0.3, "-fullscreen", TRUE)
+        self.mouseGrid.attributes("-alpha", 0.5, "-fullscreen", TRUE)
 
         #mouseGrid.geometry("1919x1079")
 
@@ -335,7 +340,7 @@ class mouseGrid():
         self.blackCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2, 1]
         self.orangeCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + self.screenHeight / 3, 1]
         self.pinkCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
-
+        
         self.drawColorGrid()
 
         self.mouseGrid.mainloop()
@@ -396,6 +401,7 @@ class mouseGrid():
         self.orangeFrame.destroy()
         self.pinkFrame.destroy()
 
+
     def getUserChoice(self):
         self.inputBoxChoice = self.inputBox.get(1.0, "end-1c")
 
@@ -408,7 +414,6 @@ class mouseGrid():
               self.inputBoxChoice == "Purple" or self.inputBoxChoice == "Yellow" or self.inputBoxChoice == "White" or
               self.inputBoxChoice == "Black" or self.inputBoxChoice == "Orange" or self.inputBoxChoice == "Pink"):
             self.displaySubgrid()
-
         elif (self.inputBoxChoice == "Destroy"):
             self.deleteColorGrid()
 
@@ -491,8 +496,8 @@ class mouseGrid():
             self.mouseGrid.update()
 
             self.dynamicInstructionText = StringVar()
-            
 
+                          
             if (self.userChoice == "Red." or self.userChoice == "Red" or self.userChoice == "red"):
                 self.dynamicInstruction_label = Label(self.blackFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
                 self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
@@ -502,7 +507,7 @@ class mouseGrid():
                 self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
 
             self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
-            
+
             self.mouseGrid.update_idletasks()
             self.mouseGrid.update()
 

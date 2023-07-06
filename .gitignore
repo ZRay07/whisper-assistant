@@ -4,4 +4,5 @@ data
 saved
 geckodriver.log
 *.pyc
+venv
 *.app_data.json
