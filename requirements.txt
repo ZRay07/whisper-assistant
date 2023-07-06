@@ -15,3 +15,4 @@ wavio
 keyboard
 jellyfish
 scipy
+pyttsx3
