@@ -36,6 +36,13 @@ def beepbad():
     winsound.Beep(1000, 1000)
     winsound.Beep(750, 1000)
 
+#example text to speech function
+def tts():
+    engine = pyttsx3.init() # initialize
+    engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
+    engine.say("Begin recording") # what engine will say (feed prediction into this?)
+    engine.runAndWait() # runs engine until 'sentence' is over
+
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
 def commandExec(userChoice):    
