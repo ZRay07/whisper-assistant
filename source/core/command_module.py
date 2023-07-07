@@ -43,26 +43,28 @@ def commandExec(userChoice):
 
     userChoiceSplit = userChoice.split()
 
-    if (userChoiceSplit[0] == "Open" or userChoiceSplit[0] == "open"):        # Open application
+    if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "Open") > 0.85):        # Open application
         print("\n***Open Application***")
         appName = userChoiceSplit[-1]
         openApplication(appName)
 
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Close application") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Close app") > 0.85):      # Close application
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "Close") > 0.85):      # Close application
         print("\n***Close Application***")
-        closeApplication()
+        appName = userChoiceSplit[-1]
+        closeApplication(appName)
 
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll up") > 0.9):      # Scroll up
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll up") > 0.9):      # Scroll up
         print("\n***Scroll Up***")
         scrollUp(100)
             
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll down") > 0.9):    # Scroll down
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll down") > 0.9):    # Scroll down
         print("\n***Scroll Down***")
         scrollDown(100)
 
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Set volume") > 0.85):   # Set volume
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Set volume") > 0.85):   # Set volume
         print("\n***Set Volume***")
-        setVolume()           
+        volChoice = userChoiceSplit[-1]
+        setVolume(volChoice)           
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
         print("\n***Navigate mouse + keyboard***")
@@ -83,9 +85,10 @@ def commandExec(userChoice):
         print("Try again...")
 
 
-
+# User voice input has been split by word
+# If user says "open application" -> the if statement will be entered which will prompt for an app name
+#   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
 def openApplication(appName):
-    
     if (appName == "application." or appName == "application" or appName == "app." or appName == "app"):
         print("\nWhich application would you like to open?")
         print("\t*Word")
@@ -102,95 +105,189 @@ def openApplication(appName):
     except Exception as e:
         return False
 
+def closeApplication(appName):
+    if (appName == "application." or appName == "application" or appName == "app." or appName == "app"):
+        print("\nWhich application would you like to close?")
+        print("\t*Word")
+        print("\t*Edge")
+        print("\t*Spotify")
+        print("\t*Discord")
 
-def closeApplication():
-    print("\nWhich application would you like to close?")
-    print("\t*Word")
-    print("\t*Edge")
-    print("\t*Spotify")
-    print("\t*Discord")
+        microphone.record(3)
+        appName = whisper.use_model(RECORD_PATH)
 
-    microphone.record(3)
-    prediction = whisper.use_model(RECORD_PATH)
-
-    print("Closing " + prediction)
-    AppOpener.close(prediction)
+    try:
+        AppOpener.close(appName, throw_error = True)
+        return True
+    except Exception as e:
+        return False
 
 def scrollUp(scrollAmount):
-    pyautogui.scroll(scrollAmount)
+    try:
+        if not type(scrollAmount) is int:                   # asserts that the value passed is an int
+            raise TypeError("Only integers are allowed")    
+        
+        pyautogui.scroll(scrollAmount)
+        return True
+    
+    except TypeError as te:
+        return False
     
 def scrollDown(scrollAmount):
-    pyautogui.scroll(-(scrollAmount))
+    try:
+        if not type(scrollAmount) is int:                   # asserts that the value passed is an int
+            raise TypeError("Only integers are allowed")
+        
+        pyautogui.scroll((-scrollAmount))
+        return True
+    
+    except TypeError as e:
+        return False
 
-def setVolume():
-    numberFlag = False
-    while (numberFlag == False):
-        print("\nWhat volume would you like to set to?")
-        print("*** MUST BE AN INCREMENT OF 10 ***")
+def setVolume(volChoice):
+    try:
+        if (volChoice == "Volume." or volChoice == "Volume" or volChoice == "volume." or volChoice == "volume"):
+            numberFlag = False
+            while (numberFlag == False):
+                print("\nWhat volume would you like to set to?")
+                print("*** MUST BE AN INCREMENT OF 10 ***")
 
-        microphone.record(2)
-        prediction = whisper.use_model(RECORD_PATH)
+                microphone.record(2)
+                prediction = whisper.use_model(RECORD_PATH)
 
-        if (prediction == "0" or prediction == "0." or prediction == "Zero" or prediction == "zero"):
+                if (prediction == "0" or prediction == "0." or prediction == "Zero" or prediction == "zero"):
+                    volChoice = 0
+                    volume.SetMasterVolumeLevel(-60.0, None)
+                    print("Setting volume to 0")
+                    numberFlag = True
+
+                elif (prediction == "10" or prediction == "10."):
+                    volChoice = 10
+                    volume.SetMasterVolumeLevel(-33.0, None)
+                    print("Setting volume to 10")
+                    numberFlag = True
+
+                elif (prediction == "20"):
+                    volChoice = 20
+                    volume.SetMasterVolumeLevel(-23.4, None)
+                    print("Setting volume to 20")
+                    numberFlag = True
+
+                elif (prediction == "30"):
+                    volChoice = 30
+                    volume.SetMasterVolumeLevel(-17.8, None)
+                    print("Setting volume to 30")
+                    numberFlag = True
+
+                elif (prediction == "40"):
+                    volChoice = 40
+                    volume.SetMasterVolumeLevel(-13.6, None)
+                    print("Setting volume to 40")
+                    numberFlag = True
+
+                elif (prediction == "50"):
+                    volChoice = 50
+                    volume.SetMasterVolumeLevel(-10.2, None)
+                    print("Setting volume to 50")
+                    numberFlag = True
+
+                elif (prediction == "60"):
+                    volChoice = 60
+                    volume.SetMasterVolumeLevel(-7.6, None)
+                    print("Setting volume to 60")
+                    numberFlag = True
+
+                elif (prediction == "70"):
+                    volChoice = 70
+                    volume.SetMasterVolumeLevel(-5.3, None)
+                    print("Setting volume to 70")
+                    numberFlag = True
+
+                elif (prediction == "80"):
+                    volChoice = 80
+                    volume.SetMasterVolumeLevel(-3.4, None)
+                    print("Setting volume to 80")
+                    numberFlag = True
+
+                elif (prediction == "90"):
+                    volChoice = 90
+                    volume.SetMasterVolumeLevel(-1.6, None)
+                    print("Setting volume to 90")
+                    numberFlag = True
+
+                elif (prediction == "100"):
+                    volChoice = 100
+                    volume.SetMasterVolumeLevel(0, None)
+                    print("Setting volume to 100")
+                    numberFlag = True
+
+                else:
+                    print("We heard: " + prediction)
+                    numberFlag = False
+
+        elif (volChoice == "0" or volChoice == "0." or volChoice == "Zero" or volChoice == "zero"):
+            volChoice = 0
             volume.SetMasterVolumeLevel(-60.0, None)
             print("Setting volume to 0")
-            numberFlag = True
 
-        elif (prediction == "10" or prediction == "10."):
+        elif (volChoice == "10" or volChoice == "10."):
+            volChoice = 10
             volume.SetMasterVolumeLevel(-33.0, None)
             print("Setting volume to 10")
-            numberFlag = True
 
-        elif (prediction == "20"):
+        elif (volChoice == "20"):
+            volChoice = 20
             volume.SetMasterVolumeLevel(-23.4, None)
             print("Setting volume to 20")
-            numberFlag = True
 
-        elif (prediction == "30"):
+        elif (volChoice == "30"):
+            volChoice = 30
             volume.SetMasterVolumeLevel(-17.8, None)
             print("Setting volume to 30")
-            numberFlag = True
 
-        elif (prediction == "40"):
+        elif (volChoice == "40"):
+            volChoice = 40
             volume.SetMasterVolumeLevel(-13.6, None)
             print("Setting volume to 40")
-            numberFlag = True
 
-        elif (prediction == "50"):
+        elif (volChoice == "50"):
+            volChoice = 50
             volume.SetMasterVolumeLevel(-10.2, None)
             print("Setting volume to 50")
-            numberFlag = True
 
-        elif (prediction == "60"):
+        elif (volChoice == "60"):
+            volChoice = 60
             volume.SetMasterVolumeLevel(-7.6, None)
             print("Setting volume to 60")
-            numberFlag = True
 
-        elif (prediction == "70"):
+        elif (volChoice == "70"):
+            volChoice = 70
             volume.SetMasterVolumeLevel(-5.3, None)
             print("Setting volume to 70")
-            numberFlag = True
 
-        elif (prediction == "80"):
+        elif (volChoice == "80"):
+            volChoice = 80
             volume.SetMasterVolumeLevel(-3.4, None)
             print("Setting volume to 80")
-            numberFlag = True
 
-        elif (prediction == "90"):
+        elif (volChoice == "90"):
+            volChoice = 90
             volume.SetMasterVolumeLevel(-1.6, None)
             print("Setting volume to 90")
-            numberFlag = True
 
-        elif (prediction == "100"):
+        elif (volChoice == "100"):
+            volChoice = 100
             volume.SetMasterVolumeLevel(0, None)
             print("Setting volume to 100")
-            numberFlag = True
 
-        else:
-            print("We heard: " + prediction)
-            numberFlag = False
+        if (int(volChoice) == 0 and int(volChoice) == 10 and int(volChoice) == 20 and int(volChoice) == 30 and int(volChoice) == 40 and int(volChoice) == 50
+            and int(volChoice == 60) and int(volChoice) == 70 and int(volChoice) == 80 and int(volChoice) == 90 and int(volChoice) == 100):
+            raise ValueError("Volume choice must be a multiple of 10")
 
-    return True
+        return volChoice
+    
+    except ValueError as ve:
+        return False
 
 # end volume control loop 
 
