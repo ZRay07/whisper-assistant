@@ -129,7 +129,7 @@ class mainScreen:
          self.root.update()
     
     def recordAndUseModel(self):
-        microphone.record(3)
+        microphone.record(5)
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
 
