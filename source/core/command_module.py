@@ -38,9 +38,7 @@ def beepbad():
 
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
-def commandExec(userChoice):    
-    print("userChoice: " + userChoice)
-
+def commandExec(userChoice):
     userChoiceSplit = userChoice.split()
 
     if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "Open") > 0.85):        # Open application
@@ -89,7 +87,7 @@ def commandExec(userChoice):
 # If user says "open application" -> the if statement will be entered which will prompt for an app name
 #   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
 def openApplication(appName):
-    if (appName == "application." or appName == "application" or appName == "app." or appName == "app"):
+    if (jellyfish.jaro_winkler_similarity(appName, "application") > 0.85 or jellyfish.jaro_winkler_similarity(appName, "app") > 0.85):
         print("\nWhich application would you like to open?")
         print("\t*Word")
         print("\t*Edge")
@@ -98,15 +96,20 @@ def openApplication(appName):
 
         microphone.record(3)
         appName = whisper.use_model(RECORD_PATH)
+        
+        # Pop off the last character if it's punctuation
+    if (appName[-1] == "." or appName[-1] == "!"):
+        appName = appName[:-1]
 
     try:
         AppOpener.open(appName, throw_error = True)
         return True
     except Exception as e:
+        print("Error")
         return False
 
 def closeApplication(appName):
-    if (appName == "application." or appName == "application" or appName == "app." or appName == "app"):
+    if (jellyfish.jaro_winkler_similarity(appName, "application") > 0.85 or jellyfish.jaro_winkler_similarity(appName, "app") > 0.85):
         print("\nWhich application would you like to close?")
         print("\t*Word")
         print("\t*Edge")
@@ -115,11 +118,16 @@ def closeApplication(appName):
 
         microphone.record(3)
         appName = whisper.use_model(RECORD_PATH)
+        
+    # Pop off the last character if it's punctuation
+    if (appName[-1] == "." or appName[-1] == "!"):
+        appName = appName[:-1]
 
     try:
         AppOpener.close(appName, throw_error = True)
         return True
     except Exception as e:
+        print("Error")
         return False
 
 def scrollUp(scrollAmount):
@@ -141,7 +149,7 @@ def scrollDown(scrollAmount):
         pyautogui.scroll((-scrollAmount))
         return True
     
-    except TypeError as e:
+    except TypeError as te:
         return False
 
 def setVolume(volChoice):
