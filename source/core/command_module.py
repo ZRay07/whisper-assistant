@@ -56,13 +56,13 @@ def commandExec(userChoice):
     
     if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "open") > 0.85):        # Open application
         print("\n***Open Application***")
-        appName = userChoiceSplit[-1].rstrip(string.punctuation)
+        appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
         handleApplicationAction(appName, "open")
 
 
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "close") > 0.85):      # Close application
         print("\n***Close Application***")
-        appName = userChoiceSplit[-1].rstrip(string.punctuation)
+        appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
         handleApplicationAction(appName, "close")
 
 
@@ -80,7 +80,7 @@ def commandExec(userChoice):
 
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Set volume") > 0.85):   # Set volume
         print("\n***Set Volume***")
-        volChoice = userChoiceSplit[-1]
+        volChoice = userChoiceSplit[-1].rstrip(string.punctuation).lower()
         setVolume(volChoice)           
 
 
@@ -106,6 +106,28 @@ def commandExec(userChoice):
     else:
         beepbad()
         print("Try again...")
+
+# This function is used when we need to prompt the user for additional voice inputs
+# Used for getting application names, scroll amounts, volume levels, etc.
+# If removePunctuation is true when you call it, it removes trailing punctuation.
+# If makeLowerCase is true when you call it, it makes the output string lowercase
+def promptUser(recordDuration, removePunctuation, makeLowerCase):
+    try:
+        microphone.record(recordDuration)
+        userInput = whisper.use_model(RECORD_PATH)
+
+        if removePunctuation:
+            userInput = userInput.rstrip(string.punctuation)
+
+        if makeLowerCase:
+            userInput = userInput.lower()
+
+        return userInput
+    
+    except Exception as e:
+        print("Error occured during recording: ", str(e))
+        return False
+
 
 # This function will generate a list of all the apps on users pc and store it in a json file
 # Its used to check for errors in open/close application methods
@@ -151,22 +173,20 @@ def removeEssentialServices(essentialServices):
 #   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
 def handleApplicationAction(appName, action):
     if (appName in {"application", "app"}):
-        print(f"\nWhich application would you like to {action}?")
-        print("\t- Word")
-        print("\t- Edge")
-        print("\t- Spotify")
-        print("\t- Discord")
+        while True:
+            print(f"\nWhich application would you like to {action}?")
+            print("\t- Word")
+            print("\t- Edge")
+            print("\t- Spotify")
+            print("\t- Discord")
+            time.sleep(2)
 
-        try:
-            microphone.record(3)
-            appName = whisper.use_model(RECORD_PATH)
-        except Exception as e:
-            print("Error occured during recording: ", str(e))
-            return False
-        
-    # Remove any trailing punctuation marks
-    appName = appName.rstrip(string.punctuation)
-    appName = appName.lower()
+            appName = promptUser(3, True, True)
+
+            if appName in VALID_APPS:
+                break   # Valid app name provided, exit the while loop
+            else:
+                print("Invalid application name. Please try again")
 
     # Remove essential services from VALID_APPS list so they aren't accessible to close
     if action == "close":
@@ -196,189 +216,115 @@ def convertToInt(stringValue):
         return integerValue  # Return the converted integer value
     except ValueError:
         # Conversion failed, input is not a numeric value
-        return None  # Return None to indicate the failure to convert
+        try:
+            return convertWordToInt(stringValue)  # If input is a string representation, this function will handle it
+        
+        except Exception as e:
+            print(f"Error: {e}")
+            return None # Return None to indicate the failure to convert
 
+def convertWordToInt(stringValue):
+    try:
+        if isinstance(stringValue, int):
+            return stringValue
+        elif isinstance(stringValue, str):
+            # Convert word representation of number to integer
+            # For example: "Ten" becomes 10
+            try:
+                return w2n.word_to_num(stringValue)
+            except ValueError:
+                print(f"Invalid number word: {stringValue}")
+                return None
+        else:
+            raise TypeError
+    except TypeError as e:
+        print("Only integers or number strings are allowed", str(e))
+        return None
 
 def handleScrollAction(scrollAmount, direction):
     # Remove any trailing punctuation marks
     scrollAmount = scrollAmount.rstrip(string.punctuation)
 
-    try:
-        if scrollAmount in {"up", "down"}:
-            scrollAmount = 100  # Default scroll amount if user doesn't specify a number
-        else:
-            convertToInt(scrollAmount)
-
-        if isinstance(scrollAmount, int):
-            pass
-        elif isinstance(scrollAmount, str):
-            # Convert string representation of number to integer
-            # For example: "Ten" becomes 10
-            scrollAmount = w2n.word_to_num(scrollAmount)
-        else:
-            raise TypeError("Only integers or number strings are allowed")
+    while True:
+        try:
+            if scrollAmount in {"up", "down"}:
+                scrollAmount = 100  # Default scroll amount if user doesn't specify a number
+            else:
+                scrollAmount = convertToInt(scrollAmount) # Convert string representation of number to integer
+                
+            if scrollAmount is None  or scrollAmount < 0 or scrollAmount > 1000:
+                print(f"Invalid scroll amount: {scrollAmount}. Valid scroll amounts are between 0 and 1000.")
+                time.sleep(2)
+                scrollAmount = promptUser(3, True, True)   # Prompt the user again for input
+                continue    # Restart the loop to revalidate the new input (if statement to check value in range)
+            
+            if direction == "up":
+                print(f"Scrolling up by {scrollAmount} clicks")
+                pyautogui.scroll(scrollAmount)
+            elif direction == "down":
+                print(f"Scrolling down by {scrollAmount} clicks")
+                pyautogui.scroll(-scrollAmount)
+            else:
+                raise ValueError(f"Invalid scroll direction: {direction}")
+            
+            return True
         
-        if direction == "up":
-            print(f"Scrolling up by {scrollAmount} clicks")
-            pyautogui.scroll(scrollAmount)
-        elif direction == "down":
-            print(f"Scrolling down by {scrollAmount} clicks")
-            pyautogui.scroll(-scrollAmount)
-        else:
-            raise ValueError("Invalid scroll direction")
-        
-        return True
-    
-    except Exception as e:
-        print(f"Error occured during scrolling: {e}")
-        return False
+        except ValueError as ve:
+            print("Invalid scroll amount. Valid scroll amounts are between 0 and 1000.")
+            time.sleep(2)
+            scrollAmount = promptUser(2, True, True)
 
+        except Exception as e:
+            print(f"Error occured during scrolling: {e}")
+            return False
+
+# The input to this function [volChoice] can be a number, or it can simply be volume
+#   The input comes from the output of the Whisper speech recognition module
+#   So a user may say "set volume" or "set volume to 80"
+#   if the user says "set volume", the function should prompt the user and record an audio clip to get the number they'd like to set their volume to
+#   if the user says "set volume to 80", the function should automatically set the volume to 80 without prompting again
 def setVolume(volChoice):
+    # Actual volume levels and corresponding decibel levels
+    volumeMapping = {
+        0: -60.0,
+        10: -33.0,
+        20: -23.4,
+        30: -17.8,
+        40: -13.6,
+        50: -10.2,
+        60: -7.6,
+        70: -5.3,
+        80: -3.4,
+        90: -1.6,
+        100: 0
+    }
+
     try:
-        if (jellyfish.jaro_winkler_similarity(volChoice, "volume") > 0.85):
-            numberFlag = False
-            while (numberFlag == False):
+        while True:
+            if (volChoice == "volume"):
+                # If the input is only volume, prompt user for a desired volume level
                 print("\nWhat volume would you like to set to?")
                 print("*** MUST BE AN INCREMENT OF 10 ***")
+                time.sleep(2)
 
-                microphone.record(2)
-                prediction = whisper.use_model(RECORD_PATH)
+                volChoice = promptUser(3, True, True)
 
-                if (prediction == "0" or prediction == "0." or prediction == "Zero" or prediction == "zero"):
-                    volChoice = 0
-                    volume.SetMasterVolumeLevel(-60.0, None)
-                    print("Setting volume to 0")
-                    numberFlag = True
+            volChoice = convertToInt(volChoice) # Convert string representation of number to integer
+            
+            if volChoice in volumeMapping:
+                volume.SetMasterVolumeLevel(volumeMapping[volChoice], None) # Grabs the decibel value from volume mapping dict
+                print(f"Setting volume to {volChoice}")
+                return True
 
-                elif (prediction == "10" or prediction == "10."):
-                    volChoice = 10
-                    volume.SetMasterVolumeLevel(-33.0, None)
-                    print("Setting volume to 10")
-                    numberFlag = True
+            # Prompt the user again for a valid volume value
+            print(f"\nInvalid volume value: {volChoice}. Valid volume levels are increments of 10 between 0 and 100.")
+            time.sleep(2)
 
-                elif (prediction == "20"):
-                    volChoice = 20
-                    volume.SetMasterVolumeLevel(-23.4, None)
-                    print("Setting volume to 20")
-                    numberFlag = True
+            volChoice = promptUser(3, True, True)
 
-                elif (prediction == "30"):
-                    volChoice = 30
-                    volume.SetMasterVolumeLevel(-17.8, None)
-                    print("Setting volume to 30")
-                    numberFlag = True
-
-                elif (prediction == "40"):
-                    volChoice = 40
-                    volume.SetMasterVolumeLevel(-13.6, None)
-                    print("Setting volume to 40")
-                    numberFlag = True
-
-                elif (prediction == "50"):
-                    volChoice = 50
-                    volume.SetMasterVolumeLevel(-10.2, None)
-                    print("Setting volume to 50")
-                    numberFlag = True
-
-                elif (prediction == "60"):
-                    volChoice = 60
-                    volume.SetMasterVolumeLevel(-7.6, None)
-                    print("Setting volume to 60")
-                    numberFlag = True
-
-                elif (prediction == "70"):
-                    volChoice = 70
-                    volume.SetMasterVolumeLevel(-5.3, None)
-                    print("Setting volume to 70")
-                    numberFlag = True
-
-                elif (prediction == "80"):
-                    volChoice = 80
-                    volume.SetMasterVolumeLevel(-3.4, None)
-                    print("Setting volume to 80")
-                    numberFlag = True
-
-                elif (prediction == "90"):
-                    volChoice = 90
-                    volume.SetMasterVolumeLevel(-1.6, None)
-                    print("Setting volume to 90")
-                    numberFlag = True
-
-                elif (prediction == "100"):
-                    volChoice = 100
-                    volume.SetMasterVolumeLevel(0, None)
-                    print("Setting volume to 100")
-                    numberFlag = True
-
-                else:
-                    print("We heard: " + prediction)
-                    numberFlag = False
-
-        elif (volChoice == "0" or volChoice == "0." or volChoice == "Zero" or volChoice == "zero"):
-            volChoice = 0
-            volume.SetMasterVolumeLevel(-60.0, None)
-            print("Setting volume to 0")
-
-        elif (volChoice == "10" or volChoice == "10."):
-            volChoice = 10
-            volume.SetMasterVolumeLevel(-33.0, None)
-            print("Setting volume to 10")
-
-        elif (volChoice == "20"):
-            volChoice = 20
-            volume.SetMasterVolumeLevel(-23.4, None)
-            print("Setting volume to 20")
-
-        elif (volChoice == "30"):
-            volChoice = 30
-            volume.SetMasterVolumeLevel(-17.8, None)
-            print("Setting volume to 30")
-
-        elif (volChoice == "40"):
-            volChoice = 40
-            volume.SetMasterVolumeLevel(-13.6, None)
-            print("Setting volume to 40")
-
-        elif (volChoice == "50"):
-            volChoice = 50
-            volume.SetMasterVolumeLevel(-10.2, None)
-            print("Setting volume to 50")
-
-        elif (volChoice == "60"):
-            volChoice = 60
-            volume.SetMasterVolumeLevel(-7.6, None)
-            print("Setting volume to 60")
-
-        elif (volChoice == "70"):
-            volChoice = 70
-            volume.SetMasterVolumeLevel(-5.3, None)
-            print("Setting volume to 70")
-
-        elif (volChoice == "80"):
-            volChoice = 80
-            volume.SetMasterVolumeLevel(-3.4, None)
-            print("Setting volume to 80")
-
-        elif (volChoice == "90"):
-            volChoice = 90
-            volume.SetMasterVolumeLevel(-1.6, None)
-            print("Setting volume to 90")
-
-        elif (volChoice == "100"):
-            volChoice = 100
-            volume.SetMasterVolumeLevel(0, None)
-            print("Setting volume to 100")
-
-        if (int(volChoice) == 0 or int(volChoice) == 10 or int(volChoice) == 20 or int(volChoice) == 30 or int(volChoice) == 40 and int(volChoice) == 50
-            and int(volChoice == 60) and int(volChoice) == 70 and int(volChoice) == 80 and int(volChoice) == 90 and int(volChoice) == 100):
-            raise ValueError("Volume choice must be a multiple of 10")
-
-        return volChoice
-    
-    except ValueError as ve:
+    except Exception as e:
+        print(f"Error occured while setting volume: {str(e)}")
         return False
-
-# end volume control loop 
 
 def pull_contact(string):
     with open("source/my_account.txt", "r") as f:

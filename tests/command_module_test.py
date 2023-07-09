@@ -5,6 +5,7 @@ from source.core.command_module import handleApplicationAction
 from source.core.command_module import handleScrollAction
 from source.core.command_module import setVolume
 from source.core.command_module import loadValidApps
+from source.core.command_module import convertToInt, convertWordToInt
 class testApplicationMethods(unittest.TestCase):
 
     def test_loadValidApps(self):
@@ -83,37 +84,103 @@ class testApplicationMethods(unittest.TestCase):
 class testScrollMethods(unittest.TestCase):
 
     def test_scrollUpDefault(self):
-        self.assertTrue(handleScrollAction("up", "up"),
-                        "Expected scroll up by 100 'clicks'")
+        scrollAmount = "up"
+        direction = "up"
+        expectedOutput = True
+
+        result = handleScrollAction(scrollAmount, direction)
+        self.assertEqual(result, expectedOutput, "Expected scroll up by 100 'clicks'")
         
     def test_scrollUp(self):
-        self.assertTrue(handleScrollAction("10", "up"),
-                        "Expected scroll up by 10 'clicks'")
+        scrollAmount = "10"  # Simulated scroll amount
+        direction = "up"
+        expectedOutput = True
+
+        result = handleScrollAction(scrollAmount, direction)
+        self.assertEqual(result, expectedOutput, "Expected scroll up by 10 'clicks'")
         
     def test_scrollUpWord(self):
-        self.assertTrue(handleScrollAction("Ten", "up"),
-                        "Expected scroll up by 10 'clicks'")
-        
-    def test_falseScrollUp(self):
-        self.assertFalse(handleScrollAction("A","up"),
-                         "Expected failed scrolling up")
+        scrollAmount = "ten"  # Simulated scroll amount
+        direction = "up"
+        expectedOutput = True
+
+        result = handleScrollAction(scrollAmount, direction)
+        self.assertEqual(result, expectedOutput, "Expected scroll up by 10 'clicks'")
         
     def test_scrollDownDefault(self):
-        self.assertTrue(handleScrollAction("down", "down"),
-                        "Expected scroll down by 100 'clicks'")
+        scrollAmount = "down"
+        direction = "down"
+        expectedOutput = True
+
+        result = handleScrollAction(scrollAmount, direction)
+        self.assertEqual(result, expectedOutput, "Expected scroll down by 100 'clicks'")
         
     def test_scrollDown(self):
-        self.assertTrue(handleScrollAction("10", "down"),
-                        "Expected scroll down by 10 'clicks'")
+        scrollAmount = "10"  # Simulated scroll amount
+        direction = "down"
+        expectedOutput = True
+
+        result = handleScrollAction(scrollAmount, direction)
+        self.assertEqual(result, expectedOutput, "Expected scroll down by 10 'clicks'")
         
-    def test_scrollDownword(self):
-        self.assertTrue(handleScrollAction("Ten", "down"),
-                        "Expected scroll down by 10 'clicks'")
-        
-    def test_falseScrollDown(self):
-        self.assertFalse(handleScrollAction("A", "down"),
-                         "Expected failed scrolling down")
-        
+    def test_scrollDownWord(self):
+        scrollAmount = "ten"  # Simulated scroll amount
+        direction = "down"
+        expectedOutput = True
+
+        result = handleScrollAction(scrollAmount, direction)
+        self.assertEqual(result, expectedOutput, "Expected scroll down by 10 'clicks'")
+
+class TestConversionMethods(unittest.TestCase):
+
+    def test_convertToInt_ValidInput(self):
+        # Test with valid integer input
+        stringValue = "42"
+        expectedOutput = 42
+
+        result = convertToInt(stringValue)
+        self.assertEqual(result, expectedOutput, "Expected output to match the input integer value")
+
+    def test_convertToInt_InvalidInput(self):
+        # Test with invalid input (non-numeric string)
+        stringValue = "abc"
+        expectedOutput = None
+
+        result = convertToInt(stringValue)
+        self.assertEqual(result, expectedOutput, "Expected output to be None for invalid input")
+
+    def test_convertWordToInt_IntegerInput(self):
+        # Test with integer input
+        stringValue = 42
+        expectedOutput = 42
+
+        result = convertWordToInt(stringValue)
+        self.assertEqual(result, expectedOutput, "Expected output to match the input integer value")
+
+    def test_convertWordToInt_StringInput(self):
+        # Test with string input representing a number
+        stringValue = "Ten"
+        expectedOutput = 10
+
+        result = convertWordToInt(stringValue)
+        self.assertEqual(result, expectedOutput, "Expected output to be the numeric representation of the word")
+
+    def test_convertWordToInt_InvalidInput(self):
+        # Test with invalid input (neither integer nor string)
+        stringValue = 3.14
+        expectedOutput = None
+
+        result = convertWordToInt(stringValue)
+        self.assertEqual(result, expectedOutput, "Expected output to be None for invalid input")
+
+    def test_convertWordToInt_InvalidWord(self):
+        # Test with an invalid word that cannot be converted to a number
+        stringValue = "Invalid"
+        expectedOutput = None
+
+        result = convertWordToInt(stringValue)
+        self.assertEqual(result, expectedOutput, "Expected output to be None for an invalid word")
+
 #class testSetVolumeMethods(unittest.TestCase):
 #    def test_setVolumeTo0(self):
 #        self.assertEqual(0, setVolume("0"), 
