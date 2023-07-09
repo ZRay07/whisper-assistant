@@ -41,8 +41,8 @@ class mainScreen:
         self.cmd_bar = Frame(self.left_frame, width = 315, height = 300, bg = "white")
         self.cmd_bar.grid(row = 2, column = 0)
 
-        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = openApplication, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = closeApplication, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = lambda: handleApplicationAction("app", "open"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = lambda: handleApplicationAction("app", "close"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = pyautogui.scroll(10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = pyautogui.scroll(-10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
@@ -134,7 +134,7 @@ class mainScreen:
          self.root.update()
     
     def recordAndUseModel(self):
-        microphone.record(3)
+        microphone.record(5)
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
         print("Prediction: " + self.prediction)

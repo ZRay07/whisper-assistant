@@ -21,6 +21,10 @@ from tkinter import *
 import jellyfish
 import winsound # for creating beeps
 import pyttsx3  # for text to speech if needed (ex: says begin recording)
+import string
+import json
+import os
+from word2number import w2n
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
@@ -45,36 +49,40 @@ def tts():
 
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
-def commandExec(userChoice):    
-    print("userChoice: " + userChoice)
-
+def commandExec(userChoice):
+    # make the string all lower case to help with similarity (want to focus solely on matching keywords)
+    userChoice = userChoice.lower()
     userChoiceSplit = userChoice.split()
-
-    if (userChoiceSplit[0] == "Open" or userChoiceSplit[0] == "open"):        # Open application
+    
+    if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "open") > 0.85):        # Open application
         print("\n***Open Application***")
-        appName = userChoiceSplit[-1]
-        beepgood()
-        openApplication(appName)
+        appName = userChoiceSplit[-1].rstrip(string.punctuation)
+        handleApplicationAction(appName, "open")
 
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Close application") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Close app") > 0.85):      # Close application
+
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "close") > 0.85):      # Close application
         print("\n***Close Application***")
-        beepgood()
-        closeApplication()
+        appName = userChoiceSplit[-1].rstrip(string.punctuation)
+        handleApplicationAction(appName, "close")
 
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll up") > 0.9):      # Scroll up
+
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "scroll up") > 0.9):      # Scroll up
         print("\n***Scroll Up***")
-        beepgood()
-        scrollUp(100)
-            
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Scroll down") > 0.9):    # Scroll down
-        print("\n***Scroll Down***")
-        beepgood()
-        scrollDown(100)
+        scrollAmount = userChoiceSplit[-1]
+        handleScrollAction(scrollAmount, "up")
 
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Set volume") > 0.85):   # Set volume
+            
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll down") > 0.9):    # Scroll down
+        print("\n***Scroll Down***")
+        scrollAmount = userChoiceSplit[-1]
+        handleScrollAction(scrollAmount, "down")
+
+
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Set volume") > 0.85):   # Set volume
         print("\n***Set Volume***")
-        beepgood()
-        setVolume()           
+        volChoice = userChoiceSplit[-1]
+        setVolume(volChoice)           
+
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
         print("\n***Navigate mouse + keyboard***")
@@ -99,115 +107,276 @@ def commandExec(userChoice):
         beepbad()
         print("Try again...")
 
+# This function will generate a list of all the apps on users pc and store it in a json file
+# Its used to check for errors in open/close application methods
+def loadValidApps():
+    try:
+        with open("data/app_data.json") as json_file:
+            data = json.load(json_file)
+            return set(data.keys())
+    except Exception as e:
+        print("Error occured while loading valid app names: ", str(e))
+        return False
 
+# This if statement executes if apps are not already saved to a file
+if os.path.exists("data/app_data.json"):
+    VALID_APPS = loadValidApps()
+else:
+    AppOpener.mklist(path = "data")
+    VALID_APPS = loadValidApps()
 
-def openApplication(appName):
-    
-    if (appName == "application." or appName == "application" or appName == "app." or appName == "app"):
-        print("\nWhich application would you like to open?")
-        print("\t*Word")
-        print("\t*Edge")
-        print("\t*Spotify")
-        print("\t*Discord")
+# For closing applications, we want to remove some essential windows services 
+#   to ensure the user does not close programs essential for their OS to function correctly
+ESSENTIAL_SERVICES = ["event viewer", "task scheduler", "windows powershell ise", "system configuration",
+                           "run", "task manager", "windows memory diagnostic", "windows administrative tools",
+                           "control panel", "windows memory diagnostic", "system information", "file explorer",
+                           "windows powershell ise x", "iscsi initiator", "component services", "services", "this pc"]
 
-        microphone.record(3)
-        appName = whisper.use_model(RECORD_PATH)
+def removeEssentialServices(essentialServices):
+    removedApps = []
+    for essentialService in essentialServices:
+        try:
+            VALID_APPS.remove(essentialService)
+            removedApps.append(essentialService)
+        except KeyError:
+            print(f"App '{essentialService}' does not exist in the valid apps list.")
+
+    if removedApps:
+        print("Successfully removed the following apps: ")
+        for appName in removedApps:
+            print(f"- {appName}")  
+
+# User voice input has been split by word
+# If user says "open application" -> the if statement will be entered which will prompt for an app name
+#   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
+def handleApplicationAction(appName, action):
+    if (appName in {"application", "app"}):
+        print(f"\nWhich application would you like to {action}?")
+        print("\t- Word")
+        print("\t- Edge")
+        print("\t- Spotify")
+        print("\t- Discord")
+
+        try:
+            microphone.record(3)
+            appName = whisper.use_model(RECORD_PATH)
+        except Exception as e:
+            print("Error occured during recording: ", str(e))
+            return False
+        
+    # Remove any trailing punctuation marks
+    appName = appName.rstrip(string.punctuation)
+    appName = appName.lower()
+
+    # Remove essential services from VALID_APPS list so they aren't accessible to close
+    if action == "close":
+        removeEssentialServices(ESSENTIAL_SERVICES)
 
     try:
-        AppOpener.open(appName, throw_error = True)
-        return True
+        if appName in VALID_APPS:
+            if action == "open":
+                AppOpener.open(appName, throw_error = True)
+            elif action == "close":
+                AppOpener.close(appName, throw_error = True)
+            else:
+                print("Invalid action: ", action)
+                return False
+            return True
+        else:
+            print("Invalid application name: ", appName)
+            return False
     except Exception as e:
+        print(f"Error occured while {action}ing the application: ", str(e))
         return False
 
 
-def closeApplication():
-    print("\nWhich application would you like to close?")
-    print("\t*Word")
-    print("\t*Edge")
-    print("\t*Spotify")
-    print("\t*Discord")
+def convertToInt(stringValue):
+    try:
+        integerValue = int(stringValue)  # Attempt to convert the string to an integer
+        return integerValue  # Return the converted integer value
+    except ValueError:
+        # Conversion failed, input is not a numeric value
+        return None  # Return None to indicate the failure to convert
 
-    microphone.record(3)
-    prediction = whisper.use_model(RECORD_PATH)
 
-    print("Closing " + prediction)
-    AppOpener.close(prediction)
+def handleScrollAction(scrollAmount, direction):
+    # Remove any trailing punctuation marks
+    scrollAmount = scrollAmount.rstrip(string.punctuation)
 
-def scrollUp(scrollAmount):
-    pyautogui.scroll(scrollAmount)
+    try:
+        if scrollAmount in {"up", "down"}:
+            scrollAmount = 100  # Default scroll amount if user doesn't specify a number
+        else:
+            convertToInt(scrollAmount)
+
+        if isinstance(scrollAmount, int):
+            pass
+        elif isinstance(scrollAmount, str):
+            # Convert string representation of number to integer
+            # For example: "Ten" becomes 10
+            scrollAmount = w2n.word_to_num(scrollAmount)
+        else:
+            raise TypeError("Only integers or number strings are allowed")
+        
+        if direction == "up":
+            print(f"Scrolling up by {scrollAmount} clicks")
+            pyautogui.scroll(scrollAmount)
+        elif direction == "down":
+            print(f"Scrolling down by {scrollAmount} clicks")
+            pyautogui.scroll(-scrollAmount)
+        else:
+            raise ValueError("Invalid scroll direction")
+        
+        return True
     
-def scrollDown(scrollAmount):
-    pyautogui.scroll(-(scrollAmount))
+    except Exception as e:
+        print(f"Error occured during scrolling: {e}")
+        return False
 
-def setVolume():
-    numberFlag = False
-    while (numberFlag == False):
-        print("\nWhat volume would you like to set to?")
-        print("*** MUST BE AN INCREMENT OF 10 ***")
+def setVolume(volChoice):
+    try:
+        if (jellyfish.jaro_winkler_similarity(volChoice, "volume") > 0.85):
+            numberFlag = False
+            while (numberFlag == False):
+                print("\nWhat volume would you like to set to?")
+                print("*** MUST BE AN INCREMENT OF 10 ***")
 
-        microphone.record(2)
-        prediction = whisper.use_model(RECORD_PATH)
+                microphone.record(2)
+                prediction = whisper.use_model(RECORD_PATH)
 
-        if (prediction == "0" or prediction == "0." or prediction == "Zero" or prediction == "zero"):
+                if (prediction == "0" or prediction == "0." or prediction == "Zero" or prediction == "zero"):
+                    volChoice = 0
+                    volume.SetMasterVolumeLevel(-60.0, None)
+                    print("Setting volume to 0")
+                    numberFlag = True
+
+                elif (prediction == "10" or prediction == "10."):
+                    volChoice = 10
+                    volume.SetMasterVolumeLevel(-33.0, None)
+                    print("Setting volume to 10")
+                    numberFlag = True
+
+                elif (prediction == "20"):
+                    volChoice = 20
+                    volume.SetMasterVolumeLevel(-23.4, None)
+                    print("Setting volume to 20")
+                    numberFlag = True
+
+                elif (prediction == "30"):
+                    volChoice = 30
+                    volume.SetMasterVolumeLevel(-17.8, None)
+                    print("Setting volume to 30")
+                    numberFlag = True
+
+                elif (prediction == "40"):
+                    volChoice = 40
+                    volume.SetMasterVolumeLevel(-13.6, None)
+                    print("Setting volume to 40")
+                    numberFlag = True
+
+                elif (prediction == "50"):
+                    volChoice = 50
+                    volume.SetMasterVolumeLevel(-10.2, None)
+                    print("Setting volume to 50")
+                    numberFlag = True
+
+                elif (prediction == "60"):
+                    volChoice = 60
+                    volume.SetMasterVolumeLevel(-7.6, None)
+                    print("Setting volume to 60")
+                    numberFlag = True
+
+                elif (prediction == "70"):
+                    volChoice = 70
+                    volume.SetMasterVolumeLevel(-5.3, None)
+                    print("Setting volume to 70")
+                    numberFlag = True
+
+                elif (prediction == "80"):
+                    volChoice = 80
+                    volume.SetMasterVolumeLevel(-3.4, None)
+                    print("Setting volume to 80")
+                    numberFlag = True
+
+                elif (prediction == "90"):
+                    volChoice = 90
+                    volume.SetMasterVolumeLevel(-1.6, None)
+                    print("Setting volume to 90")
+                    numberFlag = True
+
+                elif (prediction == "100"):
+                    volChoice = 100
+                    volume.SetMasterVolumeLevel(0, None)
+                    print("Setting volume to 100")
+                    numberFlag = True
+
+                else:
+                    print("We heard: " + prediction)
+                    numberFlag = False
+
+        elif (volChoice == "0" or volChoice == "0." or volChoice == "Zero" or volChoice == "zero"):
+            volChoice = 0
             volume.SetMasterVolumeLevel(-60.0, None)
             print("Setting volume to 0")
-            numberFlag = True
 
-        elif (prediction == "10" or prediction == "10."):
+        elif (volChoice == "10" or volChoice == "10."):
+            volChoice = 10
             volume.SetMasterVolumeLevel(-33.0, None)
             print("Setting volume to 10")
-            numberFlag = True
 
-        elif (prediction == "20"):
+        elif (volChoice == "20"):
+            volChoice = 20
             volume.SetMasterVolumeLevel(-23.4, None)
             print("Setting volume to 20")
-            numberFlag = True
 
-        elif (prediction == "30"):
+        elif (volChoice == "30"):
+            volChoice = 30
             volume.SetMasterVolumeLevel(-17.8, None)
             print("Setting volume to 30")
-            numberFlag = True
 
-        elif (prediction == "40"):
+        elif (volChoice == "40"):
+            volChoice = 40
             volume.SetMasterVolumeLevel(-13.6, None)
             print("Setting volume to 40")
-            numberFlag = True
 
-        elif (prediction == "50"):
+        elif (volChoice == "50"):
+            volChoice = 50
             volume.SetMasterVolumeLevel(-10.2, None)
             print("Setting volume to 50")
-            numberFlag = True
 
-        elif (prediction == "60"):
+        elif (volChoice == "60"):
+            volChoice = 60
             volume.SetMasterVolumeLevel(-7.6, None)
             print("Setting volume to 60")
-            numberFlag = True
 
-        elif (prediction == "70"):
+        elif (volChoice == "70"):
+            volChoice = 70
             volume.SetMasterVolumeLevel(-5.3, None)
             print("Setting volume to 70")
-            numberFlag = True
 
-        elif (prediction == "80"):
+        elif (volChoice == "80"):
+            volChoice = 80
             volume.SetMasterVolumeLevel(-3.4, None)
             print("Setting volume to 80")
-            numberFlag = True
 
-        elif (prediction == "90"):
+        elif (volChoice == "90"):
+            volChoice = 90
             volume.SetMasterVolumeLevel(-1.6, None)
             print("Setting volume to 90")
-            numberFlag = True
 
-        elif (prediction == "100"):
+        elif (volChoice == "100"):
+            volChoice = 100
             volume.SetMasterVolumeLevel(0, None)
             print("Setting volume to 100")
-            numberFlag = True
 
-        else:
-            print("We heard: " + prediction)
-            numberFlag = False
+        if (int(volChoice) == 0 or int(volChoice) == 10 or int(volChoice) == 20 or int(volChoice) == 30 or int(volChoice) == 40 and int(volChoice) == 50
+            and int(volChoice == 60) and int(volChoice) == 70 and int(volChoice) == 80 and int(volChoice) == 90 and int(volChoice) == 100):
+            raise ValueError("Volume choice must be a multiple of 10")
 
-    return True
+        return volChoice
+    
+    except ValueError as ve:
+        return False
 
 # end volume control loop 
 
@@ -691,4 +860,10 @@ def recordAndUseModel():
 
 
 if __name__ == "__main__":
-    print("This should only run if called from cmd line")    
+    print("This should only run if called from cmd line")
+    # This if statement executes if apps are not already saved to a file
+    if os.path.exists("data/app_data.json"):
+        VALID_APPS = loadValidApps()
+    else:
+        AppOpener.mklist(path = "data")
+        VALID_APPS = loadValidApps()
