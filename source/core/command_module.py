@@ -33,12 +33,19 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 
 #audio beep functions
 def beepgood():
-    winsound.Beep(1000, 1000)
-    winsound.Beep(1250, 1000)
+    winsound.Beep(1000, 250)
+    winsound.Beep(1500, 250)
 
 def beepbad():
-    winsound.Beep(1000, 1000)
-    winsound.Beep(750, 1000)
+    winsound.Beep(1000, 250)
+    winsound.Beep(500, 250)
+
+#example text to speech function
+def tts():
+    engine = pyttsx3.init() # initialize
+    engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
+    engine.say("Begin recording") # what engine will say (feed prediction into this?)
+    engine.runAndWait() # runs engine until 'sentence' is over
 
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
@@ -52,42 +59,52 @@ def commandExec(userChoice):
         appName = userChoiceSplit[-1].rstrip(string.punctuation)
         handleApplicationAction(appName, "open")
 
+
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "close") > 0.85):      # Close application
         print("\n***Close Application***")
         appName = userChoiceSplit[-1].rstrip(string.punctuation)
         handleApplicationAction(appName, "close")
 
+
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "scroll up") > 0.9):      # Scroll up
         print("\n***Scroll Up***")
         scrollAmount = userChoiceSplit[-1]
         handleScrollAction(scrollAmount, "up")
+
             
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll down") > 0.9):    # Scroll down
         print("\n***Scroll Down***")
         scrollAmount = userChoiceSplit[-1]
         handleScrollAction(scrollAmount, "down")
 
+
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Set volume") > 0.85):   # Set volume
         print("\n***Set Volume***")
         volChoice = userChoiceSplit[-1]
         setVolume(volChoice)           
 
+
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
         print("\n***Navigate mouse + keyboard***")
+        beepgood()
         mouseGrid()
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
-        print("\n***Email sign-in***") 
+        print("\n***Email sign-in***")
+        beepgood()
         sign_in()       
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
+        beepgood()
         print("***Exiting***")
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
         print("\nSearching now...\n")
+        beepgood()
         google_search()
 
     else:
+        beepbad()
         print("Try again...")
 
 # This function will generate a list of all the apps on users pc and store it in a json file

@@ -117,6 +117,11 @@ class mainScreen:
         self.prediction_label = Label(self.prediction_bar, height = 1, width = 40, bg = "light grey", textvariable = self.predictionLabel, wraplength = 500)
         self.prediction_label.grid(row = 0, column = 1, padx = 0, pady = 10)
 
+        engine = pyttsx3.init() # initialize
+        engine.setProperty('rate', 100) # adjust settings
+        engine.say("We heard:" + self.predictionLabel) # what engine will say
+        engine.runAndWait() # runs engine until 'sentence' is over
+
         #This is the create account button
        # self.create_account_bar = Frame(self.right_frame, width = 375, height = 250
                                   #      bg = "light grey", borderwidth = 2, relief = "solid")
@@ -132,7 +137,6 @@ class mainScreen:
         microphone.record(5)
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
-
         print("Prediction: " + self.prediction)
         #A wait func might allow the above line to complete first
         commandExec(self.prediction)
@@ -225,10 +229,12 @@ class mainScreen:
                         confirm = True
                     else: 
                         self.setlabel("Please try again")
+                        beepbad()
                         self.update_screen() 
                         confirm = False
             else:
                     self.setlabel("Please try again")
+                    beepbad()
                     self.update_screen() 
                     confirm = True
            
