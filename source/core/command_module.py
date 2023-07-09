@@ -21,6 +21,9 @@ from tkinter import *
 import jellyfish
 import winsound # for creating beeps
 import pyttsx3  # for text to speech if needed (ex: says begin recording)
+import string
+import json
+import os
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
@@ -43,12 +46,12 @@ def commandExec(userChoice):
 
     if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "Open") > 0.85):        # Open application
         print("\n***Open Application***")
-        appName = userChoiceSplit[-1]
+        appName = userChoiceSplit[-1].lower()
         openApplication(appName)
 
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "Close") > 0.85):      # Close application
         print("\n***Close Application***")
-        appName = userChoiceSplit[-1]
+        appName = userChoiceSplit[-1].lower()
         closeApplication(appName)
 
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll up") > 0.9):      # Scroll up
@@ -82,55 +85,112 @@ def commandExec(userChoice):
     else:
         print("Try again...")
 
+# This function will generate a list of all the apps on users pc and store it in a json file
+# Its used to check for errors in open/close application methods
+def loadValidApps():
+    try:
+        with open("data/app_data.json") as json_file:
+            data = json.load(json_file)
+            return set(data.keys())
+    except Exception as e:
+        print("Error occured while loading valid app names: ", str(e))
+        return False
+
+# This if statement executes if apps are not already saved to a file
+if os.path.exists("data/app_data.json"):
+    VALID_APPS = loadValidApps()
+else:
+    AppOpener.mklist(path = "data")
+    VALID_APPS = loadValidApps()
+
+# For closing applications, we want to remove some essential windows
+#   services to ensure the user does not close programs essential for their OS to function correctly
+ESSENTIAL_SERVICES = ["event viewer", "task scheduler", "windows powershell ise", "system configuration",
+                           "run", "task manager", "windows memory diagnostic", "windows administrative tools",
+                           "control panel", "windows memory diagnostic", "system information", "file explorer",
+                           "windows powershell ise x", "iscsi initiator", "component services", "services", "this pc"]
+def removeEssentialServices(essentialServices):
+    removedApps = []
+    for essentialService in essentialServices:
+        try:
+            VALID_APPS.remove(essentialService)
+            removedApps.append(essentialService)
+        except KeyError:
+            print(f"App '{essentialService}' does not exist in the valid apps list.")
+
+    if removedApps:
+        print("Successfully removed the following apps: ")
+        for appName in removedApps:
+            print(f"- {appName}")  
 
 # User voice input has been split by word
 # If user says "open application" -> the if statement will be entered which will prompt for an app name
 #   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
 def openApplication(appName):
-    if (jellyfish.jaro_winkler_similarity(appName, "application") > 0.85 or jellyfish.jaro_winkler_similarity(appName, "app") > 0.85):
+    if (appName in {"application", "app"}):
         print("\nWhich application would you like to open?")
-        print("\t*Word")
-        print("\t*Edge")
-        print("\t*Spotify")
-        print("\t*Discord")
-
-        microphone.record(3)
-        appName = whisper.use_model(RECORD_PATH)
-        
-        # Pop off the last character if it's punctuation
-    if (appName[-1] == "." or appName[-1] == "!"):
-        appName = appName[:-1]
+        print("\t- Word")
+        print("\t- Edge")
+        print("\t- Spotify")
+        print("\t- Discord")
 
     try:
-        AppOpener.open(appName, throw_error = True)
-        return True
+        microphone.record(3)
+        appName = whisper.use_model(RECORD_PATH)
     except Exception as e:
-        print("Error")
+        print("Error occured during recording: ", str(e))
+        return False
+        
+    # Remove any trailing punctuation marks
+    appName = appName.rstrip(string.punctuation)
+
+    try:
+        if appName in VALID_APPS:
+            AppOpener.open(appName, throw_error = True)
+            return True
+        else:
+            print("Invalid application name: ", appName)
+            return False
+    except Exception as e:
+        print("Error occured while opening the application: ", str(e))
         return False
 
 def closeApplication(appName):
-    if (jellyfish.jaro_winkler_similarity(appName, "application") > 0.85 or jellyfish.jaro_winkler_similarity(appName, "app") > 0.85):
+    if (appName in {"application", "app"}):
         print("\nWhich application would you like to close?")
-        print("\t*Word")
-        print("\t*Edge")
-        print("\t*Spotify")
-        print("\t*Discord")
+        print("\t- Word")
+        print("\t- Edge")
+        print("\t- Spotify")
+        print("\t- Discord")
 
-        microphone.record(3)
-        appName = whisper.use_model(RECORD_PATH)
+        try:
+            microphone.record(3)
+            appName = whisper.use_model(RECORD_PATH)
+        except Exception as e:
+            print("Error occured during recording: ", str(e))
+            return False
         
-    # Pop off the last character if it's punctuation
-    if (appName[-1] == "." or appName[-1] == "!"):
-        appName = appName[:-1]
+    # Remove any trailing punctuation marks
+    appName = appName.rstrip(string.punctuation)
+
+    # Remove essential services from VALID_APPS list so they aren't accessible to close
+    removeEssentialServices(ESSENTIAL_SERVICES)
 
     try:
-        AppOpener.close(appName, throw_error = True)
-        return True
+        if appName in VALID_APPS:
+            AppOpener.close(appName, throw_error = True)
+            return True
+        else:
+            print("Invalid application name: ", appName)
+            return False
     except Exception as e:
-        print("Error")
+        print("Error occured while opening the application: ", str(e))
         return False
 
 def scrollUp(scrollAmount):
+    # Remove any trailing punctuation marks
+    scrollAmount = scrollAmount.rstrip(string.punctuation)
+
     try:
         if not type(scrollAmount) is int:                   # asserts that the value passed is an int
             raise TypeError("Only integers are allowed")    
@@ -154,7 +214,7 @@ def scrollDown(scrollAmount):
 
 def setVolume(volChoice):
     try:
-        if (volChoice == "Volume." or volChoice == "Volume" or volChoice == "volume." or volChoice == "volume"):
+        if (jellyfish.jaro_winkler_similarity(volChoice, "volume") > 0.85):
             numberFlag = False
             while (numberFlag == False):
                 print("\nWhat volume would you like to set to?")
@@ -288,7 +348,7 @@ def setVolume(volChoice):
             volume.SetMasterVolumeLevel(0, None)
             print("Setting volume to 100")
 
-        if (int(volChoice) == 0 and int(volChoice) == 10 and int(volChoice) == 20 and int(volChoice) == 30 and int(volChoice) == 40 and int(volChoice) == 50
+        if (int(volChoice) == 0 or int(volChoice) == 10 or int(volChoice) == 20 or int(volChoice) == 30 or int(volChoice) == 40 and int(volChoice) == 50
             and int(volChoice == 60) and int(volChoice) == 70 and int(volChoice) == 80 and int(volChoice) == 90 and int(volChoice) == 100):
             raise ValueError("Volume choice must be a multiple of 10")
 
