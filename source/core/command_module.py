@@ -24,6 +24,7 @@ import pyttsx3  # for text to speech if needed (ex: says begin recording)
 import string
 import json
 import os
+from word2number import w2n
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
@@ -42,25 +43,29 @@ def beepbad():
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
 def commandExec(userChoice):
+    # make the string all lower case to help with similarity (want to focus solely on matching keywords)
+    userChoice = userChoice.lower()
     userChoiceSplit = userChoice.split()
-
-    if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "Open") > 0.85):        # Open application
+    
+    if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "open") > 0.85):        # Open application
         print("\n***Open Application***")
-        appName = userChoiceSplit[-1].lower()
-        openApplication(appName)
+        appName = userChoiceSplit[-1].rstrip(string.punctuation)
+        handleApplicationAction(appName, "open")
 
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "Close") > 0.85):      # Close application
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "close") > 0.85):      # Close application
         print("\n***Close Application***")
-        appName = userChoiceSplit[-1].lower()
-        closeApplication(appName)
+        appName = userChoiceSplit[-1].rstrip(string.punctuation)
+        handleApplicationAction(appName, "close")
 
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll up") > 0.9):      # Scroll up
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "scroll up") > 0.9):      # Scroll up
         print("\n***Scroll Up***")
-        scrollUp(100)
+        scrollAmount = userChoiceSplit[-1]
+        handleScrollAction(scrollAmount, "up")
             
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll down") > 0.9):    # Scroll down
         print("\n***Scroll Down***")
-        scrollDown(100)
+        scrollAmount = userChoiceSplit[-1]
+        handleScrollAction(scrollAmount, "down")
 
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Set volume") > 0.85):   # Set volume
         print("\n***Set Volume***")
@@ -103,12 +108,13 @@ else:
     AppOpener.mklist(path = "data")
     VALID_APPS = loadValidApps()
 
-# For closing applications, we want to remove some essential windows
-#   services to ensure the user does not close programs essential for their OS to function correctly
+# For closing applications, we want to remove some essential windows services 
+#   to ensure the user does not close programs essential for their OS to function correctly
 ESSENTIAL_SERVICES = ["event viewer", "task scheduler", "windows powershell ise", "system configuration",
                            "run", "task manager", "windows memory diagnostic", "windows administrative tools",
                            "control panel", "windows memory diagnostic", "system information", "file explorer",
                            "windows powershell ise x", "iscsi initiator", "component services", "services", "this pc"]
+
 def removeEssentialServices(essentialServices):
     removedApps = []
     for essentialService in essentialServices:
@@ -126,38 +132,9 @@ def removeEssentialServices(essentialServices):
 # User voice input has been split by word
 # If user says "open application" -> the if statement will be entered which will prompt for an app name
 #   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
-def openApplication(appName):
+def handleApplicationAction(appName, action):
     if (appName in {"application", "app"}):
-        print("\nWhich application would you like to open?")
-        print("\t- Word")
-        print("\t- Edge")
-        print("\t- Spotify")
-        print("\t- Discord")
-
-    try:
-        microphone.record(3)
-        appName = whisper.use_model(RECORD_PATH)
-    except Exception as e:
-        print("Error occured during recording: ", str(e))
-        return False
-        
-    # Remove any trailing punctuation marks
-    appName = appName.rstrip(string.punctuation)
-
-    try:
-        if appName in VALID_APPS:
-            AppOpener.open(appName, throw_error = True)
-            return True
-        else:
-            print("Invalid application name: ", appName)
-            return False
-    except Exception as e:
-        print("Error occured while opening the application: ", str(e))
-        return False
-
-def closeApplication(appName):
-    if (appName in {"application", "app"}):
-        print("\nWhich application would you like to close?")
+        print(f"\nWhich application would you like to {action}?")
         print("\t- Word")
         print("\t- Edge")
         print("\t- Spotify")
@@ -172,44 +149,71 @@ def closeApplication(appName):
         
     # Remove any trailing punctuation marks
     appName = appName.rstrip(string.punctuation)
+    appName = appName.lower()
 
     # Remove essential services from VALID_APPS list so they aren't accessible to close
-    removeEssentialServices(ESSENTIAL_SERVICES)
+    if action == "close":
+        removeEssentialServices(ESSENTIAL_SERVICES)
 
     try:
         if appName in VALID_APPS:
-            AppOpener.close(appName, throw_error = True)
+            if action == "open":
+                AppOpener.open(appName, throw_error = True)
+            elif action == "close":
+                AppOpener.close(appName, throw_error = True)
+            else:
+                print("Invalid action: ", action)
+                return False
             return True
         else:
             print("Invalid application name: ", appName)
             return False
     except Exception as e:
-        print("Error occured while opening the application: ", str(e))
+        print(f"Error occured while {action}ing the application: ", str(e))
         return False
 
-def scrollUp(scrollAmount):
+
+def convertToInt(stringValue):
+    try:
+        integerValue = int(stringValue)  # Attempt to convert the string to an integer
+        return integerValue  # Return the converted integer value
+    except ValueError:
+        # Conversion failed, input is not a numeric value
+        return None  # Return None to indicate the failure to convert
+
+
+def handleScrollAction(scrollAmount, direction):
     # Remove any trailing punctuation marks
     scrollAmount = scrollAmount.rstrip(string.punctuation)
 
     try:
-        if not type(scrollAmount) is int:                   # asserts that the value passed is an int
-            raise TypeError("Only integers are allowed")    
+        if scrollAmount in {"up", "down"}:
+            scrollAmount = 100  # Default scroll amount if user doesn't specify a number
+        else:
+            convertToInt(scrollAmount)
+
+        if isinstance(scrollAmount, int):
+            pass
+        elif isinstance(scrollAmount, str):
+            # Convert string representation of number to integer
+            # For example: "Ten" becomes 10
+            scrollAmount = w2n.word_to_num(scrollAmount)
+        else:
+            raise TypeError("Only integers or number strings are allowed")
         
-        pyautogui.scroll(scrollAmount)
+        if direction == "up":
+            print(f"Scrolling up by {scrollAmount} clicks")
+            pyautogui.scroll(scrollAmount)
+        elif direction == "down":
+            print(f"Scrolling down by {scrollAmount} clicks")
+            pyautogui.scroll(-scrollAmount)
+        else:
+            raise ValueError("Invalid scroll direction")
+        
         return True
     
-    except TypeError as te:
-        return False
-    
-def scrollDown(scrollAmount):
-    try:
-        if not type(scrollAmount) is int:                   # asserts that the value passed is an int
-            raise TypeError("Only integers are allowed")
-        
-        pyautogui.scroll((-scrollAmount))
-        return True
-    
-    except TypeError as te:
+    except Exception as e:
+        print(f"Error occured during scrolling: {e}")
         return False
 
 def setVolume(volChoice):
@@ -839,4 +843,10 @@ def recordAndUseModel():
 
 
 if __name__ == "__main__":
-    print("This should only run if called from cmd line")    
+    print("This should only run if called from cmd line")
+    # This if statement executes if apps are not already saved to a file
+    if os.path.exists("data/app_data.json"):
+        VALID_APPS = loadValidApps()
+    else:
+        AppOpener.mklist(path = "data")
+        VALID_APPS = loadValidApps()
