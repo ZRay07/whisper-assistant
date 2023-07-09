@@ -43,8 +43,8 @@ class mainScreen:
 
         self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = lambda: handleApplicationAction("app", "open"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = lambda: handleApplicationAction("app", "close"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = pyautogui.scroll(10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = pyautogui.scroll(-10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = lambda: handleScrollAction("up", "up"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = lambda: handleScrollAction("down", "down"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "light grey", command = mouseGrid, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = lambda:[sign_in,bring_to_front], bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
@@ -119,7 +119,7 @@ class mainScreen:
 
         engine = pyttsx3.init() # initialize
         engine.setProperty('rate', 100) # adjust settings
-        engine.say("We heard:" + self.predictionLabel) # what engine will say
+#        engine.say("We heard:" + self.predictionLabel) # what engine will say
         engine.runAndWait() # runs engine until 'sentence' is over
 
         #This is the create account button

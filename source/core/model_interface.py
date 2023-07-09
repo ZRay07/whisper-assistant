@@ -16,7 +16,7 @@ class Recorder:
         self.recordFrequency = 16000
 
     def record(self, recordDuration):
-        print("Listening...")
+        print("\nListening...")
  
         # Start recorder with the given values
         self.recording = sd.rec(int(recordDuration * self.recordFrequency),
