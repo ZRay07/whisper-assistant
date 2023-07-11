@@ -83,8 +83,11 @@ class mainScreen:
 
         self.Add_contact_butt = Button(self.right_frame, text = "Add Contact", command = self.add_contact, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.Add_contact_butt.grid(row = 5, column = 0, padx = 10, pady = 10 )
-       
-       
+       #Write email button
+        self.Account_Email_func_button = Button(self.right_frame, text = "Account and Email functions", command = sub_window_int, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.Account_Email_func_button.grid(row = 5, column = 1, padx = 10, pady = 10)
+
+
         self.transcribedLabel = StringVar()
         self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
 
@@ -238,7 +241,33 @@ class mainScreen:
     def bring_to_front(root): 
          root.attributes('-topmost', 1)
          root.attributes('-topmost', 0)
-
+    #This fuction will return who the person wishes to contact and what they wish to say.
+    def write_email(self):
+        confirm = False
+        #Loop to make sure the contact's name is correct
+        while confirm == False:
+            self.transcribedLabel.set("")
+            self.setlabel("What is the first name of the person you would like to contact?\n")
+                        #This should update the screen
+            self.update_screen()
+            self.pred_name = whisper.use_model(RECORD_PATH)
+                        #display the name
+                        #THIS IS WITH THREADING
+                        #t_label1 = threading.thread(target = self.setlabel, args = "please give me your name.\n")
+                        
+                        #t_record = threading.thread(target = self.rec_3sec)
+            self.transcribedLabel.set("")
+            self.transcribedLabel.set("I heard " + self.pred_1st_name + "\nIs this correct?\nSay 'Yes', 'No' or 'Exit'.")
+            self.update_screen()
+            microphone.record(4)
+            if_yes1 = whisper.use_model(RECORD_PATH)
+            if (jellyfish.jaro_winkler_similarity(if_yes1, "Yes" or "Yeah") > 0.65):
+                 confirm = True
+            else:
+                 comfirm = False
+                 self.transcribedLabel.set("")
+                 self.transcribedLabel.set("Sorry about that, please try again.")
+                 
 
 
     def create_account(self):
