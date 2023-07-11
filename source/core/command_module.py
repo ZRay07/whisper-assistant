@@ -31,7 +31,16 @@ devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 volume = cast(interface, POINTER(IAudioEndpointVolume))
 
-#audio beep functions
+# Initialize text to speech so that it can be used in all functions
+engine = pyttsx3.init() # initialize
+engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
+
+# Below are what is needed for commands to say words
+# engine.say("word") # -> what engine will say (feed prediction into this?)
+# engine.runAndWait() # -> runs engine until 'sentence' is over
+
+
+# Audio beep functions
 def beepgood():
     winsound.Beep(1000, 250)
     winsound.Beep(1500, 250)
@@ -39,13 +48,6 @@ def beepgood():
 def beepbad():
     winsound.Beep(1000, 250)
     winsound.Beep(500, 250)
-
-#example text to speech function
-def tts():
-    engine = pyttsx3.init() # initialize
-    engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
-    engine.say("Begin recording") # what engine will say (feed prediction into this?)
-    engine.runAndWait() # runs engine until 'sentence' is over
 
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
@@ -55,52 +57,75 @@ def commandExec(userChoice):
     userChoiceSplit = userChoice.split()
     
     if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "open") > 0.85):        # Open application
+        beepgood()
         print("\n***Open Application***")
+        engine.say("Open application") 
+        engine.runAndWait()
         appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
         handleApplicationAction(appName, "open")
 
 
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "close") > 0.85):      # Close application
+        beepgood()
         print("\n***Close Application***")
+        engine.say("Close application") 
+        engine.runAndWait()
         appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
         handleApplicationAction(appName, "close")
 
 
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "scroll up") > 0.9):      # Scroll up
+        beepgood()
         print("\n***Scroll Up***")
+        engine.say("Scroll up") 
+        engine.runAndWait()
         scrollAmount = userChoiceSplit[-1]
         handleScrollAction(scrollAmount, "up")
 
             
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll down") > 0.9):    # Scroll down
+        beepgood()
         print("\n***Scroll Down***")
+        engine.say("Scroll down") 
+        engine.runAndWait()
         scrollAmount = userChoiceSplit[-1]
         handleScrollAction(scrollAmount, "down")
 
 
     elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Set volume") > 0.85):   # Set volume
+        beepgood()
         print("\n***Set Volume***")
+        engine.say("Set volume") 
+        engine.runAndWait()
         volChoice = userChoiceSplit[-1].rstrip(string.punctuation).lower()
         setVolume(volChoice)           
 
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
-        print("\n***Navigate mouse + keyboard***")
         beepgood()
+        print("\n***Navigate mouse + keyboard***")
+        engine.say("Navigate mouse and keyboard") 
+        engine.runAndWait()
         mouseGrid()
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
-        print("\n***Email sign-in***")
         beepgood()
+        print("\n***Email sign-in***")
+        engine.say("Email sign in") 
+        engine.runAndWait()
         sign_in()       
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
         beepgood()
+        engine.say("Exiting") 
+        engine.runAndWait()
         print("***Exiting***")
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
-        print("\nSearching now...\n")
         beepgood()
+        engine.say("Searching now") 
+        engine.runAndWait()
+        print("\nSearching now...\n")
         google_search()
    # elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
    #     write_email(url,session_id)
@@ -108,6 +133,8 @@ def commandExec(userChoice):
         sub_window_int()
     else:
         beepbad()
+        engine.say("Try again") 
+        engine.runAndWait()
         print("Try again...")
 
 # This function is used when we need to prompt the user for additional voice inputs
@@ -128,9 +155,11 @@ def promptUser(recordDuration, removePunctuation, makeLowerCase):
         return userInput
     
     except Exception as e:
+        beepbad()
         print("Error occured during recording: ", str(e))
+        engine.say("Error occured during recording.") 
+        engine.runAndWait()
         return False
-
 
 # This function will generate a list of all the apps on users pc and store it in a json file
 # Its used to check for errors in open/close application methods
