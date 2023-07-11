@@ -1,5 +1,10 @@
 import time
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 #Def create_account:
     #part 1 prompt for name    
 
@@ -94,7 +99,20 @@ def account_info_in():
                     'password' : password
                 }
     return contact.get('name'), contact.get('email'), contact.get('domain'), contact.get('password')
+#Make two functions 'write email' will take contact info and dictation
+#'Full Send' will send the info gathered from write email if user confirms
+def Full_send():
+
+    name, email, domain, password = account_info_in()
+    driver = webdriver.Firefox()
+
+    #so the pages have time to load 
+    wait = WebDriverWait(driver, 30)
+
+    #driver.get("https://outlook.live.com/owa/")
 
 
-name, email, domain, password = account_info_in()
-print(password)
+    ele4 = wait.until(EC.element_to_be_clickable((By.LABEL, "New mail")))
+    ele4.click()
+
+
