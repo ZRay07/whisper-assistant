@@ -120,11 +120,6 @@ class mainScreen:
         self.prediction_label = Label(self.prediction_bar, height = 1, width = 40, bg = "light grey", textvariable = self.predictionLabel, wraplength = 500)
         self.prediction_label.grid(row = 0, column = 1, padx = 0, pady = 10)
 
-        engine = pyttsx3.init() # initialize
-        engine.setProperty('rate', 100) # adjust settings
-#        engine.say("We heard:" + self.predictionLabel) # what engine will say
-        engine.runAndWait() # runs engine until 'sentence' is over
-
         #This is the create account button
        # self.create_account_bar = Frame(self.right_frame, width = 375, height = 250
                                   #      bg = "light grey", borderwidth = 2, relief = "solid")
