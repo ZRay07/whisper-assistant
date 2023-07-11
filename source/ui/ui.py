@@ -41,10 +41,10 @@ class mainScreen:
         self.cmd_bar = Frame(self.left_frame, width = 315, height = 300, bg = "white")
         self.cmd_bar.grid(row = 2, column = 0)
 
-        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = openApplication, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = closeApplication, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = pyautogui.scroll(10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = pyautogui.scroll(-10), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = lambda: handleApplicationAction("app", "open"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = lambda: handleApplicationAction("app", "close"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = lambda: handleScrollAction("up", "up"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = lambda: handleScrollAction("down", "down"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "light grey", command = mouseGrid, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = lambda:[sign_in,bring_to_front], bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
@@ -120,6 +120,11 @@ class mainScreen:
         self.prediction_label = Label(self.prediction_bar, height = 1, width = 40, bg = "light grey", textvariable = self.predictionLabel, wraplength = 500)
         self.prediction_label.grid(row = 0, column = 1, padx = 0, pady = 10)
 
+        engine = pyttsx3.init() # initialize
+        engine.setProperty('rate', 100) # adjust settings
+#        engine.say("We heard:" + self.predictionLabel) # what engine will say
+        engine.runAndWait() # runs engine until 'sentence' is over
+
         #This is the create account button
        # self.create_account_bar = Frame(self.right_frame, width = 375, height = 250
                                   #      bg = "light grey", borderwidth = 2, relief = "solid")
@@ -132,10 +137,9 @@ class mainScreen:
          self.root.update()
     
     def recordAndUseModel(self):
-        microphone.record(3)
+        microphone.record(5)
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
-
         print("Prediction: " + self.prediction)
         #A wait func might allow the above line to complete first
         commandExec(self.prediction)
@@ -228,10 +232,12 @@ class mainScreen:
                         confirm = True
                     else: 
                         self.setlabel("Please try again")
+                        beepbad()
                         self.update_screen() 
                         confirm = False
             else:
                     self.setlabel("Please try again")
+                    beepbad()
                     self.update_screen() 
                     confirm = True
            

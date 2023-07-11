@@ -55,7 +55,7 @@ python -m source.ui.ui
 
 You should see this window, built with Tkinter.
 
-![Image](/Senior_Design/sherpaMainWindow.png "SHERPA Main Window")
+![SHERPA Main Window](https://github.com/TationtoC/Senior_Design/blob/main/sherpaMainWindow.PNG)
 
 * In the left frame, you will see there is a list of commands.
     1. Open / Close Application
@@ -86,7 +86,11 @@ an application name - you will be prompted.
 ## Running the tests
 TO-DO: Create test audio files so we can show the model in action.
 
-TO-DO: Create test functions to run commands and ensure correct output.
+* Ensure you're in the project directory
+* Run the command test with: 
+```
+python -m tests.command_module_test
+```
 
 ## Built With
 * [Whisper](https://platform.openai.com/docs/introduction) - The speech recognition model used.
