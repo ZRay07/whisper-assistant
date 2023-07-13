@@ -172,13 +172,6 @@ def loadValidApps():
         print("Error occured while loading valid app names: ", str(e))
         return False
 
-# This if statement executes if apps are not already saved to a file
-if os.path.exists("data/app_data.json"):
-    VALID_APPS = loadValidApps()
-else:
-    AppOpener.mklist(path = "data")
-    VALID_APPS = loadValidApps()
-
 # For closing applications, we want to remove some essential windows services 
 #   to ensure the user does not close programs essential for their OS to function correctly
 ESSENTIAL_SERVICES = ["event viewer", "task scheduler", "windows powershell ise", "system configuration",
@@ -213,7 +206,7 @@ def handleApplicationAction(appName, action):
             print("\t- Discord")
             time.sleep(2)
 
-            appName = promptUser(3, True, True)
+            appName = promptUser(3, removePunctuation = True, makeLowerCase = True)
 
             if appName in VALID_APPS:
                 break   # Valid app name provided, exit the while loop
@@ -287,7 +280,7 @@ def handleScrollAction(scrollAmount, direction):
             if scrollAmount is None  or scrollAmount < 0 or scrollAmount > 1000:
                 print(f"Invalid scroll amount: {scrollAmount}. Valid scroll amounts are between 0 and 1000.")
                 time.sleep(2)
-                scrollAmount = promptUser(3, True, True)   # Prompt the user again for input
+                scrollAmount = promptUser(3, removePunctuation = True, makeLowerCase = True)   # Prompt the user again for input
                 continue    # Restart the loop to revalidate the new input (if statement to check value in range)
             
             if direction == "up":
@@ -304,7 +297,7 @@ def handleScrollAction(scrollAmount, direction):
         except ValueError as ve:
             print("Invalid scroll amount. Valid scroll amounts are between 0 and 1000.")
             time.sleep(2)
-            scrollAmount = promptUser(2, True, True)
+            scrollAmount = promptUser(2, removePunctuation = True, makeLowerCase = True)
 
         except Exception as e:
             print(f"Error occured during scrolling: {e}")
@@ -339,7 +332,7 @@ def setVolume(volChoice):
                 print("*** MUST BE AN INCREMENT OF 10 ***")
                 time.sleep(2)
 
-                volChoice = promptUser(3, True, True)
+                volChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
 
             volChoice = convertToInt(volChoice) # Convert string representation of number to integer
             
@@ -352,7 +345,7 @@ def setVolume(volChoice):
             print(f"\nInvalid volume value: {volChoice}. Valid volume levels are increments of 10 between 0 and 100.")
             time.sleep(2)
 
-            volChoice = promptUser(3, True, True)
+            volChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
 
     except Exception as e:
         print(f"Error occured while setting volume: {str(e)}")
@@ -612,8 +605,6 @@ class mouseGrid():
         # Make this window transparent
         self.mouseGrid.attributes("-alpha", 0.3, "-fullscreen", TRUE)
 
-        #mouseGrid.geometry("1919x1079")
-
         self.screenHeight = self.mouseGrid.winfo_screenheight()
         self.screenWidth = self.mouseGrid.winfo_screenwidth()
 
@@ -629,12 +620,12 @@ class mouseGrid():
         self.pinkCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
 
         self.drawColorGrid()
-
         self.mouseGrid.mainloop()
 
+        
+    def drawColorGrid(self):
         # Make 9 frames (3 * 3 grid)
         # One for each portion of the grid
-    def drawColorGrid(self):
         self.redFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "red")
         self.redFrame.grid(row = 0, column = 0)
         self.redFrame.grid_propagate(False)
@@ -677,6 +668,8 @@ class mouseGrid():
         self.submit_button = Button(self.blackFrame, text = "Submit", command = self.getUserChoice, border = 2, relief = "solid")
         self.submit_button.grid(row = 1, column = 0, sticky = NE)
 
+    # This function will be used when we need to re-draw the grid
+    #   It simply deletes all of the frames, and we can re-draw them by calling: drawColorGrid()
     def deleteColorGrid(self):
         self.redFrame.destroy()
         self.greenFrame.destroy()
@@ -688,130 +681,150 @@ class mouseGrid():
         self.orangeFrame.destroy()
         self.pinkFrame.destroy()
 
+    # This function grabs the text inside of the box next to the submit button
     def getUserChoice(self):
         self.inputBoxChoice = self.inputBox.get(1.0, "end-1c")
 
+        # If the user specifies they wish to record, we call our prompt user function which records and uses the speech recognition model
+        #   The output of the model is formatted to have no trailing punctuation and to be all lowercase
         if (self.inputBoxChoice == "Record"):
-            self.userChoice = recordAndUseModel()
-            self.displaySubgrid()
+            self.userChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
+            self.displaySubgrid(self.userChoice)
             
-
-        elif (self.inputBoxChoice == "Red" or self.inputBoxChoice == "Green" or self.inputBoxChoice == "Blue" or
-              self.inputBoxChoice == "Purple" or self.inputBoxChoice == "Yellow" or self.inputBoxChoice == "White" or
-              self.inputBoxChoice == "Black" or self.inputBoxChoice == "Orange" or self.inputBoxChoice == "Pink"):
-            self.displaySubgrid()
-
         elif (self.inputBoxChoice == "Destroy"):
             self.deleteColorGrid()
-
             self.mouseGrid.update_idletasks()
             self.mouseGrid.update()
 
             time.sleep(5)
 
             self.drawColorGrid()
-
             self.mouseGrid.update_idletasks()
             self.mouseGrid.update()
         
         else:
             print("Enter a correct input")
 
-    def displaySubgrid(self):
+    def displaySubgrid(self, colorChoice):
+    
         self.displayFlag = 0
+        while True:
+            try:
+                if (jellyfish.jaro_winkler_similarity(colorChoice, "red") > 0.7):      # top left
+                    self.subgrid = Canvas(self.redFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.redCenter[0], self.redCenter[1], self.redCenter[2])
+                    self.displayFlag = 1
+                
+                elif (jellyfish.jaro_winkler_similarity(colorChoice, "green") > 0.85):  # middle left
+                    self.subgrid = Canvas(self.greenFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.greenCenter[0], self.greenCenter[1], self.greenCenter[2])
+                    self.displayFlag = 1
 
-        if (jellyfish.jaro_winkler_similarity(self.userChoice, "Red") > 0.7):      # top left
-            self.subgrid = Canvas(self.redFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.redCenter[0], self.redCenter[1], self.redCenter[2])
-            self.displayFlag = 1
-        
-        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Green") > 0.85):  # middle left
-            self.subgrid = Canvas(self.greenFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.greenCenter[0], self.greenCenter[1], self.greenCenter[2])
-            self.displayFlag = 1
+                elif (jellyfish.jaro_winkler_similarity(colorChoice, "blue") > 0.85):   # bottom left
+                    self.subgrid = Canvas(self.blueFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.blueCenter[0], self.blueCenter[1], self.blueCenter[2])
+                    self.displayFlag = 1
 
-        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Blue") > 0.85):   # bottom left
-            self.subgrid = Canvas(self.blueFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.blueCenter[0], self.blueCenter[1], self.blueCenter[2])
-            self.displayFlag = 1
+                elif (jellyfish.jaro_winkler_similarity(colorChoice, "purple") > 0.85): # top center
+                    self.subgrid = Canvas(self.purpleFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.purpleCenter[0], self.purpleCenter[1], self.purpleCenter[2])
+                    self.displayFlag = 1
 
-        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Purple") > 0.85): # top center
-            self.subgrid = Canvas(self.purpleFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.purpleCenter[0], self.purpleCenter[1], self.purpleCenter[2])
-            self.displayFlag = 1
+                elif (jellyfish.jaro_winkler_similarity(colorChoice, "yellow") > 0.85): # center
+                    self.subgrid = Canvas(self.yellowFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.yellowCenter[0], self.yellowCenter[1], self.yellowCenter[2])
+                    self.displayFlag = 1
 
-        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Yellow") > 0.85): # center
-            self.subgrid = Canvas(self.yellowFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.yellowCenter[0], self.yellowCenter[1], self.yellowCenter[2])
-            self.displayFlag = 1
+                elif (jellyfish.jaro_winkler_similarity(colorChoice, "white") > 0.85):  # bottom center
+                    self.subgrid = Canvas(self.whiteFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.whiteCenter[0], self.whiteCenter[1], self.whiteCenter[2])
+                    self.displayFlag = 1
 
-        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "White") > 0.85):  # bottom center
-            self.subgrid = Canvas(self.whiteFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.whiteCenter[0], self.whiteCenter[1], self.whiteCenter[2])
-            self.displayFlag = 1
+                elif (jellyfish.jaro_winkler_similarity(colorChoice, "black") > 0.85):  # top right
+                    self.subgrid = Canvas(self.blackFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.blackCenter[0], self.blackCenter[1], self.blackCenter[2])
+                    self.displayFlag = 1
 
-        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Black") > 0.85):  # top right
-            self.subgrid = Canvas(self.blackFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.blackCenter[0], self.blackCenter[1], self.blackCenter[2])
-            self.displayFlag = 1
+                elif (jellyfish.jaro_winkler_similarity(colorChoice, "orange") > 0.85):   # middle right
+                    self.subgrid = Canvas(self.orangeFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.orangeCenter[0], self.orangeCenter[1], self.orangeCenter[2])
+                    self.displayFlag = 1
 
-        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Orange") > 0.85):   # middle right
-            self.subgrid = Canvas(self.orangeFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.orangeCenter[0], self.orangeCenter[1], self.orangeCenter[2])
-            self.displayFlag = 1
+                elif (jellyfish.jaro_winkler_similarity(colorChoice, "pink") > 0.7):   # bottom right
+                    self.subgrid = Canvas(self.pinkFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
+                    print(f"Moving to {colorChoice} center")
+                    pyautogui.moveTo(self.pinkCenter[0], self.pinkCenter[1], self.pinkCenter[2])
+                    self.displayFlag = 1
 
-        elif (jellyfish.jaro_winkler_similarity(self.userChoice, "Pink") > 0.7):   # bottom right
-            self.subgrid = Canvas(self.pinkFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-            pyautogui.moveTo(self.pinkCenter[0], self.pinkCenter[1], self.pinkCenter[2])
-            self.displayFlag = 1
-
-        if (self.displayFlag):
-            print("Displaying subgrid...")
-
-            # Draw horizontal lines
-            self.subgrid.create_line(0, self.screenHeight / 9, self.screenWidth / 3, self.screenHeight / 9, width = 5)  
-            self.subgrid.create_line(0, self.screenHeight * 2 / 9, self.screenWidth / 3, self.screenHeight * 2 / 9, width = 5)
-
-            # Draw vertical lines
-            self.subgrid.create_line(self.screenWidth / 9, 0, self.screenWidth / 9, self.screenHeight / 3, width = 5)
-            self.subgrid.create_line(self.screenWidth * 2 / 9, 0, self.screenWidth * 2 / 9, self.screenHeight / 3, width = 5)
-
-            # Place the canvas onto user choice location
-            self.subgrid.grid(padx = 0, pady = 0)
-
-            self.mouseGrid.update_idletasks()
-            self.mouseGrid.update()
-
-            self.dynamicInstructionText = StringVar()
+                else:
+                    raise ValueError(print(f"Error: {e}"))
+                
+                # return True
             
 
-            if (self.userChoice == "Red." or self.userChoice == "Red" or self.userChoice == "red"):
-                self.dynamicInstruction_label = Label(self.blackFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
-                self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
+                if (self.displayFlag):
+                    print("Displaying subgrid...")
 
-            else:
-                self.dynamicInstruction_label = Label(self.redFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
-                self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
+                    # Draw horizontal lines
+                    self.subgrid.create_line(0, self.screenHeight / 9, self.screenWidth / 3, self.screenHeight / 9, width = 5)  
+                    self.subgrid.create_line(0, self.screenHeight * 2 / 9, self.screenWidth / 3, self.screenHeight * 2 / 9, width = 5)
 
-            self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
+                    # Draw vertical lines
+                    self.subgrid.create_line(self.screenWidth / 9, 0, self.screenWidth / 9, self.screenHeight / 3, width = 5)
+                    self.subgrid.create_line(self.screenWidth * 2 / 9, 0, self.screenWidth * 2 / 9, self.screenHeight / 3, width = 5)
+
+                    # Place the canvas onto user choice location
+                    self.subgrid.grid(padx = 0, pady = 0)
+
+                    self.mouseGrid.update_idletasks()
+                    self.mouseGrid.update()
+
+                    self.dynamicInstructionText = StringVar()
+                    
+
+                    if (self.userChoice == "Red." or self.userChoice == "Red" or self.userChoice == "red"):
+                        self.dynamicInstruction_label = Label(self.blackFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
+                        self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
+
+                    else:
+                        self.dynamicInstruction_label = Label(self.redFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
+                        self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
+
+                    self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
+                    
+                    self.mouseGrid.update_idletasks()
+                    self.mouseGrid.update()
+
+                    print("\nSay 'Get more specific' to specify a subgrid.")
+                    time.sleep(3)
+
+                    self.userChoice = recordAndUseModel()
+
+                    if (self.userChoice == "Get more specific." or self.userChoice == "Get more specific" or self.userChoice == "get more specific"):
+                        self.moveToInnerPosition()
+                        self.mouseOrKeyboardAction()
+
+                    else:
+                        self.mouseOrKeyboardAction()
+
+                else:
+                    print("Incorrect input. Say the color which you'd like your cursor to be in...")
             
-            self.mouseGrid.update_idletasks()
-            self.mouseGrid.update()
-
-            print("\nSay 'Get more specific' to specify a subgrid.")
-            time.sleep(3)
-
-            self.userChoice = recordAndUseModel()
-
-            if (self.userChoice == "Get more specific." or self.userChoice == "Get more specific" or self.userChoice == "get more specific"):
-                self.moveToInnerPosition()
-                self.mouseOrKeyboardAction()
-
-            else:
-                self.mouseOrKeyboardAction()
-
-        else:
-            print("Incorrect input. Say the color which you'd like your cursor to be in...")
+            except ValueError as ve:
+                print(f"Invalid color: {colorChoice}")
+                time.sleep(2)
+                colorChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
+                    
+            except Exception as e:
+                print(f"Error displaying subgrid: {e}")
 
 
 
