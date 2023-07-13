@@ -41,21 +41,21 @@ engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
 
 
 # Audio beep functions
-def beepgood():
+
+def beepgood(): # used for successful recognition and execution of commands
     winsound.Beep(1000, 250)
     winsound.Beep(1500, 250)
 
-def beepbad():
+def beepbad():  # used for unsuccessful recognition and execution of commands
     winsound.Beep(1000, 250)
     winsound.Beep(500, 250)
 
-# countdown beep
-def beepcountdown(): 
+def beepcountdown(): # countdown sequence
     winsound.Beep(1200, 1000)
     winsound.Beep(1200, 1000)
     winsound.Beep(1250, 1000)
 
-def beeprecord():
+def beeprecord(): # used to indicate when recording starts
     winsound.Beep(1500, 250)
 
 # This function takes in an input string
