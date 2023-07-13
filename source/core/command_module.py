@@ -56,7 +56,7 @@ def beepcountdown():
     winsound.Beep(1250, 1000)
 
 def beeprecord():
-    winsound.Beep(1500, 500)
+    winsound.Beep(1500, 250)
 
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
