@@ -68,9 +68,10 @@ class ASR_model:
             print(f"Error occured during transcription: {e}")
             return False
 
+# Create instances of Recorder and ASR_model
+microphone = Recorder()
+whisper = ASR_model()
 
 if __name__ == "__main__":
-    # Create instances of Recorder and ASR_model
-    microphone = Recorder()
-    whisper = ASR_model()
+    print("Called from command line")
 

@@ -1,8 +1,38 @@
 from tkinter import *
 from source.core.command_module import *
 from source.core.model_interface import *
-import keyboard
 import threading
+
+# This function should be called as soon as the UI is launched
+#   It will continuously listen until it hears the keyword: "sherpa"
+#   When "sherpa" is heard:
+#       -run another function which listens for commands
+#       -based on what the record function captured and the transcripted output
+#       -run a command
+# TO-DO: update the GUI to show when we are listening or processing the audio
+def listenForKeywords():
+    try:
+        while True:
+            microphone.record(2)
+            prediction = whisper.use_model(RECORD_PATH)
+
+            if (prediction.rstrip(string.punctuation).lower() == "sherpa"):
+                print("\nSpeak a command")
+                time.sleep(1)
+                prediction = promptUser(recordDuration = 5, removePunctuation = True, makeLowerCase = True)
+                commandExec(prediction)
+                break # Exit the loop after capturing the keyword and executing the action
+
+    except Exception as e:
+        print(f"Error while listening for keyword: {e}")
+
+# Function to start the keyword listening thread
+# This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
+def startListeningThread():
+    thread = threading.Thread(target = listenForKeywords)
+    thread.daemon = True  # Set the thread as a daemon thread
+    thread.start()
+
 # The first screen to be displayed to users
 class mainScreen:
     def __init__(self):
@@ -11,6 +41,9 @@ class mainScreen:
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
         self.root.minsize(200, 200)          # set a min size of 200 x 200 pixels
         self.root.config(bg = "skyblue")     # set the background color
+
+        # Call startListeningThread to start listening for keywords in a separate thread
+        startListeningThread()
 
         # Set the starting size of the window and its location
         self.root.geometry("1100x700+480+200")
@@ -75,7 +108,7 @@ class mainScreen:
 
         # Add record button
         # *** in the future -> activate record by speaking a keyword
-        self.record_button = Button(self.right_frame, text = "When ready to record, say [keyword]", font = "Times 14",
+        self.record_button = Button(self.right_frame, text = "When ready to record, say [sherpa]", font = "Times 14",
                                      bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.recordAndUseModel)
         self.record_button.grid(row = 1, column = 0, padx = 10, pady = 10)
         self.create_account_butt = Button(self.right_frame, text = "Create Account", command = self.create_account, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
@@ -376,8 +409,6 @@ class mainScreen:
             
         #This one should overwrite any previous data
 
-
-
 if __name__ == '__main__':
-    mainScreen()
+    main = mainScreen()
 

@@ -16,7 +16,6 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume    # used for audio
 from ctypes import cast, POINTER                                # audio
 from comtypes import CLSCTX_ALL                                 # audio
 from source.core.model_interface import *
-import keyboard
 from tkinter import *
 import jellyfish
 import winsound # for creating beeps
@@ -105,7 +104,7 @@ def commandExec(userChoice):
 
     else:
         beepbad()
-        print("Try again...")
+        print(f"Unrecognized command: {userChoice}")
 
 # This function is used when we need to prompt the user for additional voice inputs
 # Used for getting application names, scroll amounts, volume levels, etc.
@@ -817,12 +816,13 @@ def recordAndUseModel():
 
     return prediction
 
-
+# This if statement executes if apps are not already saved to a file
+if os.path.exists("data/app_data.json"):
+    VALID_APPS = loadValidApps()
+else:
+    AppOpener.mklist(path = "data")
+    VALID_APPS = loadValidApps()
+    
 if __name__ == "__main__":
     print("This should only run if called from cmd line")
-    # This if statement executes if apps are not already saved to a file
-    if os.path.exists("data/app_data.json"):
-        VALID_APPS = loadValidApps()
-    else:
-        AppOpener.mklist(path = "data")
-        VALID_APPS = loadValidApps()
+    
