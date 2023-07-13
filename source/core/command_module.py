@@ -49,6 +49,15 @@ def beepbad():
     winsound.Beep(1000, 250)
     winsound.Beep(500, 250)
 
+# countdown beep
+def beepcountdown(): 
+    winsound.Beep(1200, 1000)
+    winsound.Beep(1200, 1000)
+    winsound.Beep(1250, 1000)
+
+def beeprecord():
+    winsound.Beep(1500, 500)
+
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
 def commandExec(userChoice):
