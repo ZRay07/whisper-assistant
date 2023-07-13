@@ -31,17 +31,16 @@ devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 volume = cast(interface, POINTER(IAudioEndpointVolume))
 
-# Initialize text to speech so that it can be used in all functions
+# Initialize text to speech so that it can be used in all functions (if needed)
 engine = pyttsx3.init() # initialize
 engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
 
 # Below are what is needed for commands to say words
-# engine.say("word") # -> what engine will say (feed prediction into this?)
+# engine.say("word") # -> what engine will say (feed prediction into this? so that it can read back what the program heard?)
 # engine.runAndWait() # -> runs engine until 'sentence' is over
 
 
 # Audio beep functions
-
 def beepgood(): # used for successful recognition and execution of commands
     winsound.Beep(1000, 250)
     winsound.Beep(1500, 250)
