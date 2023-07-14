@@ -52,6 +52,9 @@ def commandExec(userChoice):
     # make the string all lower case to help with similarity (want to focus solely on matching keywords)
     userChoice = userChoice.lower()
     userChoiceSplit = userChoice.split()
+
+    for index, element in enumerate(userChoiceSplit):
+        print(f"userChoiceSplit[{index}]: {element}")
     
     if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "open") > 0.85):        # Open application
         print("\n***Open Application***")
@@ -64,23 +67,30 @@ def commandExec(userChoice):
         appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
         handleApplicationAction(appName, "close")
 
-
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "scroll up") > 0.9):      # Scroll up
-        print("\n***Scroll Up***")
-        scrollAmount = userChoiceSplit[-1]
-        handleScrollAction(scrollAmount, "up")
+    # There was an index error being caused here. 
+    # Sometimes, the user would only say one word. For example, "open"
+    # In this case, the userChoiceSplit[1] was raising an index error.
+    #   trying to check for a value that doesn't exist because userChoiceSplit was [0] indices long
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "scroll") > 0.9):   # Scroll up
+        if len(userChoiceSplit) >= 1:
+            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "up") > 0.9):
+                print("\n***Scroll Up***")
+                scrollAmount = userChoiceSplit[-1]
+                handleScrollAction(scrollAmount, "up")
 
             
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll down") > 0.9):    # Scroll down
-        print("\n***Scroll Down***")
-        scrollAmount = userChoiceSplit[-1]
-        handleScrollAction(scrollAmount, "down")
+            elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "down") > 0.9):    # Scroll down
+                print("\n***Scroll Down***")
+                scrollAmount = userChoiceSplit[-1]
+                handleScrollAction(scrollAmount, "down")
 
 
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Set volume") > 0.85):   # Set volume
-        print("\n***Set Volume***")
-        volChoice = userChoiceSplit[-1].rstrip(string.punctuation).lower()
-        setVolume(volChoice)           
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "set") > 0.85):     # Set volume
+        if len(userChoiceSplit) >= 1:
+            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "volume") > 0.85):   
+                print("\n***Set Volume***")
+                volChoice = userChoiceSplit[-1].rstrip(string.punctuation).lower()
+                setVolume(volChoice)           
 
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
@@ -93,14 +103,23 @@ def commandExec(userChoice):
         beepgood()
         sign_in()       
 
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
-        beepgood()
-        print("***Exiting***")
-
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
         print("\nSearching now...\n")
         beepgood()
         google_search()
+
+
+    elif(jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "search") > 0.85):
+        if len(userChoiceSplit) >= 4:
+            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + userChoiceSplit[1] + userChoiceSplit[2] + userChoiceSplit[3],
+                                                 "search for a document") > 0.85):
+                print("\n***Search for a document***")
+                docChoice = userChoice
+                searchForDocument(docChoice)
+
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
+        beepgood()
+        print("***Exiting***")
 
     else:
         beepbad()
@@ -443,6 +462,53 @@ def sign_in():
     #The lines below are meant to start a new email but the id is incorrect - fix later
     #el4 = wait.until(EC.presence_of_element_located((By.ID, "id__248")))
     #el4.click()
+
+# This function moves the mouse cursor down to the Windows search bar in bottom left and clicks
+#   If the last word of the string was document:
+#       The user is prompted for a document name
+#   Otherwise:
+#       it searches for a document with the document name being whatever comes after 'document' in the string
+def searchForDocument(docChoice):
+    docChoice = docChoice.rstrip(string.punctuation)
+    docChoiceSplit = docChoice.split()
+    wordsAfterDocument = None
+
+    if docChoiceSplit[-1] == "document":    # If the last word in the string is "document", we need to prompt user for a document name
+        print("\nWhat document would you like to search for?")
+            
+        time.sleep(2)
+
+        docChoice = promptUser(3, removePunctuation = True, makeLowerCase = False)
+
+    else:
+        try:
+            # Grab the position of "document" from the array
+            indexDocument = docChoiceSplit.index("document")
+
+            # Pull every word after document
+            wordsAfterDocument = docChoiceSplit[indexDocument + 1:]
+
+            # Combine the words after document back into string
+            docChoice = " ".join(wordsAfterDocument)
+
+        except ValueError:
+            print("'Document' not found in array.")
+
+    try:
+        docChoice = "Document: " + docChoice
+
+        # Move cursor to search bar
+        pyautogui.click(120, 1065, duration = 1)
+        time.sleep(0.2)
+
+        # Type in document name and press enter
+        pyautogui.typewrite(docChoice, interval = 0.2)
+        pyautogui.press('enter')
+        return True
+    
+    except Exception as e:
+        print(f"Error occured while searching for document: {e}")
+        return False
 
 class mouseGrid():
     def __init__(self):
