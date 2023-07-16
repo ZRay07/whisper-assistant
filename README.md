@@ -86,7 +86,11 @@ an application name - you will be prompted.
 ## Running the tests
 TO-DO: Create test audio files so we can show the model in action.
 
-TO-DO: Create test functions to run commands and ensure correct output.
+* Ensure you're in the project directory
+* Run the command test with: 
+```
+python -m tests.command_module_test
+```
 
 ## Built With
 * [Whisper](https://platform.openai.com/docs/introduction) - The speech recognition model used.
