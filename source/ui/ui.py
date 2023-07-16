@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import font
 from source.core.command_module import *
 from source.core.model_interface import *
 import argparse
@@ -14,116 +15,133 @@ class mainScreen:
         self.root = Tk()
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
         self.root.minsize(200, 200)          # set a min size of 200 x 200 pixels
-        self.root.config(bg = "skyblue")     # set the background color
+        self.root.config(bg = "dark slate gray")     # set the background color
 
         # Call startListeningThread to start listening for keywords in a separate thread
         if not args.disable:
             startListeningThread()
 
         # Set the starting size of the window and its location
-        self.root.geometry("1100x700+480+200")
-        self.drawRightFrame()
+        #self.root.geometry("1100x700+480+200")
+        self.root.geometry("1919x1000+0+0")
         self.drawLeftFrame()
+        self.drawCenterFrame()
+        self.drawRightFrame()
         self.root = mainloop()
 
+
+    # This frame contains:
+    # mountain climbing image
+    # command list (clickable buttons)
     def drawLeftFrame(self):
+
         # Create left frame
-        def bring_to_front(root): 
-            root.attributes('-topmost', 1)
-            root.attributes('-topmost', 0)
-        self.left_frame = Frame(self.root, width = 315, height = 530,
-                                 bg = "white", borderwidth = 2, relief = "raised")
-        self.left_frame.grid(row = 0, column = 0, padx = 10, pady = 10)       # Places the frame onto the window
+        self.left_frame = Frame(self.root, width = 250, height = 530,
+                                 bg = "slate gray", borderwidth = 2, relief = FLAT)
+        self.left_frame.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "ns")       # Places the frame onto the window
+
+        self.root.grid_rowconfigure(0, weight = 1)  # Allow the first row (left_frame) to expand vertically
 
         # Adding image to the left hand frame
-        self.mountainImage = PhotoImage(file = "source/ui/images/mountain3.gif")
-        self.small_image = self.mountainImage.subsample(3 , 3)
-        Label(self.left_frame, image = self.small_image).grid(row = 0, column = 0, padx = 10, pady = 10)
+#        self.mountainImage = PhotoImage(file = "source/ui/images/mountain3.gif")
+#        self.small_image = self.mountainImage.subsample(3 , 3)
+#        Label(self.left_frame, image = self.small_image).grid(row = 0, column = 0, padx = 10, pady = 10)
 
-        # Label the left hand frame
-        self.cmd_label = Label(self.left_frame, text = "Speech Commands", font = "times 18", bg = "white")
-        self.cmd_label.grid(row = 1, column = 0, padx = 10, pady = 10)
+        self.title_frame = Frame(self.left_frame, width = 315, height = 100, bg = "slate gray")
+        self.title_frame.grid(row = 0, column = 0)
 
-        # Add speech commands below label
-        # Use buttons so we can use the GUI
-        self.cmd_bar = Frame(self.left_frame, width = 315, height = 300, bg = "white")
+        # Adding little icon next to SHERPA title   (<a href="https://www.flaticon.com/free-icons/altitude" title="altitude icons">Altitude icons created by Graficon - Flaticon</a>)
+        # simple mountain: <a href="https://www.flaticon.com/free-icons/mountain" title="mountain icons">Mountain icons created by Freepik - Flaticon</a>
+        # all black tour guide: <a href="https://www.flaticon.com/free-icons/tour" title="tour icons">Tour icons created by Leremy - Flaticon</a>
+        # color tour guide: <a href="https://www.flaticon.com/free-icons/tourism" title="tourism icons">Tourism icons created by denimao - Flaticon</a>
+        self.mountainLogo = PhotoImage(file = "source/ui/images/tour-guide.png")
+        self.downsizedMountainLogo = self.mountainLogo.subsample(10, 10)
+        self.mountainLogo_label = Label(self.title_frame, image = self.downsizedMountainLogo, bg = "slate gray")
+        self.mountainLogo_label.grid(row = 0, column = 0, sticky = 'e')
+
+        # Create S.H.E.R.P.A. title in top left hand corner of window
+        self.sherpa_label = Label(self.title_frame, text = "SHERPA", font = ("Bauhaus 93", 36), bg = "slate gray")
+        self.sherpa_label.grid(row = 0, column = 1, sticky = 'w')
+
+        # Write out acronym below title
+        self.sherpaFull_label = Label(self.title_frame, text = "Super Helpful Engine Recognizing People's Audio", font = ("Franklin Gothic Medium", 12, "italic"), bg = "slate gray")
+        self.sherpaFull_label.grid(row = 1, rowspan = 3, columnspan = 2)
+
+        # Below acronym, display "Speech commands"
+        self.cmd_label = Label(self.left_frame, text = "Speech Commands",    font = ("Franklin Gothic Medium", 24), bg = "slate gray")
+        self.cmd_label.grid(row = 1, column = 0, padx = 10)
+
+        # Add actual speech commands below label
+        self.cmd_bar = Frame(self.left_frame, width = 315, height = 300, bg = "slate gray")
         self.cmd_bar.grid(row = 2, column = 0)
 
-        self.openApp_button = Button(self.cmd_bar, text = "Open Application", command = lambda: handleApplicationAction("app", "open"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", command = lambda: handleApplicationAction("app", "close"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = lambda: handleScrollAction("up", "up"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = lambda: handleScrollAction("down", "down"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "light grey", command = mouseGrid, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = lambda:[sign_in,bring_to_front], bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.exit_button = Button(self.cmd_bar, text = "Exit", command = self.root.quit, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.buttonFont = font.Font(family = "Franklin Gothic Medium", size = 12)
+        self.openApp_button =  Button(self.cmd_bar, text = "Open Application",  font = self.buttonFont, command = lambda: handleApplicationAction("app", "open"),   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", font = self.buttonFont, command = lambda: handleApplicationAction("app", "close"),  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up",         font = self.buttonFont, command = lambda: handleScrollAction("up", "up"),           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down",     font = self.buttonFont, command = lambda: handleScrollAction("down", "down"),       bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.setVol_button = Button(self.cmd_bar, text = "Set Volume",          font = self.buttonFont, command = lambda: setVolume,                                bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.mouseControl_button = Button(self.cmd_bar, text = "Mouse Control", font = self.buttonFont, command = mouseGrid,                                        bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in",  font = self.buttonFont, command = lambda:[sign_in, self.bring_to_front],            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.createAcc_button = Button(self.cmd_bar, text = "Create Account",   font = self.buttonFont, command = self.create_account,                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.addContact_button = Button(self.cmd_bar, text = "Add Contact",     font = self.buttonFont, command = self.add_contact,                                 bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
+        self.exit_button = Button(self.cmd_bar, text = "Exit",                  font = self.buttonFont, command = self.root.quit,                                   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         
         # Place the buttons in the frame
-        self.openApp_button.grid(row = 0, column = 0, padx = 10, pady = 10)
-        self.closeApp_button.grid(row = 1, column = 0, padx = 10, pady = 10)
-        self.scrollUp_button.grid(row = 2, column = 0, padx = 10, pady = 10)
-        self.scrollDown_button.grid(row = 3, column = 0, padx = 10, pady = 10)
-        self.setVol_button.grid(row = 4, column = 0, padx = 10, pady = 10)
-        self.mouseControl_button.grid(row = 5, column = 0, padx = 10, pady = 10)
-        self.emailSignIn_button.grid(row = 6, column = 0, padx = 10, pady = 10)
-        self.exit_button.grid(row = 7, column = 0, padx = 10, pady = 10)
+        self.openApp_button.grid(row = 0, column = 0, pady = 5)
+        self.closeApp_button.grid(row = 1, column = 0, pady = 5)
+        self.scrollUp_button.grid(row = 2, column = 0, pady = 5)
+        self.scrollDown_button.grid(row = 3, column = 0, pady = 5)
+        self.setVol_button.grid(row = 4, column = 0, pady = 5)
+        self.mouseControl_button.grid(row = 5, column = 0, pady = 5)
+        self.emailSignIn_button.grid(row = 6, column = 0, pady = 5)
+        self.createAcc_button.grid(row = 7, column = 0, pady = 5)
+        self.addContact_button.grid(row = 8, column = 0, pady = 5)
+        self.exit_button.grid(row = 9, column = 0, pady = 5)
 
-    def drawRightFrame(self):
-        # Create right frame
-        self.right_frame = Frame(self.root, width = 750, height = 530,
-                                 bg = "white", borderwidth = 2, relief = "raised")
-        self.right_frame.grid(row = 0, column = 1, padx = 10, pady = 10)
+    # This frame contains:
+    # Directions for the user on how to call a command request
+    # Prediction outputs
+    # Command outputs
+    def drawCenterFrame(self):
+        # Create center frame
+        self.center_frame = Frame(self.root, width = 750, height = 530,
+                                 bg = "slate gray", borderwidth = 2, relief = FLAT)
+        self.center_frame.grid(row = 0, column = 1, padx = 10, pady = 10, sticky = "ns")
+
+        self.root.grid_rowconfigure(0, weight = 1)  # Allow the (center_frame) to expand vertically
 
         # Ensure the frame does not shrink to fit widget size
-        self.right_frame.grid_propagate(False)
+        #self.center_frame.grid_propagate(False)
 
-        # Label the right frame
-        self.sherpa_label = Label(self.right_frame, text = "Welcome to S.H.E.R.P.A.", font = "Times 20", bg = "white")
-        self.sherpa_label.grid(row = 0, column = 0, padx = 10, pady = 10)
+        # Label the center frame
+        self.commandDirection_label = Label(self.center_frame, text = "Say \"sherpa\" OR click \"Record\"", font = ("Franklin Gothic Medium", 24), bg = "slate gray")
+        self.commandDirection_label.grid(row = 0, column = 0, padx = 5, pady = 10)
 
         # Add record button
         # *** in the future -> activate record by speaking a keyword
-        self.record_button = Button(self.right_frame, text = "When ready to record, say [sherpa]", font = "Times 14",
-                                     bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.recordAndUseModel)
+        self.record_button = Button(self.center_frame, text = "Record", font = ("Franklin Gothic Medium", 24),
+                                     bg = "SlateGray3", relief = FLAT, activebackground = "green", command = self.recordAndUseModel)
         self.record_button.grid(row = 1, column = 0, padx = 10, pady = 10)
-        self.create_account_butt = Button(self.right_frame, text = "Create Account", command = self.create_account, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.create_account_butt.grid(row = 4, column = 0, padx = 10, pady = 10 )
-
-        self.Add_contact_butt = Button(self.right_frame, text = "Add Contact", command = self.add_contact, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.Add_contact_butt.grid(row = 5, column = 0, padx = 10, pady = 10 )
        
-       
-        self.transcribedLabel = StringVar()
-        self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
-
-        # Add a transcription box
-        self.transcription_label = Label(self.right_frame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.transcribedLabel, wraplength = 200)
-        self.transcription_label.grid(row = 0, column = 1, padx = 10, pady = 10)
-
-        # Add a transcribe button
-        self.transcribe_button = Button(self.right_frame, text = "Transcribe", font = "Times 14",
-                                     bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.transcribeSpeech)
-        self.transcribe_button.grid(row = 1, column = 1, padx = 10, pady = 5)
-
-       # self.recordDurationLabel = StringVar()
-        #self.recordDurationLabel.set("Record Duration")
-
-       # self.recordDuration_label = Label(self.right_frame, height = 1, width = 30, bg = "light cyan", relief = "solid", textvariable = self.recordDurationLabel, wraplength = 200)
-       # self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
 
         # Add area to show predicted command
-        self.prediction_bar = Frame(self.right_frame, width = 375, height = 500,
+        self.cmdHistory_frame = Frame(self.center_frame, width = 350, height = 500,
                                      bg = "light grey", borderwidth = 2, relief = "solid")
-        self.prediction_bar.grid(row = 3, column = 0, columnspan = 1, padx = 5, pady = 5)
+        self.cmdHistory_frame.grid(row = 2, column = 0, columnspan = 1, padx = 5, pady = 5)
 
-        self.weHeard_label = Label(self.prediction_bar, height = 1, width = 10, text = "We heard: ", bg = "light grey")
-        self.weHeard_label.grid(row = 0, column = 0, padx = 0, pady = 10)
+        # Add label at the top of the frame to show what's in the box
+        self.cmdHistory_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 60, height = 1, bg = "light grey")
+        self.cmdHistory_label.grid(row = 0, column = 0, sticky = "n")
 
         self.predictionLabel = StringVar()
-        self.predictionLabel.set("Predicted commands will appear here.")
+        self.predictionLabel.set("Command history")
 
-        self.prediction_label = Label(self.prediction_bar, height = 1, width = 40, bg = "light grey", textvariable = self.predictionLabel, wraplength = 500)
-        self.prediction_label.grid(row = 0, column = 1, padx = 0, pady = 10)
+        self.prediction_label = Label(self.cmdHistory_frame, textvariable = self.predictionLabel, font = ("Franklin Gothic Medium", 12), width = 60, height = 30,  bg = "light grey", wraplength = 500, anchor = "s")
+        self.prediction_label.grid(row = 1, column = 0, padx = 0, pady = 10)
+
+        self.recordDisplay_label = Label(self.cmdHistory_frame, text = "Listening...", font = ("Franklin Gothic Medium", 12), width = 60, height = 1, bg = "light grey", )
+        self.recordDisplay_label.grid(row = 2, column = 0, sticky = "s")
 
         engine = pyttsx3.init() # initialize
         engine.setProperty('rate', 100) # adjust settings
@@ -131,7 +149,7 @@ class mainScreen:
         engine.runAndWait() # runs engine until 'sentence' is over
 
         #This is the create account button
-       # self.create_account_bar = Frame(self.right_frame, width = 375, height = 250
+       # self.create_account_bar = Frame(self.center_frame, width = 375, height = 250
                                   #      bg = "light grey", borderwidth = 2, relief = "solid")
       #  self.create_account_bar.grid(row = 4, column = 0, columnspan = 1, padx = 0, pady = 0 )
       #  self.create_account_label = Label(self.create_account_bar, height = 1, width = 40, bg = "light grey", textvariable = self.create_account_label, wraplength = 500)
@@ -162,6 +180,14 @@ class mainScreen:
         self.prediction = whisper.use_model(RECORD_PATH)
 
         self.transcribedLabel.set(self.prediction)
+
+    def bring_to_front(root): 
+        root.attributes('-topmost', 1)
+        root.attributes('-topmost', 0)
+
+    def handleUserNameValidation():
+         print("Handling user name validation")
+
     #These were needed for threading
     def setlabel(self, string):
         self.transcribedLabel.set("")
@@ -383,6 +409,40 @@ class mainScreen:
 
             
         #This one should overwrite any previous data
+
+    # This frame contains:
+    # Transcription Box
+    # The button to change transcription record duration
+    def drawRightFrame(self):
+
+        # Create right frame
+        self.right_frame = Frame(self.root, width = 750, height = 530,
+                                 bg = "slate gray", borderwidth = 2, relief = FLAT)
+        self.right_frame.grid(row = 0, column = 2, padx = 10, pady = 10, sticky = "ns")
+
+        self.root.grid_rowconfigure(0, weight = 1)  # Allow the (right_frame) to expand vertically
+
+        # Ensure the frame does not shrink to fit widget size
+        #self.right_frame.grid_propagate(False)
+
+
+        self.transcribedLabel = StringVar()
+        self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
+
+        # Add a transcription box
+        self.transcription_label = Label(self.right_frame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.transcribedLabel, wraplength = 200)
+        self.transcription_label.grid(row = 0, column = 1, padx = 10, pady = 10)
+
+        # Add a transcribe button
+        self.transcribe_button = Button(self.right_frame, text = "Transcribe", font = "Times 14",
+                                     bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.transcribeSpeech)
+        self.transcribe_button.grid(row = 1, column = 1, padx = 10, pady = 5)
+
+       # self.recordDurationLabel = StringVar()
+        #self.recordDurationLabel.set("Record Duration")
+
+       # self.recordDuration_label = Label(self.right_frame, height = 1, width = 30, bg = "light cyan", relief = "solid", textvariable = self.recordDurationLabel, wraplength = 200)
+       # self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
 
 if __name__ == '__main__':
     main = mainScreen()
