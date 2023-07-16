@@ -1,37 +1,11 @@
 from tkinter import *
 from source.core.command_module import *
 from source.core.model_interface import *
-import threading
+import argparse
 
-# This function should be called as soon as the UI is launched
-#   It will continuously listen until it hears the keyword: "sherpa"
-#   When "sherpa" is heard:
-#       -run another function which listens for commands
-#       -based on what the record function captured and the transcripted output
-#       -run a command
-# TO-DO: update the GUI to show when we are listening or processing the audio
-def listenForKeywords():
-    try:
-        while True:
-            microphone.record(2)
-            prediction = whisper.use_model(RECORD_PATH)
-
-            if (prediction.rstrip(string.punctuation).lower() == "sherpa"):
-                print("\nSpeak a command")
-                time.sleep(1)
-                prediction = promptUser(recordDuration = 5, removePunctuation = True, makeLowerCase = True)
-                commandExec(prediction)
-                break # Exit the loop after capturing the keyword and executing the action
-
-    except Exception as e:
-        print(f"Error while listening for keyword: {e}")
-
-# Function to start the keyword listening thread
-# This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
-def startListeningThread():
-    thread = threading.Thread(target = listenForKeywords)
-    thread.daemon = True  # Set the thread as a daemon thread
-    thread.start()
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--disable', help = 'Disable keyword listening', action = 'store_true')
+args = parser.parse_args()
 
 # The first screen to be displayed to users
 class mainScreen:
@@ -43,7 +17,8 @@ class mainScreen:
         self.root.config(bg = "skyblue")     # set the background color
 
         # Call startListeningThread to start listening for keywords in a separate thread
-        startListeningThread()
+        if not args.disable:
+            startListeningThread()
 
         # Set the starting size of the window and its location
         self.root.geometry("1100x700+480+200")

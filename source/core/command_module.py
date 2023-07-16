@@ -24,6 +24,7 @@ import string
 import json
 import os
 from word2number import w2n
+import threading
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
@@ -45,6 +46,37 @@ def tts():
     engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
     engine.say("Begin recording") # what engine will say (feed prediction into this?)
     engine.runAndWait() # runs engine until 'sentence' is over
+
+
+# This function should be called as soon as the UI is launched
+#   It will continuously listen until it hears the keyword: "sherpa"
+#   When "sherpa" is heard:
+#       -run another function which listens for commands
+#       -based on what the record function captured and the transcripted output
+#       -run a command
+# TO-DO: update the GUI to show when we are listening or processing the audio
+def listenForKeywords():
+    try:
+        while True:
+            microphone.record(2)
+            prediction = whisper.use_model(RECORD_PATH)
+
+            if (prediction.rstrip(string.punctuation).lower() == "sherpa"):
+                print("\nSpeak a command")
+                time.sleep(1)
+                prediction = promptUser(recordDuration = 5, removePunctuation = True, makeLowerCase = True)
+                commandExec(prediction)
+                break # Exit the loop after capturing the keyword and executing the action
+
+    except Exception as e:
+        print(f"Error while listening for keyword: {e}")
+
+# Function to start the keyword listening thread
+# This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
+def startListeningThread():
+    thread = threading.Thread(target = listenForKeywords)
+    thread.daemon = True  # Set the thread as a daemon thread
+    thread.start()
 
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
