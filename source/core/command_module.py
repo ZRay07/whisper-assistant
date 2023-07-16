@@ -16,7 +16,6 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume    # used for audio
 from ctypes import cast, POINTER                                # audio
 from comtypes import CLSCTX_ALL                                 # audio
 from source.core.model_interface import *
-import keyboard
 from tkinter import *
 import jellyfish
 import winsound # for creating beeps
@@ -25,6 +24,7 @@ import string
 import json
 import os
 from word2number import w2n
+import threading
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
@@ -57,12 +57,46 @@ def beepcountdown(): # countdown sequence
 def beeprecord(): # used to indicate when recording starts
     winsound.Beep(1500, 250)
 
+
+# This function should be called as soon as the UI is launched
+#   It will continuously listen until it hears the keyword: "sherpa"
+#   When "sherpa" is heard:
+#       -run another function which listens for commands
+#       -based on what the record function captured and the transcripted output
+#       -run a command
+# TO-DO: update the GUI to show when we are listening or processing the audio
+def listenForKeywords():
+    try:
+        while True:
+            microphone.record(2)
+            prediction = whisper.use_model(RECORD_PATH)
+
+            if (prediction.rstrip(string.punctuation).lower() == "sherpa"):
+                print("\nSpeak a command")
+                time.sleep(1)
+                prediction = promptUser(recordDuration = 5, removePunctuation = True, makeLowerCase = True)
+                commandExec(prediction)
+                break # Exit the loop after capturing the keyword and executing the action
+
+    except Exception as e:
+        print(f"Error while listening for keyword: {e}")
+
+# Function to start the keyword listening thread
+# This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
+def startListeningThread():
+    thread = threading.Thread(target = listenForKeywords)
+    thread.daemon = True  # Set the thread as a daemon thread
+    thread.start()
+
 # This function takes in an input string
 # the string should be the predicted output from the ASR module
 def commandExec(userChoice):
     # make the string all lower case to help with similarity (want to focus solely on matching keywords)
     userChoice = userChoice.lower()
     userChoiceSplit = userChoice.split()
+
+    for index, element in enumerate(userChoiceSplit):
+        print(f"userChoiceSplit[{index}]: {element}")
     
     if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "open") > 0.85):        # Open application
         beepgood()
@@ -82,31 +116,30 @@ def commandExec(userChoice):
         handleApplicationAction(appName, "close")
 
 
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "scroll up") > 0.9):      # Scroll up
-        beepgood()
-        print("\n***Scroll Up***")
-        engine.say("Scroll up") 
-        engine.runAndWait()
-        scrollAmount = userChoiceSplit[-1]
-        handleScrollAction(scrollAmount, "up")
+    # There was an index error being caused here. 
+    # Sometimes, the user would only say one word. For example, "open"
+    # In this case, the userChoiceSplit[1] was raising an index error.
+    #   trying to check for a value that doesn't exist because userChoiceSplit was [0] indices long
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "scroll") > 0.9):   # Scroll up
+        if len(userChoiceSplit) >= 1:
+            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "up") > 0.9):
+                print("\n***Scroll Up***")
+                scrollAmount = userChoiceSplit[-1]
+                handleScrollAction(scrollAmount, "up")
 
             
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Scroll down") > 0.9):    # Scroll down
-        beepgood()
-        print("\n***Scroll Down***")
-        engine.say("Scroll down") 
-        engine.runAndWait()
-        scrollAmount = userChoiceSplit[-1]
-        handleScrollAction(scrollAmount, "down")
+            elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "down") > 0.9):    # Scroll down
+                print("\n***Scroll Down***")
+                scrollAmount = userChoiceSplit[-1]
+                handleScrollAction(scrollAmount, "down")
 
 
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + " " + userChoiceSplit[1], "Set volume") > 0.85):   # Set volume
-        beepgood()
-        print("\n***Set Volume***")
-        engine.say("Set volume") 
-        engine.runAndWait()
-        volChoice = userChoiceSplit[-1].rstrip(string.punctuation).lower()
-        setVolume(volChoice)           
+    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "set") > 0.85):     # Set volume
+        if len(userChoiceSplit) >= 1:
+            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "volume") > 0.85):   
+                print("\n***Set Volume***")
+                volChoice = userChoiceSplit[-1].rstrip(string.punctuation).lower()
+                setVolume(volChoice)           
 
 
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
@@ -123,27 +156,34 @@ def commandExec(userChoice):
         engine.runAndWait()
         sign_in()       
 
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
-        beepgood()
-        engine.say("Exiting") 
-        engine.runAndWait()
-        print("***Exiting***")
-
     elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
         beepgood()
         engine.say("Searching now") 
         engine.runAndWait()
         print("\nSearching now...\n")
         google_search()
-   # elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
+
+    # elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
    #     write_email(url,session_id)
     elif(jellyfish.jaro_winkler_similarity(userChoice, "Email functions") > 0.85): 
         sub_window_int()
+        
+    elif(jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "search") > 0.85):
+        if len(userChoiceSplit) >= 4:
+            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + userChoiceSplit[1] + userChoiceSplit[2] + userChoiceSplit[3],
+                                                 "search for a document") > 0.85):
+                print("\n***Search for a document***")
+                docChoice = userChoice
+                searchForDocument(docChoice)
+
+    elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
+        beepgood()
+        print("***Exiting***")
+
     else:
         beepbad()
-        engine.say("Try again") 
-        engine.runAndWait()
-        print("Try again...")
+        print(f"Unrecognized command: {userChoice}")
+
 
 # This function is used when we need to prompt the user for additional voice inputs
 # Used for getting application names, scroll amounts, volume levels, etc.
@@ -603,6 +643,53 @@ class sub_window_int:
                     confirm = True
     
 
+# This function moves the mouse cursor down to the Windows search bar in bottom left and clicks
+#   If the last word of the string was document:
+#       The user is prompted for a document name
+#   Otherwise:
+#       it searches for a document with the document name being whatever comes after 'document' in the string
+def searchForDocument(docChoice):
+    docChoice = docChoice.rstrip(string.punctuation)
+    docChoiceSplit = docChoice.split()
+    wordsAfterDocument = None
+
+    if docChoiceSplit[-1] == "document":    # If the last word in the string is "document", we need to prompt user for a document name
+        print("\nWhat document would you like to search for?")
+            
+        time.sleep(2)
+
+        docChoice = promptUser(3, removePunctuation = True, makeLowerCase = False)
+
+    else:
+        try:
+            # Grab the position of "document" from the array
+            indexDocument = docChoiceSplit.index("document")
+
+            # Pull every word after document
+            wordsAfterDocument = docChoiceSplit[indexDocument + 1:]
+
+            # Combine the words after document back into string
+            docChoice = " ".join(wordsAfterDocument)
+
+        except ValueError:
+            print("'Document' not found in array.")
+
+    try:
+        docChoice = "Document: " + docChoice
+
+        # Move cursor to search bar
+        pyautogui.click(120, 1065, duration = 1)
+        time.sleep(0.2)
+
+        # Type in document name and press enter
+        pyautogui.typewrite(docChoice, interval = 0.2)
+        pyautogui.press('enter')
+        return True
+    
+    except Exception as e:
+        print(f"Error occured while searching for document: {e}")
+        return False
+
 class mouseGrid():
     def __init__(self):
         self.userChoiceFlag = 0
@@ -975,11 +1062,14 @@ def recordAndUseModel():
 
     return prediction
 
+# This if statement executes if apps are not already saved to a file
+if os.path.exists("data/app_data.json"):
+    VALID_APPS = loadValidApps()
+else:
+    AppOpener.mklist(path = "data")
+    VALID_APPS = loadValidApps()
+    
+if __name__ == "__main__":
 
     print("This should only run if called from cmd line")
-    # This if statement executes if apps are not already saved to a file
-    if os.path.exists("data/app_data.json"):
-        VALID_APPS = loadValidApps()
-    else:
-        AppOpener.mklist(path = "data")
-        VALID_APPS = loadValidApps()
+    

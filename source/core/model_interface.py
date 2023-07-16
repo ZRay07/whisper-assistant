@@ -73,5 +73,6 @@ microphone = Recorder()
 whisper = ASR_model()
 
 if __name__ == "__main__":
-    print("Command line call...")
+    print("Called from command line")
+
 

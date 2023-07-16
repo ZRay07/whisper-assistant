@@ -1,8 +1,12 @@
 from tkinter import *
 from source.core.command_module import *
 from source.core.model_interface import *
-import keyboard
-import threading
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--disable', help = 'Disable keyword listening', action = 'store_true')
+args = parser.parse_args()
+
 # The first screen to be displayed to users
 class mainScreen:
     def __init__(self):
@@ -11,6 +15,10 @@ class mainScreen:
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
         self.root.minsize(200, 200)          # set a min size of 200 x 200 pixels
         self.root.config(bg = "skyblue")     # set the background color
+
+        # Call startListeningThread to start listening for keywords in a separate thread
+        if not args.disable:
+            startListeningThread()
 
         # Set the starting size of the window and its location
         self.root.geometry("1100x700+480+200")
@@ -75,7 +83,7 @@ class mainScreen:
 
         # Add record button
         # *** in the future -> activate record by speaking a keyword
-        self.record_button = Button(self.right_frame, text = "When ready to record, say [keyword]", font = "Times 14",
+        self.record_button = Button(self.right_frame, text = "When ready to record, say [sherpa]", font = "Times 14",
                                      bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.recordAndUseModel)
         self.record_button.grid(row = 1, column = 0, padx = 10, pady = 10)
         self.create_account_butt = Button(self.right_frame, text = "Create Account", command = self.create_account, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
@@ -404,8 +412,6 @@ class mainScreen:
             
         #This one should overwrite any previous data
 
-
-
 if __name__ == '__main__':
-    mainScreen()
+    main = mainScreen()
 
