@@ -96,11 +96,11 @@ def handleApplicationAction(appName, action):
         
         else:
             print("Invalid application name: ", appName)
-            return False
+            return f"{action} {appName} NOT successful"
         
     except Exception as e:
         print(f"Error occured while {action}ing the application: ", str(e))
-        return False
+        return f"{action} {appName} NOT successful"
 
 
 def convertToInt(stringValue):
@@ -135,41 +135,22 @@ def convertWordToInt(stringValue):
         return None
 
 def handleScrollAction(scrollAmount, direction):
-    # Remove any trailing punctuation marks
-    scrollAmount = scrollAmount.rstrip(string.punctuation)
-
-    while True:
-        try:
-            if scrollAmount in {"up", "down"}:
-                scrollAmount = 100  # Default scroll amount if user doesn't specify a number
-            else:
-                scrollAmount = convertToInt(scrollAmount) # Convert string representation of number to integer
-                
-            if scrollAmount is None  or scrollAmount < 0 or scrollAmount > 1000:
-                print(f"Invalid scroll amount: {scrollAmount}. Valid scroll amounts are between 0 and 1000.")
-                time.sleep(2)
-                scrollAmount = promptUser(3, removePunctuation = True, makeLowerCase = True)   # Prompt the user again for input
-                continue    # Restart the loop to revalidate the new input (if statement to check value in range)
-            
-            if direction == "up":
-                print(f"Scrolling up by {scrollAmount} clicks")
-                pyautogui.scroll(scrollAmount)
-            elif direction == "down":
-                print(f"Scrolling down by {scrollAmount} clicks")
-                pyautogui.scroll(-scrollAmount)
-            else:
-                raise ValueError(f"Invalid scroll direction: {direction}")
-            
-            return True
+    
+    try:        
+        if direction == "up":
+            print(f"Scrolling up by {scrollAmount} clicks")
+            pyautogui.scroll(scrollAmount)
+        elif direction == "down":
+            print(f"Scrolling down by {scrollAmount} clicks")
+            pyautogui.scroll(-scrollAmount)
+        else:
+            raise ValueError(f"Invalid scroll direction: {direction}")
         
-        except ValueError as ve:
-            print("Invalid scroll amount. Valid scroll amounts are between 0 and 1000.")
-            time.sleep(2)
-            scrollAmount = promptUser(2, removePunctuation = True, makeLowerCase = True)
+        return f"Scrolled {direction} by {scrollAmount} click(s)"
 
-        except Exception as e:
-            print(f"Error occured during scrolling: {e}")
-            return False
+    except Exception as e:
+        print(f"Error occured during scrolling: {e}")
+        return False
 
 # The input to this function [volChoice] can be a number, or it can simply be volume
 #   The input comes from the output of the Whisper speech recognition module

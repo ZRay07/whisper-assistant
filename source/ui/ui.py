@@ -122,23 +122,29 @@ class mainScreen:
         self.record_button.grid(row = 1, column = 0, pady = 10)
        
 
-        # Add area to show predicted command
-        self.cmdHistory_frame = Frame(self.center_frame, width = 350, height = 500,
+       # Add area to show user input history
+        self.userInputHistory_frame = Frame(self.center_frame, width = 340, height = 500,
                                      bg = "light grey", borderwidth = 2, relief = "solid")
-        self.cmdHistory_frame.grid(row = 2, column = 0, columnspan = 1, padx = 5, pady = 5)
+        self.userInputHistory_frame.grid(row = 2, column = 0, columnspan = 1, padx = 5, pady = 5)
 
         # Add label at the top of the frame to show what's in the box
-        self.cmdHistoryTitle_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 60, height = 1, bg = "light grey")
-        self.cmdHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
+        self.userInputHistoryTitle_label = Label(self.userInputHistory_frame, text = "User input history will appear here", font = ("Franklin Gothic Medium", 12), width = 45, height = 1, bg = "light grey")
+        self.userInputHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
 
-        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 60, height = 20, bg = "light grey", wraplength = 500, anchor = "s")
-        self.cmdHistory_label.grid(row = 1, column = 0, sticky = "ew")
+        self.userInputHistory_label = Label(self.userInputHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 45, height = 20, bg = "light grey", wraplength = 500, anchor = "s")
+        self.userInputHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
-        self.userInstruction_label = Label(self.cmdHistory_frame, text = "The guide will tell you what to speak here...", font = ("Franklin Gothic Medium", 12), width = 60, height = 3, bg = "AntiqueWhite3", wraplength = 500)
-        self.userInstruction_label.grid(row = 3, column = 0, sticky = "ew")
+        self.userInstruction_label = Label(self.userInputHistory_frame, text = "Say \"sherpa\" and we'll listen for a command", font = ("Franklin Gothic Medium", 12), width = 60, height = 3, bg = "AntiqueWhite3", wraplength = 500)
+        self.userInstruction_label.grid(row = 2, column = 0, sticky = "ew")
 
-        self.listeningProcessing_label = Label(self.center_frame, text = "Listening...", font = ("Franklin Gothic Medium", 24), width = 15, height = 1, bg = "slate gray")
+        self.listeningProcessing_label = Label(self.center_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 24), width = 16, height = 1, bg = "slate gray")
         self.listeningProcessing_label.grid(row = 3, column = 0, sticky = "ew")
+
+        self.userInputError_label = Label(self.center_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 60, height = 2, bg = "slate gray", wraplength = 500, fg = "#710505", anchor = "center")
+        self.userInputError_label.grid(row = 4, column = 0)
+
+        # Configure the 4th row of the center frame(which contains error messages), to stretch to the bottom of the frame
+        self.center_frame.rowconfigure(4, weight = 1)
 
         engine = pyttsx3.init() # initialize
         engine.setProperty('rate', 100) # adjust settings
@@ -418,23 +424,37 @@ class mainScreen:
         self.right_frame.grid(row = 0, column = 2, padx = 10, pady = 10, sticky = "ns")
         self.root.grid_rowconfigure(0, weight = 1)  # Allow the (right_frame) to expand vertically
 
+        # Add area to show command message history
+        self.cmdHistory_frame = Frame(self.right_frame, width = 350, height = 500,
+                                     bg = "light grey", borderwidth = 2, relief = "solid")
+        self.cmdHistory_frame.grid(row = 0, column = 0, columnspan = 1, padx = 5, pady = 5)
+
+        # Add label at the top of the frame to show what's in the box
+        self.cmdHistoryTitle_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 60, height = 1, bg = "light grey")
+        self.cmdHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
+
+        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 60, height = 20, bg = "light grey", wraplength = 500, anchor = "s")
+        self.cmdHistory_label.grid(row = 1, column = 0, sticky = "ew")
+
+
+
         self.transcribedLabel = StringVar()
         self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
 
         # Add a transcription box
         self.transcription_label = Label(self.right_frame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.transcribedLabel, wraplength = 200)
-        self.transcription_label.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.transcription_label.grid(row = 1, column = 0, padx = 10, pady = 10)
 
         # Add a transcribe button
         self.transcribe_button = Button(self.right_frame, text = "Transcribe", font = "Times 14",
                                      bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.transcribeSpeech)
-        self.transcribe_button.grid(row = 1, column = 0, padx = 10, pady = 5)
+        self.transcribe_button.grid(row = 2, column = 0, padx = 10, pady = 5)
 
         self.predictionLabel = StringVar()
         self.predictionLabel.set("Predicted commands will appear here")
 
         self.prediction_label = Label(self.right_frame, textvariable = self.predictionLabel, font = ("Franklin Gothic Medium", 12), width = 60, height = 5,  bg = "light grey", wraplength = 500, anchor = "center")
-        self.prediction_label.grid(row = 2, column = 0, padx = 0, pady = 10)
+        self.prediction_label.grid(row = 3, column = 0, padx = 0, pady = 10)
 
        # self.recordDurationLabel = StringVar()
         #self.recordDurationLabel.set("Record Duration")
@@ -465,14 +485,18 @@ class InputValidation(mainScreen):
         if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "open") > 0.85):        # Open application
             print("\n***Open Application***")
             self.appName = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
+            print(f"self.appName: {self.appName}")
             self.appName = self.validateAppInput(self.appName, "open")
+            print(f"self.appName: {self.appName}")
             self.commandUpdate = handleApplicationAction(self.appName, "open")
             self.appendNewCommandHistory(str(self.commandUpdate))
 
         elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "close") > 0.85):      # Close application
             print("\n***Close Application***")
-            appName = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
-            handleApplicationAction(appName, "close")
+            self.appName = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
+            self.appName = self.validateAppInput(self.appName, "close")
+            self.commandUpdate = handleApplicationAction(self.appName, "close")
+            self.appendNewCommandHistory(str(self.commandUpdate))
 
         # There was an index error being caused here. 
         # Sometimes, the user would only say one word. For example, "open"
@@ -482,14 +506,18 @@ class InputValidation(mainScreen):
             if len(self.userChoiceSplit) >= 1:
                 if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[1], "up") > 0.9):
                     print("\n***Scroll Up***")
-                    scrollAmount = self.userChoiceSplit[-1]
-                    handleScrollAction(scrollAmount, "up")
+                    self.scrollAmount = self.userChoiceSplit[-1]
+                    self.scrollAmount = self.validateScrollInput(self.scrollAmount)
+                    self.commandUpdate = handleScrollAction(self.scrollAmount, "up")
+                    self.appendNewCommandHistory(str(self.commandUpdate))
 
                 
                 elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[1], "down") > 0.9):    # Scroll down
                     print("\n***Scroll Down***")
-                    scrollAmount = self.userChoiceSplit[-1]
-                    handleScrollAction(scrollAmount, "down")
+                    self.scrollAmount = self.userChoiceSplit[-1]
+                    self.scrollAmount = self.validateScrollInput(self.scrollAmount)
+                    self.commandUpdate = handleScrollAction(self.scrollAmount, "down")
+                    self.appendNewCommandHistory(str(self.commandUpdate))
 
 
         elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "set") > 0.85):     # Set volume
@@ -531,6 +559,9 @@ class InputValidation(mainScreen):
         else:
             beepbad()
             print(f"Unrecognized command: {userChoice}")
+            
+            # GUI Update
+            self.setLabel(self.userInputError_label, f"Unrecognized command: {userChoice}")
 
     # This function is used when we need to prompt the user for additional voice inputs
     # Used for getting application names, scroll amounts, volume levels, etc.
@@ -538,18 +569,25 @@ class InputValidation(mainScreen):
     # If makeLowerCase is true when you call it, it makes the output string lowercase
     def promptUser(self, recordDuration, removePunctuation, makeLowerCase):
         try:
-            self.setUserInputLabel(self.listeningProcessing_label, "Listening...")
+            self.setLabel(self.listeningProcessing_label, "Listening...")
             microphone.record(recordDuration)
-            self.setUserInputLabel(self.listeningProcessing_label, "Processing...")
-            userInput = whisper.use_model(RECORD_PATH)
+            self.setLabel(self.listeningProcessing_label, "Processing...")
+            self.userInput = whisper.use_model(RECORD_PATH)
+            self.setLabel(self.listeningProcessing_label, "Waiting...")
+
+            # I've found the default if there is no sound is to predict "you"
+            # In this case, I think it's best to interpret the input as silence and not update the user input history
+            if self.userInput != "you":
+                self.appendNewUserInputHistory(self.userInput)
+
 
             if removePunctuation:
-                userInput = userInput.rstrip(string.punctuation)
+                self.userInput = self.userInput.rstrip(string.punctuation)
 
             if makeLowerCase:
-                userInput = userInput.lower()
+                self.userInput = self.userInput.lower()
 
-            return userInput
+            return self.userInput
         
         except Exception as e:
             print("Error occured during recording: ", str(e))
@@ -558,8 +596,15 @@ class InputValidation(mainScreen):
     # This function verifies the application name which the user intends to open
     # It also is used to update the GUI
     def validateAppInput(self, appName, action):
-        print(f"Inside ValidateAppInput - appName: {appName}")
-        
+        print(f"validateAppInput - appName: {self.appName}")
+
+        for app in VALID_APPS:
+            print(app)
+
+        if (appName not in VALID_APPS and appName not in {"application", "app"}):
+            # Graphical UI Update
+            self.setLabel(self.userInputError_label, f"Invalid application name \"{appName}\". Please try again")
+
         # Remove essential services from VALID_APPS list so they aren't accessible to close
         if action == "close":
             removeEssentialServices(ESSENTIAL_SERVICES)
@@ -568,8 +613,8 @@ class InputValidation(mainScreen):
         #   If the user specifies a specific app, the while true loop will be skipped 
         #   Otherwise, the function continuously prompts for a valid app name
         
-        if (appName in {"application", "app"}):
-            while True:
+        if (appName in {"application", "app"} or appName not in VALID_APPS):
+            while True:  
                 # Text UI update
                 print(f"\nWhich application would you like to {action}?")
                 print("\t- Word")
@@ -578,7 +623,7 @@ class InputValidation(mainScreen):
                 print("\t- Discord")
 
                 # Graphical UI Update
-                self.setUserInputLabel(self.userInstruction_label, f"Which application would you like to {action}?")
+                self.setLabel(self.userInstruction_label, f"Which application would you like to {action}?")
                 time.sleep(2)
 
                 appName = self.promptUser(3, True, True)
@@ -590,11 +635,47 @@ class InputValidation(mainScreen):
                     print(f"Invalid application name \"{appName}\". Please try again")
 
                     # Graphical UI Update
-                    self.setUserInputLabel(self.userInstruction_label, f"Invalid application name \"{appName}\". Please try again")
+                    self.setLabel(self.userInputError_label, f"Invalid application name \"{appName}\". Please try again")   
 
         return appName
     
-    def setUserInputLabel(self, label, message):
+    def validateScrollInput(self, scrollAmount):
+        # Remove any trailing punctuation marks
+        scrollAmount = scrollAmount.rstrip(string.punctuation)
+
+        # Either a scroll amount can be passed, or the user can simply say "scroll up"
+        #   If the user specifies a specific amount to scroll by, the while true loop will be skipped 
+        #   Otherwise, the function automatically scrolls by 100 clicks
+        while True:
+            try:
+                if scrollAmount in {"up", "down"}:
+                    scrollAmount = 100  # Default scroll amount if user doesn't specify a number
+                else:
+                    scrollAmount = convertToInt(scrollAmount) # Convert string representation of number to integer
+                    
+                if scrollAmount is None  or scrollAmount < 0 or scrollAmount > 1000:
+                    raise ValueError
+                
+                return scrollAmount
+
+            except ValueError as ve:
+                # Text UI Update
+                print(f"Invalid scroll amount: {scrollAmount}. Valid scroll amounts are between 0 and 1000: {ve}")
+
+                # Graphical UI Updates
+                self.setLabel(self.userInputError_label, f"Invalid scroll amount: {scrollAmount}. Valid scroll amounts are between 0 and 1000.")
+                self.setLabel(self.userInstruction_label, f"What amount would you like to scroll by (in clicks)?")
+                time.sleep(2)
+
+                scrollAmount = self.promptUser(2, removePunctuation = True, makeLowerCase = True)
+
+    # This function is used to update GUI labels
+    # Simply pass a label name such as:
+    #   userInstruction_label, or
+    #   listeningProcessing_label
+    # and the message you'd like to update it with such as:
+    #   "provide me a name"
+    def setLabel(self, label, message):
         try:
             self.message = message
             self.label = label
@@ -603,6 +684,9 @@ class InputValidation(mainScreen):
         except Exception as e:
             print(f"Error updating {label} with \"{message}\": {e}")
 
+    # This function updates the cmdHistory_label which is the center text box of the program
+    # It's meant to be used after a function has been called, to notify the user of
+    #  whether or not the command was successful
     def appendNewCommandHistory(self, message):
         try:
             self.newText = message
@@ -610,35 +694,53 @@ class InputValidation(mainScreen):
             self.updatedText = self.currentText + "\n" + self.newText
             self.cmdHistory_label.config(text = self.updatedText.capitalize())
         except Exception as e:
-             print(f"Error updating command history with \"{message}\": {e}")
+            print(f"Error updating command history with \"{message}\": {e}")
 
+    # This function updates the userInputHistory_label which is the right side text box of the program
+    # It's meant to be used after every recording, to display what the model has transcripted
+    def appendNewUserInputHistory(self, message):
+        try:
+            self.newText = message
+            self.currentText = self.userInputHistory_label.cget("text")
+            self.updatedText = self.currentText + "\n" + self.newText
+            self.userInputHistory_label.config(text = self.updatedText.capitalize())
+        except Exception as e:
+            print(f"Error updating user input history with \"{message}\": {e}")
+
+    
         
     # This function should be called as soon as the UI is launched
+    # First, it updates the userInstruction label to let the users know we're first waiting for the keyword
     #   It will continuously listen until it hears the keyword: "sherpa"
     #   When "sherpa" is heard:
     #       -run another function which listens for commands
     #       -based on what the record function captured and the transcripted output
     #       -run a command
-    # TO-DO: update the GUI to show when we are listening or processing the audio
+    #       -start listening for keyword again
     def listenForKeywords(self):
-        time.sleep(2)
+        time.sleep(1)
         try:
             while True:
-                self.setUserInputLabel(self.listeningProcessing_label, "Listening...")
-                microphone.record(2)
-                self.setUserInputLabel(self.listeningProcessing_label, "Processing...")
-                prediction = whisper.use_model(RECORD_PATH)
+                self.setLabel(self.userInstruction_label, "say \"sherpa\" and we'll listen for a command")
+
+                self.keywordCheck = self.promptUser(2, True, True)
                 
 
-                if (prediction.rstrip(string.punctuation).lower() == "sherpa"):
+                if (self.keywordCheck.rstrip(string.punctuation).lower() == "sherpa"):
+                    self.setLabel(self.listeningProcessing_label, "Waiting...")
                     print("\nSpeak a command")
 
-                    self.setUserInputLabel(self.userInstruction_label, "Speak a command")
+                    self.setLabel(self.userInstruction_label, "Speak a command")
 
                     time.sleep(1)
-                    prediction = self.promptUser(5, True, True)
-                    self.commandExec(prediction)
-                    break # Exit the loop after capturing the keyword and executing the action
+                    self.commandRequest = self.promptUser(5, True, True)
+                    self.commandExec(self.commandRequest)
+
+                elif (self.keywordCheck.rstrip(string.punctuation).lower() == "you"):   # I found the model defaults to you if there is no sound passed
+                    pass                                                                # In this case, do nothing
+
+                elif (self.keywordCheck.rstrip(string.punctuation).lower() == "exit"):
+                    break
 
         except Exception as e:
             print(f"Error while listening for keyword: {e}")
