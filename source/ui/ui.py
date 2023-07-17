@@ -15,11 +15,7 @@ class mainScreen:
         self.root = Tk()
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
         self.root.minsize(200, 200)          # set a min size of 200 x 200 pixels
-        self.root.config(bg = "dark slate gray")     # set the background color
-
-        # Call startListeningThread to start listening for keywords in a separate thread
-        if not args.disable:
-            startListeningThread()
+        self.root.config(bg = "AntiqueWhite3")     # set the background color
 
         # Set the starting size of the window and its location
         #self.root.geometry("1100x700+480+200")
@@ -105,24 +101,25 @@ class mainScreen:
     # Command outputs
     def drawCenterFrame(self):
         # Create center frame
-        self.center_frame = Frame(self.root, width = 750, height = 530,
+        self.center_frame = Frame(self.root, width = 960, height = 530,
                                  bg = "slate gray", borderwidth = 2, relief = FLAT)
         self.center_frame.grid(row = 0, column = 1, padx = 10, pady = 10, sticky = "ns")
 
         self.root.grid_rowconfigure(0, weight = 1)  # Allow the (center_frame) to expand vertically
+        self.center_frame.grid_columnconfigure(0, weight = 1)   # Allow the widgets within the center frame to expand horizontally
 
         # Ensure the frame does not shrink to fit widget size
-        #self.center_frame.grid_propagate(False)
+        self.center_frame.grid_propagate(False)
 
         # Label the center frame
         self.commandDirection_label = Label(self.center_frame, text = "Say \"sherpa\" OR click \"Record\"", font = ("Franklin Gothic Medium", 24), bg = "slate gray")
-        self.commandDirection_label.grid(row = 0, column = 0, padx = 5, pady = 10)
+        self.commandDirection_label.grid(row = 0, column = 0, pady = 10)
 
         # Add record button
         # *** in the future -> activate record by speaking a keyword
         self.record_button = Button(self.center_frame, text = "Record", font = ("Franklin Gothic Medium", 24),
                                      bg = "SlateGray3", relief = FLAT, activebackground = "green", command = self.recordAndUseModel)
-        self.record_button.grid(row = 1, column = 0, padx = 10, pady = 10)
+        self.record_button.grid(row = 1, column = 0, pady = 10)
        
 
         # Add area to show predicted command
@@ -131,17 +128,17 @@ class mainScreen:
         self.cmdHistory_frame.grid(row = 2, column = 0, columnspan = 1, padx = 5, pady = 5)
 
         # Add label at the top of the frame to show what's in the box
-        self.cmdHistory_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 60, height = 1, bg = "light grey")
-        self.cmdHistory_label.grid(row = 0, column = 0, sticky = "n")
+        self.cmdHistoryTitle_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 60, height = 1, bg = "light grey")
+        self.cmdHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
 
-        self.predictionLabel = StringVar()
-        self.predictionLabel.set("Command history")
+        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 60, height = 20, bg = "light grey", wraplength = 500, anchor = "s")
+        self.cmdHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
-        self.prediction_label = Label(self.cmdHistory_frame, textvariable = self.predictionLabel, font = ("Franklin Gothic Medium", 12), width = 60, height = 30,  bg = "light grey", wraplength = 500, anchor = "s")
-        self.prediction_label.grid(row = 1, column = 0, padx = 0, pady = 10)
+        self.userInstruction_label = Label(self.cmdHistory_frame, text = "The guide will tell you what to speak here...", font = ("Franklin Gothic Medium", 12), width = 60, height = 3, bg = "AntiqueWhite3", wraplength = 500)
+        self.userInstruction_label.grid(row = 3, column = 0, sticky = "ew")
 
-        self.recordDisplay_label = Label(self.cmdHistory_frame, text = "Listening...", font = ("Franklin Gothic Medium", 12), width = 60, height = 1, bg = "light grey", )
-        self.recordDisplay_label.grid(row = 2, column = 0, sticky = "s")
+        self.listeningProcessing_label = Label(self.center_frame, text = "Listening...", font = ("Franklin Gothic Medium", 24), width = 15, height = 1, bg = "slate gray")
+        self.listeningProcessing_label.grid(row = 3, column = 0, sticky = "ew")
 
         engine = pyttsx3.init() # initialize
         engine.setProperty('rate', 100) # adjust settings
@@ -165,7 +162,7 @@ class mainScreen:
         self.predictionLabel.set(self.prediction)
         print("Prediction: " + self.prediction)
         #A wait func might allow the above line to complete first
-        commandExec(self.prediction)
+        self.commandExec(self.prediction)
 
     def transcribeSpeech(self):
         # TO-DO: Figure out a way to ask how long the user would like to record for
@@ -186,7 +183,7 @@ class mainScreen:
         root.attributes('-topmost', 0)
 
     def handleUserNameValidation():
-         print("Handling user name validation")
+        print("Handling user name validation")
 
     #These were needed for threading
     def setlabel(self, string):
@@ -416,27 +413,28 @@ class mainScreen:
     def drawRightFrame(self):
 
         # Create right frame
-        self.right_frame = Frame(self.root, width = 750, height = 530,
+        self.right_frame = Frame(self.root, width = 350, height = 530,
                                  bg = "slate gray", borderwidth = 2, relief = FLAT)
         self.right_frame.grid(row = 0, column = 2, padx = 10, pady = 10, sticky = "ns")
-
         self.root.grid_rowconfigure(0, weight = 1)  # Allow the (right_frame) to expand vertically
-
-        # Ensure the frame does not shrink to fit widget size
-        #self.right_frame.grid_propagate(False)
-
 
         self.transcribedLabel = StringVar()
         self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
 
         # Add a transcription box
         self.transcription_label = Label(self.right_frame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.transcribedLabel, wraplength = 200)
-        self.transcription_label.grid(row = 0, column = 1, padx = 10, pady = 10)
+        self.transcription_label.grid(row = 0, column = 0, padx = 10, pady = 10)
 
         # Add a transcribe button
         self.transcribe_button = Button(self.right_frame, text = "Transcribe", font = "Times 14",
                                      bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.transcribeSpeech)
-        self.transcribe_button.grid(row = 1, column = 1, padx = 10, pady = 5)
+        self.transcribe_button.grid(row = 1, column = 0, padx = 10, pady = 5)
+
+        self.predictionLabel = StringVar()
+        self.predictionLabel.set("Predicted commands will appear here")
+
+        self.prediction_label = Label(self.right_frame, textvariable = self.predictionLabel, font = ("Franklin Gothic Medium", 12), width = 60, height = 5,  bg = "light grey", wraplength = 500, anchor = "center")
+        self.prediction_label.grid(row = 2, column = 0, padx = 0, pady = 10)
 
        # self.recordDurationLabel = StringVar()
         #self.recordDurationLabel.set("Record Duration")
@@ -444,6 +442,215 @@ class mainScreen:
        # self.recordDuration_label = Label(self.right_frame, height = 1, width = 30, bg = "light cyan", relief = "solid", textvariable = self.recordDurationLabel, wraplength = 200)
        # self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
 
+# This class is meant to store the various functions we'll use for validating a user's input
+# Input validation should always occur before passing the argument to the function in command_module
+class InputValidation(mainScreen):
+    def __init__(self):
+        # Call startListeningThread to start listening for keywords in a separate thread
+        if not args.disable:
+            self.startListeningThread()
+
+        super().__init__()
+
+    # This function takes in an input string
+    # the string should be the predicted output from the ASR module
+    def commandExec(self, userChoice):
+        # make the string all lower case to help with similarity (want to focus solely on matching keywords)
+        userChoice = userChoice.lower()
+        self.userChoiceSplit = userChoice.split()
+
+        for index, element in enumerate(self.userChoiceSplit):
+            print(f"self.userChoiceSplit[{index}]: {element}")
+        
+        if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "open") > 0.85):        # Open application
+            print("\n***Open Application***")
+            self.appName = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
+            self.appName = self.validateAppInput(self.appName, "open")
+            self.commandUpdate = handleApplicationAction(self.appName, "open")
+            self.appendNewCommandHistory(str(self.commandUpdate))
+
+        elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "close") > 0.85):      # Close application
+            print("\n***Close Application***")
+            appName = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
+            handleApplicationAction(appName, "close")
+
+        # There was an index error being caused here. 
+        # Sometimes, the user would only say one word. For example, "open"
+        # In this case, the self.userChoiceSplit[1] was raising an index error.
+        #   trying to check for a value that doesn't exist because self.userChoiceSplit was [0] indices long
+        elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "scroll") > 0.9):   # Scroll up
+            if len(self.userChoiceSplit) >= 1:
+                if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[1], "up") > 0.9):
+                    print("\n***Scroll Up***")
+                    scrollAmount = self.userChoiceSplit[-1]
+                    handleScrollAction(scrollAmount, "up")
+
+                
+                elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[1], "down") > 0.9):    # Scroll down
+                    print("\n***Scroll Down***")
+                    scrollAmount = self.userChoiceSplit[-1]
+                    handleScrollAction(scrollAmount, "down")
+
+
+        elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "set") > 0.85):     # Set volume
+            if len(self.userChoiceSplit) >= 1:
+                if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[1], "volume") > 0.85):   
+                    print("\n***Set Volume***")
+                    volChoice = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
+                    setVolume(volChoice)           
+
+
+        elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
+            print("\n***Navigate mouse + keyboard***")
+            beepgood()
+            mouseGrid()
+
+        elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
+            print("\n***Email sign-in***")
+            beepgood()
+            sign_in()       
+
+        elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
+            print("\nSearching now...\n")
+            beepgood()
+            google_search()
+
+
+        elif(jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "search") > 0.85):
+            if len(self.userChoiceSplit) >= 4:
+                if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0] + self.userChoiceSplit[1] + self.userChoiceSplit[2] + self.userChoiceSplit[3],
+                                                    "search for a document") > 0.85):
+                    print("\n***Search for a document***")
+                    docChoice = userChoice
+                    searchForDocument(docChoice)
+
+        elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
+            beepgood()
+            print("***Exiting***")
+
+        else:
+            beepbad()
+            print(f"Unrecognized command: {userChoice}")
+
+    # This function is used when we need to prompt the user for additional voice inputs
+    # Used for getting application names, scroll amounts, volume levels, etc.
+    # If removePunctuation is true when you call it, it removes trailing punctuation.
+    # If makeLowerCase is true when you call it, it makes the output string lowercase
+    def promptUser(self, recordDuration, removePunctuation, makeLowerCase):
+        try:
+            self.setUserInputLabel(self.listeningProcessing_label, "Listening...")
+            microphone.record(recordDuration)
+            self.setUserInputLabel(self.listeningProcessing_label, "Processing...")
+            userInput = whisper.use_model(RECORD_PATH)
+
+            if removePunctuation:
+                userInput = userInput.rstrip(string.punctuation)
+
+            if makeLowerCase:
+                userInput = userInput.lower()
+
+            return userInput
+        
+        except Exception as e:
+            print("Error occured during recording: ", str(e))
+            return False
+        
+    # This function verifies the application name which the user intends to open
+    # It also is used to update the GUI
+    def validateAppInput(self, appName, action):
+        print(f"Inside ValidateAppInput - appName: {appName}")
+        
+        # Remove essential services from VALID_APPS list so they aren't accessible to close
+        if action == "close":
+            removeEssentialServices(ESSENTIAL_SERVICES)
+
+        # Either an appname can be passed, or the user can simply say "open application"
+        #   If the user specifies a specific app, the while true loop will be skipped 
+        #   Otherwise, the function continuously prompts for a valid app name
+        
+        if (appName in {"application", "app"}):
+            while True:
+                # Text UI update
+                print(f"\nWhich application would you like to {action}?")
+                print("\t- Word")
+                print("\t- Edge")
+                print("\t- Spotify")
+                print("\t- Discord")
+
+                # Graphical UI Update
+                self.setUserInputLabel(self.userInstruction_label, f"Which application would you like to {action}?")
+                time.sleep(2)
+
+                appName = self.promptUser(3, True, True)
+
+                if appName in VALID_APPS:
+                    break   # Valid app name provided, exit the while loop
+                else:
+                    # Text UI update
+                    print(f"Invalid application name \"{appName}\". Please try again")
+
+                    # Graphical UI Update
+                    self.setUserInputLabel(self.userInstruction_label, f"Invalid application name \"{appName}\". Please try again")
+
+        return appName
+    
+    def setUserInputLabel(self, label, message):
+        try:
+            self.message = message
+            self.label = label
+            self.label.config(text = self.message)
+
+        except Exception as e:
+            print(f"Error updating {label} with \"{message}\": {e}")
+
+    def appendNewCommandHistory(self, message):
+        try:
+            self.newText = message
+            self.currentText = self.cmdHistory_label.cget("text")
+            self.updatedText = self.currentText + "\n" + self.newText
+            self.cmdHistory_label.config(text = self.updatedText.capitalize())
+        except Exception as e:
+             print(f"Error updating command history with \"{message}\": {e}")
+
+        
+    # This function should be called as soon as the UI is launched
+    #   It will continuously listen until it hears the keyword: "sherpa"
+    #   When "sherpa" is heard:
+    #       -run another function which listens for commands
+    #       -based on what the record function captured and the transcripted output
+    #       -run a command
+    # TO-DO: update the GUI to show when we are listening or processing the audio
+    def listenForKeywords(self):
+        time.sleep(2)
+        try:
+            while True:
+                self.setUserInputLabel(self.listeningProcessing_label, "Listening...")
+                microphone.record(2)
+                self.setUserInputLabel(self.listeningProcessing_label, "Processing...")
+                prediction = whisper.use_model(RECORD_PATH)
+                
+
+                if (prediction.rstrip(string.punctuation).lower() == "sherpa"):
+                    print("\nSpeak a command")
+
+                    self.setUserInputLabel(self.userInstruction_label, "Speak a command")
+
+                    time.sleep(1)
+                    prediction = self.promptUser(5, True, True)
+                    self.commandExec(prediction)
+                    break # Exit the loop after capturing the keyword and executing the action
+
+        except Exception as e:
+            print(f"Error while listening for keyword: {e}")
+
+    # Function to start the keyword listening thread
+    # This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
+    def startListeningThread(self):
+        thread = threading.Thread(target = self.listenForKeywords)
+        thread.daemon = True  # Set the thread as a daemon thread
+        thread.start()
+
 if __name__ == '__main__':
-    main = mainScreen()
+    inputValidator = InputValidation()
+    
 

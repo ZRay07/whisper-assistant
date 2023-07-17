@@ -47,138 +47,6 @@ def tts():
     engine.say("Begin recording") # what engine will say (feed prediction into this?)
     engine.runAndWait() # runs engine until 'sentence' is over
 
-
-# This function should be called as soon as the UI is launched
-#   It will continuously listen until it hears the keyword: "sherpa"
-#   When "sherpa" is heard:
-#       -run another function which listens for commands
-#       -based on what the record function captured and the transcripted output
-#       -run a command
-# TO-DO: update the GUI to show when we are listening or processing the audio
-def listenForKeywords():
-    try:
-        while True:
-            microphone.record(2)
-            prediction = whisper.use_model(RECORD_PATH)
-
-            if (prediction.rstrip(string.punctuation).lower() == "sherpa"):
-                print("\nSpeak a command")
-                time.sleep(1)
-                prediction = promptUser(recordDuration = 5, removePunctuation = True, makeLowerCase = True)
-                commandExec(prediction)
-                break # Exit the loop after capturing the keyword and executing the action
-
-    except Exception as e:
-        print(f"Error while listening for keyword: {e}")
-
-# Function to start the keyword listening thread
-# This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
-def startListeningThread():
-    thread = threading.Thread(target = listenForKeywords)
-    thread.daemon = True  # Set the thread as a daemon thread
-    thread.start()
-
-# This function takes in an input string
-# the string should be the predicted output from the ASR module
-def commandExec(userChoice):
-    # make the string all lower case to help with similarity (want to focus solely on matching keywords)
-    userChoice = userChoice.lower()
-    userChoiceSplit = userChoice.split()
-
-    for index, element in enumerate(userChoiceSplit):
-        print(f"userChoiceSplit[{index}]: {element}")
-    
-    if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "open") > 0.85):        # Open application
-        print("\n***Open Application***")
-        appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
-        handleApplicationAction(appName, "open")
-
-
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "close") > 0.85):      # Close application
-        print("\n***Close Application***")
-        appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
-        handleApplicationAction(appName, "close")
-
-    # There was an index error being caused here. 
-    # Sometimes, the user would only say one word. For example, "open"
-    # In this case, the userChoiceSplit[1] was raising an index error.
-    #   trying to check for a value that doesn't exist because userChoiceSplit was [0] indices long
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "scroll") > 0.9):   # Scroll up
-        if len(userChoiceSplit) >= 1:
-            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "up") > 0.9):
-                print("\n***Scroll Up***")
-                scrollAmount = userChoiceSplit[-1]
-                handleScrollAction(scrollAmount, "up")
-
-            
-            elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "down") > 0.9):    # Scroll down
-                print("\n***Scroll Down***")
-                scrollAmount = userChoiceSplit[-1]
-                handleScrollAction(scrollAmount, "down")
-
-
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "set") > 0.85):     # Set volume
-        if len(userChoiceSplit) >= 1:
-            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "volume") > 0.85):   
-                print("\n***Set Volume***")
-                volChoice = userChoiceSplit[-1].rstrip(string.punctuation).lower()
-                setVolume(volChoice)           
-
-
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
-        print("\n***Navigate mouse + keyboard***")
-        beepgood()
-        mouseGrid()
-
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
-        print("\n***Email sign-in***")
-        beepgood()
-        sign_in()       
-
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
-        print("\nSearching now...\n")
-        beepgood()
-        google_search()
-
-
-    elif(jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "search") > 0.85):
-        if len(userChoiceSplit) >= 4:
-            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + userChoiceSplit[1] + userChoiceSplit[2] + userChoiceSplit[3],
-                                                 "search for a document") > 0.85):
-                print("\n***Search for a document***")
-                docChoice = userChoice
-                searchForDocument(docChoice)
-
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
-        beepgood()
-        print("***Exiting***")
-
-    else:
-        beepbad()
-        print(f"Unrecognized command: {userChoice}")
-
-# This function is used when we need to prompt the user for additional voice inputs
-# Used for getting application names, scroll amounts, volume levels, etc.
-# If removePunctuation is true when you call it, it removes trailing punctuation.
-# If makeLowerCase is true when you call it, it makes the output string lowercase
-def promptUser(recordDuration, removePunctuation, makeLowerCase):
-    try:
-        microphone.record(recordDuration)
-        userInput = whisper.use_model(RECORD_PATH)
-
-        if removePunctuation:
-            userInput = userInput.rstrip(string.punctuation)
-
-        if makeLowerCase:
-            userInput = userInput.lower()
-
-        return userInput
-    
-    except Exception as e:
-        print("Error occured during recording: ", str(e))
-        return False
-
-
 # This function will generate a list of all the apps on users pc and store it in a json file
 # Its used to check for errors in open/close application methods
 def loadValidApps():
@@ -215,26 +83,6 @@ def removeEssentialServices(essentialServices):
 # If user says "open application" -> the if statement will be entered which will prompt for an app name
 #   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
 def handleApplicationAction(appName, action):
-    if (appName in {"application", "app"}):
-        while True:
-            print(f"\nWhich application would you like to {action}?")
-            print("\t- Word")
-            print("\t- Edge")
-            print("\t- Spotify")
-            print("\t- Discord")
-            time.sleep(2)
-
-            appName = promptUser(3, removePunctuation = True, makeLowerCase = True)
-
-            if appName in VALID_APPS:
-                break   # Valid app name provided, exit the while loop
-            else:
-                print("Invalid application name. Please try again")
-
-    # Remove essential services from VALID_APPS list so they aren't accessible to close
-    if action == "close":
-        removeEssentialServices(ESSENTIAL_SERVICES)
-
     try:
         if appName in VALID_APPS:
             if action == "open":
@@ -244,10 +92,12 @@ def handleApplicationAction(appName, action):
             else:
                 print("Invalid action: ", action)
                 return False
-            return True
+            return f"{action} {appName} successful."
+        
         else:
             print("Invalid application name: ", appName)
             return False
+        
     except Exception as e:
         print(f"Error occured while {action}ing the application: ", str(e))
         return False
