@@ -31,21 +31,31 @@ devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 volume = cast(interface, POINTER(IAudioEndpointVolume))
 
-#audio beep functions
-def beepgood():
+# Initialize text to speech so that it can be used in all functions (if needed)
+engine = pyttsx3.init() # initialize
+engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
+
+# Below are what is needed for commands to say words
+# engine.say("word") # -> what engine will say (feed prediction into this? so that it can read back what the program heard?)
+# engine.runAndWait() # -> runs engine until 'sentence' is over
+
+
+# Audio beep functions
+def beepgood(): # used for successful recognition and execution of commands
     winsound.Beep(1000, 250)
     winsound.Beep(1500, 250)
 
-def beepbad():
+def beepbad():  # used for unsuccessful recognition and execution of commands
     winsound.Beep(1000, 250)
     winsound.Beep(500, 250)
 
-#example text to speech function
-def tts():
-    engine = pyttsx3.init() # initialize
-    engine.setProperty('rate', 100) # adjust settings (in this case speech rate)
-    engine.say("Begin recording") # what engine will say (feed prediction into this?)
-    engine.runAndWait() # runs engine until 'sentence' is over
+def beepcountdown(): # countdown sequence
+    winsound.Beep(1200, 1000)
+    winsound.Beep(1200, 1000)
+    winsound.Beep(1250, 1000)
+
+def beeprecord(): # used to indicate when recording starts
+    winsound.Beep(1500, 250)
 
 # This function will generate a list of all the apps on users pc and store it in a json file
 # Its used to check for errors in open/close application methods
@@ -249,9 +259,16 @@ def google_search():
     time.sleep(2)
     #ele.click()
 
+def Full_send(url, session_id):
+    #GOING TO USE INPUTS TO WORK IN SAME BROWSER THAT EMAIL SIGN IN MAKES
+    driver = webdriver.Firefox()
+    wait = WebDriverWait(driver, 30)
+    ele = wait.until(EC.element_to_be_clickable((By.LABEL, "New mail")))
+    ele.click()
+    #WRITING IN DUMMY CODE DO NOT USE FOR NOW
 
 def sign_in():
-    name, email, domain = account_info_in()
+    name, email, domain, password = account_info_in()
     driver = webdriver.Firefox()
 
     #so the pages have time to load 
@@ -287,29 +304,140 @@ def sign_in():
     passwerd = "Dummypassword"
     el2.send_keys(passwerd)
     el2.send_keys(Keys.RETURN)
-    el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "button--link"))) 
-    el3.click()
-    time.sleep(2)
+    ele3 = wait.until(EC.presence_of_element_located((By.TYPE, "submit")))
+    ele3.click()
+    #THE BELOW CODE WAS TO BYPASS @ FACTOR AUTHENTICATION
+    #el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "button--link"))) 
+    #el3.click()
+    #time.sleep(2)
     #el4 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "method-select-chevron"))) 
     #el4.click()
 
-    elements = driver.find_elements(By.CLASS_NAME, "method-select-chevron")
+    #elements = driver.find_elements(By.CLASS_NAME, "method-select-chevron")
     #This for loop helped identify which element to click
     #for e in elements:
     #    print(e)
-    elements[3].click()
-    time.sleep(15)
+    #elements[3].click()
+    #time.sleep(15)
 
-    el5 = wait.until(EC.presence_of_element_located((By.ID,"trust-browser-button")))
-    el5.click()
+    #el5 = wait.until(EC.presence_of_element_located((By.ID,"trust-browser-button")))
+    #el5.click()
 
     #Find the yes button
-    elements2 = wait.until(EC.presence_of_element_located((By.ID,"idSIButton9")))
-    elements2.click()
+    #elements2 = wait.until(EC.presence_of_element_located((By.ID,"idSIButton9")))
+    #elements2.click()
 
     #The lines below are meant to start a new email but the id is incorrect - fix later
     #el4 = wait.until(EC.presence_of_element_located((By.ID, "id__248")))
     #el4.click()
+    # IN ORDER TO CONTINUE WORKING ON THE SAME WINDOW WE NEED TO PASS THE NEXT FUNCTION THE SESSION ID AND URL
+    url = driver.command_executor._url
+    session_id = driver.session_id
+    return url, session_id
+
+
+class sub_window_int:
+    def __init__(self):
+        self.sub_window = Tk()
+        self.sub_window.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
+        self.sub_window.minsize(200, 200)          # set a min size of 200 x 200 pixels
+        self.sub_window.config(bg = "skyblue")     # set the background color
+        self.sub_window.geometry("1100x700+480+200")
+        self.command_frame()
+        self.transcribe_frame()
+        self.sub_window = mainloop()
+    #There will be one frame for commands (left)
+    def command_frame(self):
+        self.command_frame = Frame(self.sub_window, width = 315, height = 530,
+                                 bg = "white", borderwidth = 2, relief = "raised")
+        self.command_frame.grid(row = 0, column = 0, padx = 10, pady = 10)       # Places the frame onto the window
+        self.mountainImage = PhotoImage(file = "source/core/images/mountain3.gif")
+        self.small_image = self.mountainImage.subsample(3 , 3)
+        Label(self.command_frame, image = self.small_image).grid(row = 0, column = 0, padx = 10, pady = 10)
+
+        # Label the left hand frame
+        self.cmd_label = Label(self.command_frame, text = "Speech Commands", font = "times 18", bg = "white")
+        self.cmd_label.grid(row = 1, column = 0, padx = 10, pady = 10)
+
+        #Add the buttons
+        self.add_contact_button = Button(self.cmd_bar, text = "Add Contact", command = self.add_contact, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+
+        #Place the buttons
+        self.add_contact_button.grid(row = 0, column = 0, padx = 10, pady = 10)
+        # Add speech commands below label
+        # Use buttons so we can use the GUI
+        self.cmd_bar = Frame(self.command_frame, width = 315, height = 300, bg = "white")
+        self.cmd_bar.grid(row = 2, column = 0)
+    #This frame is for the transcribe box
+    def transcribe_frame(self): #(Right)
+        self.transcribe_frame = Frame(self.sub_window, width = 750, height = 530,
+                                 bg = "white", borderwidth = 2, relief = "raised")
+        self.transcribe_frame.grid(row = 0, column = 1, padx = 10, pady = 10)
+        #makes sure the frame doesn't change shape to fit the widget
+        self.transcribe_frame.grid_propagate(False)
+    def add_contact(self):
+         confirm = False
+         while confirm == False:
+            self.setlabel("Please give me their name.")
+            self.update_screen()
+            microphone.record(3)
+            self.pred_name = whisper.use_model(RECORD_PATH)
+            self.setlabel("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+            self.update_screen()
+            microphone.record(4)
+            if_yes1 = whisper.use_model(RECORD_PATH)
+            print(if_yes1)
+            if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes." or if_yes1 == "Yeah." or if_yes1 =="Yeah"):
+                confirm = True
+                #Stuff
+            
+                print(if_yes1)
+            else: 
+                 confirm = False
+            while confirm == True:     
+                self.setlabel("What is their email?")
+                self.update_screen()
+                microphone.record(3)
+                self.pred_email = whisper.use_model(RECORD_PATH)
+                self.pred_email = self.format_email(self.pred_email)
+                self.setlabel("I heard " + self.pred_email + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+                self.update_screen()
+                microphone.record(4)
+                if_yes2 = whisper.use_model(RECORD_PATH)
+            
+                if(if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes." or if_yes2 == "Yeah." or if_yes2 =="Yeah"):
+                        #Have to toggle this to exit the loop
+                        confirm = False
+                else: 
+                        confirm = True
+            if(confirm == False):  
+                while confirm == False:                                        
+                    self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
+                    self.update_screen()
+                    microphone.record(3)
+                    self.pred_domain = whisper.use_model(RECORD_PATH)
+                    self.setlabel("I heard " + self.pred_domain + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
+                    self.update_screen()
+                    microphone.record(4)
+                    if_yes3 = whisper.use_model(RECORD_PATH)
+                    if(if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes." or if_yes3 == "Yeah." or if_yes3 =="Yeah"):
+                        self.account = {
+                                        "name" : self.pred_name ,
+                                        "email" : self.pred_email ,
+                                        "domain": self.pred_domain , 
+                        }
+                        with open("source/contact_list.txt", "a") as f:
+                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + "\n")
+                        confirm = True
+                    else: 
+                        self.setlabel("Please try again")
+                        self.update_screen() 
+                        confirm = False
+            else:
+                    self.setlabel("Please try again")
+                    self.update_screen() 
+                    confirm = True
+    
 
 # This function moves the mouse cursor down to the Windows search bar in bottom left and clicks
 #   If the last word of the string was document:
@@ -350,5 +478,6 @@ else:
     VALID_APPS = loadValidApps()
     
 if __name__ == "__main__":
+
     print("This should only run if called from cmd line")
     
