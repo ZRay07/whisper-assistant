@@ -135,7 +135,6 @@ def convertWordToInt(stringValue):
         return None
 
 def handleScrollAction(scrollAmount, direction):
-    
     try:        
         if direction == "up":
             print(f"Scrolling up by {scrollAmount} clicks")
@@ -157,48 +156,34 @@ def handleScrollAction(scrollAmount, direction):
 #   So a user may say "set volume" or "set volume to 80"
 #   if the user says "set volume", the function should prompt the user and record an audio clip to get the number they'd like to set their volume to
 #   if the user says "set volume to 80", the function should automatically set the volume to 80 without prompting again
-def setVolume(volChoice):
-    # Actual volume levels and corresponding decibel levels
-    volumeMapping = {
-        0: -60.0,
-        10: -33.0,
-        20: -23.4,
-        30: -17.8,
-        40: -13.6,
-        50: -10.2,
-        60: -7.6,
-        70: -5.3,
-        80: -3.4,
-        90: -1.6,
-        100: 0
-    }
-
+def setVolume(volChoice, decibel):
     try:
-        while True:
-            if (volChoice == "volume"):
-                # If the input is only volume, prompt user for a desired volume level
-                print("\nWhat volume would you like to set to?")
-                print("*** MUST BE AN INCREMENT OF 10 ***")
-                time.sleep(2)
-
-                volChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
-
-            volChoice = convertToInt(volChoice) # Convert string representation of number to integer
-            
-            if volChoice in volumeMapping:
-                volume.SetMasterVolumeLevel(volumeMapping[volChoice], None) # Grabs the decibel value from volume mapping dict
-                print(f"Setting volume to {volChoice}")
-                return True
-
-            # Prompt the user again for a valid volume value
-            print(f"\nInvalid volume value: {volChoice}. Valid volume levels are increments of 10 between 0 and 100.")
-            time.sleep(2)
-
-            volChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
+        volume.SetMasterVolumeLevel(decibel, None)
+        print(f"Setting volume to {volChoice}")
+        return f"Successfully set volume to {volChoice}"
 
     except Exception as e:
         print(f"Error occured while setting volume: {str(e)}")
         return False
+
+
+# The inputs to this function are: [fname lname], [email], and [domain]
+def addContact(name, email, domain):
+
+    # TO-DO: Create error handling to ensure a proper domain name is passed (gmail, outlook, etc.)
+    try:
+        account = {
+            "name" : name,
+            "email" : email,
+            "domain": domain, 
+        }
+        with open("source/contact_list.txt", "a") as f:
+            f.write(account.get("name") + " " + account.get("email") + " " + account.get("domain") + "\n")
+
+        return f"Successfully added {name} {email}@{domain} to contact list"
+
+    except Exception as e:
+        print(f"Error adding {name} to contact list: {e}")
 
 def pull_contact(string):
     with open("source/my_account.txt", "r") as f:
@@ -332,31 +317,6 @@ def sign_in():
 #   Otherwise:
 #       it searches for a document with the document name being whatever comes after 'document' in the string
 def searchForDocument(docChoice):
-    docChoice = docChoice.rstrip(string.punctuation)
-    docChoiceSplit = docChoice.split()
-    wordsAfterDocument = None
-
-    if docChoiceSplit[-1] == "document":    # If the last word in the string is "document", we need to prompt user for a document name
-        print("\nWhat document would you like to search for?")
-            
-        time.sleep(2)
-
-        docChoice = promptUser(3, removePunctuation = True, makeLowerCase = False)
-
-    else:
-        try:
-            # Grab the position of "document" from the array
-            indexDocument = docChoiceSplit.index("document")
-
-            # Pull every word after document
-            wordsAfterDocument = docChoiceSplit[indexDocument + 1:]
-
-            # Combine the words after document back into string
-            docChoice = " ".join(wordsAfterDocument)
-
-        except ValueError:
-            print("'Document' not found in array.")
-
     try:
         docChoice = "Document: " + docChoice
 
@@ -367,7 +327,7 @@ def searchForDocument(docChoice):
         # Type in document name and press enter
         pyautogui.typewrite(docChoice, interval = 0.2)
         pyautogui.press('enter')
-        return True
+        return f"Successful search for {docChoice}"
     
     except Exception as e:
         print(f"Error occured while searching for document: {e}")

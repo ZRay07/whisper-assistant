@@ -19,10 +19,14 @@ class mainScreen:
 
         # Set the starting size of the window and its location
         #self.root.geometry("1100x700+480+200")
-        self.root.geometry("1919x1000+0+0")
+        self.root.geometry("1900x1000+0+0")
         self.drawLeftFrame()
         self.drawCenterFrame()
         self.drawRightFrame()
+        self.root.grid_rowconfigure(0, weight = 1)  # Allow the first row (all 3 frames) to expand vertically
+        self.root.grid_columnconfigure(0, weight = 1)   # Allow the first column (left frame) to expand horizontally
+        self.root.grid_columnconfigure(1, minsize = 550, weight = 1)   # Allow the second column (center frame) to expand horizontally
+        self.root.grid_columnconfigure(2, weight = 1)   # Allow the third column (right frame) to expand horizontally
         self.root = mainloop()
 
 
@@ -35,8 +39,6 @@ class mainScreen:
         self.left_frame = Frame(self.root, width = 250, height = 530,
                                  bg = "slate gray", borderwidth = 2, relief = FLAT)
         self.left_frame.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "ns")       # Places the frame onto the window
-
-        self.root.grid_rowconfigure(0, weight = 1)  # Allow the first row (left_frame) to expand vertically
 
         # Adding image to the left hand frame
 #        self.mountainImage = PhotoImage(file = "source/ui/images/mountain3.gif")
@@ -72,16 +74,17 @@ class mainScreen:
         self.cmd_bar.grid(row = 2, column = 0)
 
         self.buttonFont = font.Font(family = "Franklin Gothic Medium", size = 12)
-        self.openApp_button =  Button(self.cmd_bar, text = "Open Application",  font = self.buttonFont, command = lambda: handleApplicationAction("app", "open"),   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.closeApp_button = Button(self.cmd_bar, text = "Close Application", font = self.buttonFont, command = lambda: handleApplicationAction("app", "close"),  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up",         font = self.buttonFont, command = lambda: handleScrollAction("up", "up"),           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down",     font = self.buttonFont, command = lambda: handleScrollAction("down", "down"),       bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.setVol_button = Button(self.cmd_bar, text = "Set Volume",          font = self.buttonFont, command = lambda: setVolume,                                bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.mouseControl_button = Button(self.cmd_bar, text = "Mouse Control", font = self.buttonFont, command = mouseGrid,                                        bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in",  font = self.buttonFont, command = lambda:[sign_in, self.bring_to_front],            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.createAcc_button = Button(self.cmd_bar, text = "Create Account",   font = self.buttonFont, command = self.create_account,                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.addContact_button = Button(self.cmd_bar, text = "Add Contact",     font = self.buttonFont, command = self.add_contact,                                 bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
-        self.exit_button = Button(self.cmd_bar, text = "Exit",                  font = self.buttonFont, command = self.root.quit,                                   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.openApp_button =       Button(self.cmd_bar, text = "Open Application",     font = self.buttonFont, command = lambda: [handleApplicationAction(self.validateAppInput("app", "open"), "open")],  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.closeApp_button =      Button(self.cmd_bar, text = "Close Application",    font = self.buttonFont, command = lambda: [handleApplicationAction(self.validateAppInput("app", "close"), "close")],bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.scrollDown_button =    Button(self.cmd_bar, text = "Scroll Down",          font = self.buttonFont, command = lambda: [handleScrollAction(self.validateScrollInput("down"), "down")],           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [mouseGrid],                                       bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [sign_in, self.bring_to_front],            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [self.add_contact],                                 bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
+        self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [searchForDocument(self.validateDocumentInput("document"))],                        bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         
         # Place the buttons in the frame
         self.openApp_button.grid(row = 0, column = 0, pady = 5)
@@ -93,45 +96,41 @@ class mainScreen:
         self.emailSignIn_button.grid(row = 6, column = 0, pady = 5)
         self.createAcc_button.grid(row = 7, column = 0, pady = 5)
         self.addContact_button.grid(row = 8, column = 0, pady = 5)
-        self.exit_button.grid(row = 9, column = 0, pady = 5)
+        self.docSearch_button.grid(row = 9, column = 0, pady = 5)
+        self.exit_button.grid(row = 10, column = 0, pady = 5)
 
     # This frame contains:
+    # Record button
+    # The user inputs
     # Directions for the user on how to call a command request
-    # Prediction outputs
-    # Command outputs
+    # A label which shows the user when the system is either listening or processing
+    # A label which displays error messages to the user
     def drawCenterFrame(self):
         # Create center frame
-        self.center_frame = Frame(self.root, width = 960, height = 530,
+        self.center_frame = Frame(self.root, width = 750, height = 530,
                                  bg = "slate gray", borderwidth = 2, relief = FLAT)
-        self.center_frame.grid(row = 0, column = 1, padx = 10, pady = 10, sticky = "ns")
-
-        self.root.grid_rowconfigure(0, weight = 1)  # Allow the (center_frame) to expand vertically
+        self.center_frame.grid(row = 0, column = 1, padx = 20, pady = 10, sticky = "nsew")
         self.center_frame.grid_columnconfigure(0, weight = 1)   # Allow the widgets within the center frame to expand horizontally
-
-        # Ensure the frame does not shrink to fit widget size
-        self.center_frame.grid_propagate(False)
 
         # Label the center frame
         self.commandDirection_label = Label(self.center_frame, text = "Say \"sherpa\" OR click \"Record\"", font = ("Franklin Gothic Medium", 24), bg = "slate gray")
-        self.commandDirection_label.grid(row = 0, column = 0, pady = 10)
+        self.commandDirection_label.grid(row = 0, column = 0, padx = 250, pady = 10)
 
         # Add record button
-        # *** in the future -> activate record by speaking a keyword
         self.record_button = Button(self.center_frame, text = "Record", font = ("Franklin Gothic Medium", 24),
                                      bg = "SlateGray3", relief = FLAT, activebackground = "green", command = self.recordAndUseModel)
         self.record_button.grid(row = 1, column = 0, pady = 10)
-       
 
        # Add area to show user input history
         self.userInputHistory_frame = Frame(self.center_frame, width = 340, height = 500,
-                                     bg = "light grey", borderwidth = 2, relief = "solid")
+                                     bg = "LightCyan4", borderwidth = 2, relief = "solid")
         self.userInputHistory_frame.grid(row = 2, column = 0, columnspan = 1, padx = 5, pady = 5)
 
         # Add label at the top of the frame to show what's in the box
-        self.userInputHistoryTitle_label = Label(self.userInputHistory_frame, text = "User input history will appear here", font = ("Franklin Gothic Medium", 12), width = 45, height = 1, bg = "light grey")
+        self.userInputHistoryTitle_label = Label(self.userInputHistory_frame, text = "User input history will appear here", font = ("Franklin Gothic Medium", 12), width = 45, height = 1, bg = "azure3")
         self.userInputHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
 
-        self.userInputHistory_label = Label(self.userInputHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 45, height = 20, bg = "light grey", wraplength = 500, anchor = "s")
+        self.userInputHistory_label = Label(self.userInputHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 45, height = 20, bg = "azure3", wraplength = 500, anchor = "s")
         self.userInputHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
         self.userInstruction_label = Label(self.userInputHistory_frame, text = "Say \"sherpa\" and we'll listen for a command", font = ("Franklin Gothic Medium", 12), width = 60, height = 3, bg = "AntiqueWhite3", wraplength = 500)
@@ -140,7 +139,7 @@ class mainScreen:
         self.listeningProcessing_label = Label(self.center_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 24), width = 16, height = 1, bg = "slate gray")
         self.listeningProcessing_label.grid(row = 3, column = 0, sticky = "ew")
 
-        self.userInputError_label = Label(self.center_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 60, height = 2, bg = "slate gray", wraplength = 500, fg = "#710505", anchor = "center")
+        self.userInputError_label = Label(self.center_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "slate gray", wraplength = 500, fg = "#710505", anchor = "center")
         self.userInputError_label.grid(row = 4, column = 0)
 
         # Configure the 4th row of the center frame(which contains error messages), to stretch to the bottom of the frame
@@ -153,9 +152,9 @@ class mainScreen:
 
         #This is the create account button
        # self.create_account_bar = Frame(self.center_frame, width = 375, height = 250
-                                  #      bg = "light grey", borderwidth = 2, relief = "solid")
+                                  #      bg = "azure3", borderwidth = 2, relief = "solid")
       #  self.create_account_bar.grid(row = 4, column = 0, columnspan = 1, padx = 0, pady = 0 )
-      #  self.create_account_label = Label(self.create_account_bar, height = 1, width = 40, bg = "light grey", textvariable = self.create_account_label, wraplength = 500)
+      #  self.create_account_label = Label(self.create_account_bar, height = 1, width = 40, bg = "azure3", textvariable = self.create_account_label, wraplength = 500)
       #  self.create_account_label.grid(row = 0, column = 1, padx = 0, pady = 10)
 
     def update_screen(self):
@@ -422,18 +421,17 @@ class mainScreen:
         self.right_frame = Frame(self.root, width = 350, height = 530,
                                  bg = "slate gray", borderwidth = 2, relief = FLAT)
         self.right_frame.grid(row = 0, column = 2, padx = 10, pady = 10, sticky = "ns")
-        self.root.grid_rowconfigure(0, weight = 1)  # Allow the (right_frame) to expand vertically
 
         # Add area to show command message history
-        self.cmdHistory_frame = Frame(self.right_frame, width = 350, height = 500,
-                                     bg = "light grey", borderwidth = 2, relief = "solid")
-        self.cmdHistory_frame.grid(row = 0, column = 0, columnspan = 1, padx = 5, pady = 5)
+        self.cmdHistory_frame = Frame(self.right_frame, width = 250, height = 500,
+                                     bg = "azure3", borderwidth = 2, relief = "solid")
+        self.cmdHistory_frame.grid(row = 0, column = 0, columnspan = 1, padx = 20, pady = 5)
 
         # Add label at the top of the frame to show what's in the box
-        self.cmdHistoryTitle_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 60, height = 1, bg = "light grey")
+        self.cmdHistoryTitle_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 40, height = 1, bg = "azure3")
         self.cmdHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
 
-        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 60, height = 20, bg = "light grey", wraplength = 500, anchor = "s")
+        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 40, height = 20, bg = "azure3", wraplength = 225, anchor = "s")
         self.cmdHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
 
@@ -453,7 +451,7 @@ class mainScreen:
         self.predictionLabel = StringVar()
         self.predictionLabel.set("Predicted commands will appear here")
 
-        self.prediction_label = Label(self.right_frame, textvariable = self.predictionLabel, font = ("Franklin Gothic Medium", 12), width = 60, height = 5,  bg = "light grey", wraplength = 500, anchor = "center")
+        self.prediction_label = Label(self.right_frame, textvariable = self.predictionLabel, font = ("Franklin Gothic Medium", 12), width = 40, height = 5,  bg = "azure3", wraplength = 500, anchor = "center")
         self.prediction_label.grid(row = 3, column = 0, padx = 0, pady = 10)
 
        # self.recordDurationLabel = StringVar()
@@ -524,8 +522,10 @@ class InputValidation(mainScreen):
             if len(self.userChoiceSplit) >= 1:
                 if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[1], "volume") > 0.85):   
                     print("\n***Set Volume***")
-                    volChoice = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
-                    setVolume(volChoice)           
+                    self.volChoice = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
+                    self.volume, self.decibel = self.validateVolumeInput(self.volChoice)
+                    self.commandUpdate = setVolume(self.volume, self.decibel)
+                    self.appendNewCommandHistory(str(self.commandUpdate))
 
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
@@ -536,7 +536,35 @@ class InputValidation(mainScreen):
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
             print("\n***Email sign-in***")
             beepgood()
-            sign_in()       
+            sign_in()
+
+        elif(jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "add") > 0.85):     # Add contact
+            if len(self.userChoiceSplit) >= 5:
+                self.addContactKeywords = {"add", "to", "my", "list"}    # We use this array to check if the user really said "add ___ to my list"
+
+                # self.userChoiceSplit will either be: "Add [fname lname] to my list" such as "Add Tyler Cohen to my list"
+                #   or "add contact to my list"
+                # The following line checks if all the words in self.addContactKeywords are present in self.userChoiceSplit
+                if all(self.word in self.userChoiceSplit for self.word in self.addContactKeywords):
+                    # All words present, start creating contact
+                    print("\n***Add Contact***")
+
+                    if "contact" in self.userChoiceSplit:
+                        self.contactName = self.userChoiceSplit[1]  # If "contact" is in the string, then the user didn't specify a name
+                    else:
+                        self.contactName = self.userChoiceSplit[1] + " " + self.userChoiceSplit[2]  # If "contact" is not in the string, they the user specified a name
+
+                    self.contactName = self.validateContactNameInput(self.contactName)
+                    self.appendNewCommandHistory(f"Got name: {self.contactName}")
+
+                    self.contactEmail = self.validateContactEmailInput()
+                    self.appendNewCommandHistory(f"Got email: {self.contactEmail}")
+
+                    self.contactEmailDomain = self.validateContactEmailDomainInput()
+                    self.appendNewCommandHistory(f"Got email domain: {self.contactEmailDomain}")
+
+                    self.commandUpdate = addContact(self.contactName, self.contactEmail, self.contactEmailDomain)
+                    self.appendNewCommandHistory(self.commandUpdate)
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
             print("\nSearching now...\n")
@@ -549,8 +577,10 @@ class InputValidation(mainScreen):
                 if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0] + self.userChoiceSplit[1] + self.userChoiceSplit[2] + self.userChoiceSplit[3],
                                                     "search for a document") > 0.85):
                     print("\n***Search for a document***")
-                    docChoice = userChoice
-                    searchForDocument(docChoice)
+                    self.docChoice = userChoice
+                    self.docChoice = self.validateDocumentInput(self.docChoice)
+                    self.commandUpdate = searchForDocument(self.docChoice)
+                    self.appendNewCommandHistory(str(self.commandUpdate))
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
             beepgood()
@@ -596,11 +626,6 @@ class InputValidation(mainScreen):
     # This function verifies the application name which the user intends to open
     # It also is used to update the GUI
     def validateAppInput(self, appName, action):
-        print(f"validateAppInput - appName: {self.appName}")
-
-        for app in VALID_APPS:
-            print(app)
-
         if (appName not in VALID_APPS and appName not in {"application", "app"}):
             # Graphical UI Update
             self.setLabel(self.userInputError_label, f"Invalid application name \"{appName}\". Please try again")
@@ -668,6 +693,191 @@ class InputValidation(mainScreen):
                 time.sleep(2)
 
                 scrollAmount = self.promptUser(2, removePunctuation = True, makeLowerCase = True)
+
+        
+    # The input to this function [volChoice] can be a number, or it can simply be volume
+    #   The input comes from the output of the Whisper speech recognition module
+    #   So a user may say "set volume" or "set volume to 80"
+    #   if the user says "set volume", the function should prompt the user and record an audio clip to get the number they'd like to set their volume to
+    #   if the user says "set volume to 80", the function should automatically set the volume to 80 without prompting again
+    def validateVolumeInput(self, volChoice):
+        # Actual volume levels and corresponding decibel levels
+        volumeMapping = {
+            0: -60.0,
+            10: -33.0,
+            20: -23.4,
+            30: -17.8,
+            40: -13.6,
+            50: -10.2,
+            60: -7.6,
+            70: -5.3,
+            80: -3.4,
+            90: -1.6,
+            100: 0
+        }
+
+        try:
+            while True:
+                if (volChoice == "volume"):
+                    # If the input is only volume, prompt user for a desired volume level
+                    print("\nWhat volume would you like to set to?")
+                    print("*** MUST BE AN INCREMENT OF 10 ***")
+                    # Graphical UI Update
+                    self.setLabel(self.userInstruction_label, "What volume would you like to set to?")
+                    
+                    time.sleep(2)
+
+                    volChoice = self.promptUser(3, True, True)
+
+                volChoice = convertToInt(volChoice) # Convert string representation of number to integer
+                
+                if volChoice in volumeMapping:
+                    return volChoice, volumeMapping[volChoice]
+
+                # Prompt the user for a valid volume value if not "volume" or a valid level
+                print(f"\nInvalid volume value: {volChoice}. Valid volume levels are increments of 10 between 0 and 100.")
+
+                # Graphical UI Update
+                self.setLabel(self.userInputError_label, f"Invalid volume value: {volChoice}. Valid volume levels are increments of 10 between 0 and 100.")
+                self.setLabel(self.userInstruction_label, "What volume would you like to set to?")
+                time.sleep(2)
+
+                volChoice = self.promptUser(3, removePunctuation = True, makeLowerCase = True)
+
+        except Exception as e:
+            print(f"Error occured while getting valid volume: {e}")
+            return False
+        
+    # This function confirms the name of the document with the user
+    #   If the last word of the string was document:
+    #       The user is prompted for a document name
+    #   Otherwise:
+    #       it waits for the user to say "yes" before searching
+    def validateDocumentInput(self, docChoice):
+        docChoice = docChoice.rstrip(string.punctuation)
+        self.docChoiceSplit = docChoice.split()
+        self.wordsAfterDocument = None
+
+        while True:
+            if (self.docChoiceSplit[-1] == "document") or (self.userConfirmation != "yes"):    # If the last word in the string is "document", we need to prompt user for a document name
+                print("\nWhat document would you like to search for?")
+                self.setLabel(self.userInstruction_label, "What document would you like to search for?")
+                
+            
+                time.sleep(2)
+
+                docChoice = self.promptUser(3, True, False)
+
+            else:
+                try:
+                    # Grab the position of "document" from the array
+                    self.indexDocument = self.docChoiceSplit.index("document")
+
+                    # Pull every word after document
+                    self.wordsAfterDocument = self.docChoiceSplit[self.indexDocument + 1:]
+
+                    # Combine the words after document back into string
+                    docChoice = " ".join(self.wordsAfterDocument)
+
+                except ValueError:
+                    print("'Document' not found in array.")
+
+            try:
+                self.setLabel(self.userInstruction_label, f"Search for {docChoice}?\nSay yes if correct.")
+                time.sleep(2)
+
+                self.userConfirmation = self.promptUser(2, True, True)
+
+                if (self.userConfirmation == "yes"):
+                    return docChoice
+            
+            except Exception as e:
+                print(f"Error occured while getting document name: {e}")
+
+    
+    # This function confirms the name of the contact the user wishes to add
+    #   If the second word of the string was contact:
+    #       The user is prompted for a contact name
+    #   Otherwise:
+    #       it waits for the user to say "yes" before returning a name
+    def validateContactNameInput(self, contactName):
+        self.userConfirmation = " "
+        while True:
+            if (contactName == "contact") or (self.userConfirmation != "yes"):    # If the second word in the string is "contact", we need to prompt user for a name
+                print("\nWho would you like to add?")
+                self.setLabel(self.userInstruction_label, "Who would you like to add?")
+                time.sleep(2)
+
+                contactName = self.promptUser(3, True, False)
+
+            # Whether or not the second word is "contact", we will check if the name is correct
+            try:
+                self.setLabel(self.userInstruction_label, f"Add {contactName} to your list?\nSay yes if correct.")
+                time.sleep(2)
+
+                self.userConfirmation = self.promptUser(2, True, True)
+
+                if (self.userConfirmation == "yes"):
+                    return contactName
+            
+            except Exception as e:
+                print(f"Error occured while getting contact name: {e}")
+
+    # This function confirms the email of the contact the user wishes to add
+    # The user will be prompted for an email and asked if it's correct
+    #   if they say "yes", the loop is exited and the email is returned
+    #       otherwise, the loop will continue
+    def validateContactEmailInput(self):
+        self.userConfirmation = " "
+        while True:
+            if (self.userConfirmation != "yes"):    # If the second word in the string is "contact", we need to prompt user for a name
+                print("\nWhat is their email? (do not include domain)")
+                self.setLabel(self.userInstruction_label, "What is their email?")
+                self.setLabel(self.userInputError_label, "DO NOT include domain")
+                time.sleep(2)
+
+                self.contactEmail = self.promptUser(3, True, True)
+                self.contactEmail = self.contactEmail.replace(" ", "")
+            try:
+                self.setLabel(self.userInputError_label, "")
+                self.setLabel(self.userInstruction_label, f"Is their email {self.contactEmail}?\nSay yes if correct.")
+                time.sleep(2)
+
+                self.userConfirmation = self.promptUser(2, True, True)
+
+                if (self.userConfirmation == "yes"):
+                    return self.contactEmail
+            
+            except Exception as e:
+                print(f"Error occured while getting contact email: {e}")
+
+    
+    # This function confirms the email domain of the contact the user wishes to add
+    # The user will be prompted for an email domain and asked if it's correct
+    #   if they say "yes", the loop is exited and the email domain is returned
+    #       otherwise, the loop will continue
+    def validateContactEmailDomainInput(self):
+        self.userConfirmation = " "
+        while True:
+            if (self.userConfirmation != "yes"):    # If the second word in the string is "contact", we need to prompt user for a name
+                print("\nWhat is their email domain?")
+                self.setLabel(self.userInstruction_label, "What domain does their email belong to?\ngmail, outlook, proton, etc.")
+                time.sleep(2)
+
+                self.contactEmailDomain = self.promptUser(3, True, False)
+
+            try:
+                self.setLabel(self.userInstruction_label, f"Is {self.contactEmailDomain} the correct domain?")
+                time.sleep(2)
+
+                self.userConfirmation = self.promptUser(2, True, True)
+
+                if (self.userConfirmation == "yes"):
+                    return self.contactEmailDomain
+            
+            except Exception as e:
+                print(f"Error occured while getting contact email domain: {e}")
+
 
     # This function is used to update GUI labels
     # Simply pass a label name such as:
@@ -754,5 +964,3 @@ class InputValidation(mainScreen):
 
 if __name__ == '__main__':
     inputValidator = InputValidation()
-    
-
