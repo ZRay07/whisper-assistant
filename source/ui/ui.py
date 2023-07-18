@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import font
 from source.core.command_module import *
-from source.core.command_module import MouseGrid
 from source.core.model_interface import *
 import argparse
 
@@ -80,7 +79,7 @@ class mainScreen:
         self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.scrollDown_button =    Button(self.cmd_bar, text = "Scroll Down",          font = self.buttonFont, command = lambda: [handleScrollAction(self.validateScrollInput("down"), "down")],           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [MouseGrid],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [print("placeholder")],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                    bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
@@ -468,8 +467,9 @@ class InputValidation(mainScreen):
         # Call startListeningThread to start listening for keywords in a separate thread
         if not args.disable:
             self.startListeningThread()
-
+            
         super().__init__()
+        
 
     # This function takes in an input string
     # the string should be the predicted output from the ASR module
@@ -532,7 +532,7 @@ class InputValidation(mainScreen):
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
             print("\n***Navigate mouse + keyboard***")
             beepgood()
-            self.mouseGrid = MouseGrid()
+            #self.mouseGrid = MouseGrid()
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
             print("\n***Email sign-in***")
