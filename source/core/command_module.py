@@ -57,158 +57,6 @@ def beepcountdown(): # countdown sequence
 def beeprecord(): # used to indicate when recording starts
     winsound.Beep(1500, 250)
 
-
-# This function should be called as soon as the UI is launched
-#   It will continuously listen until it hears the keyword: "sherpa"
-#   When "sherpa" is heard:
-#       -run another function which listens for commands
-#       -based on what the record function captured and the transcripted output
-#       -run a command
-# TO-DO: update the GUI to show when we are listening or processing the audio
-def listenForKeywords():
-    try:
-        while True:
-            microphone.record(2)
-            prediction = whisper.use_model(RECORD_PATH)
-
-            if (prediction.rstrip(string.punctuation).lower() == "sherpa"):
-                print("\nSpeak a command")
-                time.sleep(1)
-                prediction = promptUser(recordDuration = 5, removePunctuation = True, makeLowerCase = True)
-                commandExec(prediction)
-                break # Exit the loop after capturing the keyword and executing the action
-
-    except Exception as e:
-        print(f"Error while listening for keyword: {e}")
-
-# Function to start the keyword listening thread
-# This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
-def startListeningThread():
-    thread = threading.Thread(target = listenForKeywords)
-    thread.daemon = True  # Set the thread as a daemon thread
-    thread.start()
-
-# This function takes in an input string
-# the string should be the predicted output from the ASR module
-def commandExec(userChoice):
-    # make the string all lower case to help with similarity (want to focus solely on matching keywords)
-    userChoice = userChoice.lower()
-    userChoiceSplit = userChoice.split()
-
-    for index, element in enumerate(userChoiceSplit):
-        print(f"userChoiceSplit[{index}]: {element}")
-    
-    if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "open") > 0.85):        # Open application
-        beepgood()
-        print("\n***Open Application***")
-        engine.say("Open application") 
-        engine.runAndWait()
-        appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
-        handleApplicationAction(appName, "open")
-
-
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "close") > 0.85):      # Close application
-        beepgood()
-        print("\n***Close Application***")
-        engine.say("Close application") 
-        engine.runAndWait()
-        appName = userChoiceSplit[-1].rstrip(string.punctuation).lower()
-        handleApplicationAction(appName, "close")
-
-
-    # There was an index error being caused here. 
-    # Sometimes, the user would only say one word. For example, "open"
-    # In this case, the userChoiceSplit[1] was raising an index error.
-    #   trying to check for a value that doesn't exist because userChoiceSplit was [0] indices long
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "scroll") > 0.9):   # Scroll up
-        if len(userChoiceSplit) >= 1:
-            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "up") > 0.9):
-                print("\n***Scroll Up***")
-                scrollAmount = userChoiceSplit[-1]
-                handleScrollAction(scrollAmount, "up")
-
-            
-            elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "down") > 0.9):    # Scroll down
-                print("\n***Scroll Down***")
-                scrollAmount = userChoiceSplit[-1]
-                handleScrollAction(scrollAmount, "down")
-
-
-    elif (jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "set") > 0.85):     # Set volume
-        if len(userChoiceSplit) >= 1:
-            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[1], "volume") > 0.85):   
-                print("\n***Set Volume***")
-                volChoice = userChoiceSplit[-1].rstrip(string.punctuation).lower()
-                setVolume(volChoice)           
-
-
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
-        beepgood()
-        print("\n***Navigate mouse + keyboard***")
-        engine.say("Navigate mouse and keyboard") 
-        engine.runAndWait()
-        mouseGrid()
-
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
-        beepgood()
-        print("\n***Email sign-in***")
-        engine.say("Email sign in") 
-        engine.runAndWait()
-        sign_in()       
-
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
-        beepgood()
-        engine.say("Searching now") 
-        engine.runAndWait()
-        print("\nSearching now...\n")
-        google_search()
-
-    # elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
-   #     write_email(url,session_id)
-    elif(jellyfish.jaro_winkler_similarity(userChoice, "Email functions") > 0.85): 
-        sub_window_int()
-        
-    elif(jellyfish.jaro_winkler_similarity(userChoiceSplit[0], "search") > 0.85):
-        if len(userChoiceSplit) >= 4:
-            if (jellyfish.jaro_winkler_similarity(userChoiceSplit[0] + userChoiceSplit[1] + userChoiceSplit[2] + userChoiceSplit[3],
-                                                 "search for a document") > 0.85):
-                print("\n***Search for a document***")
-                docChoice = userChoice
-                searchForDocument(docChoice)
-
-    elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
-        beepgood()
-        print("***Exiting***")
-
-    else:
-        beepbad()
-        print(f"Unrecognized command: {userChoice}")
-
-
-# This function is used when we need to prompt the user for additional voice inputs
-# Used for getting application names, scroll amounts, volume levels, etc.
-# If removePunctuation is true when you call it, it removes trailing punctuation.
-# If makeLowerCase is true when you call it, it makes the output string lowercase
-def promptUser(recordDuration, removePunctuation, makeLowerCase):
-    try:
-        microphone.record(recordDuration)
-        userInput = whisper.use_model(RECORD_PATH)
-
-        if removePunctuation:
-            userInput = userInput.rstrip(string.punctuation)
-
-        if makeLowerCase:
-            userInput = userInput.lower()
-
-        return userInput
-    
-    except Exception as e:
-        beepbad()
-        print("Error occured during recording: ", str(e))
-        engine.say("Error occured during recording.") 
-        engine.runAndWait()
-        return False
-
 # This function will generate a list of all the apps on users pc and store it in a json file
 # Its used to check for errors in open/close application methods
 def loadValidApps():
@@ -245,26 +93,6 @@ def removeEssentialServices(essentialServices):
 # If user says "open application" -> the if statement will be entered which will prompt for an app name
 #   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
 def handleApplicationAction(appName, action):
-    if (appName in {"application", "app"}):
-        while True:
-            print(f"\nWhich application would you like to {action}?")
-            print("\t- Word")
-            print("\t- Edge")
-            print("\t- Spotify")
-            print("\t- Discord")
-            time.sleep(2)
-
-            appName = promptUser(3, removePunctuation = True, makeLowerCase = True)
-
-            if appName in VALID_APPS:
-                break   # Valid app name provided, exit the while loop
-            else:
-                print("Invalid application name. Please try again")
-
-    # Remove essential services from VALID_APPS list so they aren't accessible to close
-    if action == "close":
-        removeEssentialServices(ESSENTIAL_SERVICES)
-
     try:
         if appName in VALID_APPS:
             if action == "open":
@@ -274,13 +102,15 @@ def handleApplicationAction(appName, action):
             else:
                 print("Invalid action: ", action)
                 return False
-            return True
+            return f"{action} {appName} successful."
+        
         else:
             print("Invalid application name: ", appName)
-            return False
+            return f"{action} {appName} NOT successful"
+        
     except Exception as e:
         print(f"Error occured while {action}ing the application: ", str(e))
-        return False
+        return f"{action} {appName} NOT successful"
 
 
 def convertToInt(stringValue):
@@ -315,89 +145,55 @@ def convertWordToInt(stringValue):
         return None
 
 def handleScrollAction(scrollAmount, direction):
-    # Remove any trailing punctuation marks
-    scrollAmount = scrollAmount.rstrip(string.punctuation)
-
-    while True:
-        try:
-            if scrollAmount in {"up", "down"}:
-                scrollAmount = 100  # Default scroll amount if user doesn't specify a number
-            else:
-                scrollAmount = convertToInt(scrollAmount) # Convert string representation of number to integer
-                
-            if scrollAmount is None  or scrollAmount < 0 or scrollAmount > 1000:
-                print(f"Invalid scroll amount: {scrollAmount}. Valid scroll amounts are between 0 and 1000.")
-                time.sleep(2)
-                scrollAmount = promptUser(3, removePunctuation = True, makeLowerCase = True)   # Prompt the user again for input
-                continue    # Restart the loop to revalidate the new input (if statement to check value in range)
-            
-            if direction == "up":
-                print(f"Scrolling up by {scrollAmount} clicks")
-                pyautogui.scroll(scrollAmount)
-            elif direction == "down":
-                print(f"Scrolling down by {scrollAmount} clicks")
-                pyautogui.scroll(-scrollAmount)
-            else:
-                raise ValueError(f"Invalid scroll direction: {direction}")
-            
-            return True
+    try:        
+        if direction == "up":
+            print(f"Scrolling up by {scrollAmount} clicks")
+            pyautogui.scroll(scrollAmount)
+        elif direction == "down":
+            print(f"Scrolling down by {scrollAmount} clicks")
+            pyautogui.scroll(-scrollAmount)
+        else:
+            raise ValueError(f"Invalid scroll direction: {direction}")
         
-        except ValueError as ve:
-            print("Invalid scroll amount. Valid scroll amounts are between 0 and 1000.")
-            time.sleep(2)
-            scrollAmount = promptUser(2, removePunctuation = True, makeLowerCase = True)
+        return f"Scrolled {direction} by {scrollAmount} click(s)"
 
-        except Exception as e:
-            print(f"Error occured during scrolling: {e}")
-            return False
+    except Exception as e:
+        print(f"Error occured during scrolling: {e}")
+        return False
 
 # The input to this function [volChoice] can be a number, or it can simply be volume
 #   The input comes from the output of the Whisper speech recognition module
 #   So a user may say "set volume" or "set volume to 80"
 #   if the user says "set volume", the function should prompt the user and record an audio clip to get the number they'd like to set their volume to
 #   if the user says "set volume to 80", the function should automatically set the volume to 80 without prompting again
-def setVolume(volChoice):
-    # Actual volume levels and corresponding decibel levels
-    volumeMapping = {
-        0: -60.0,
-        10: -33.0,
-        20: -23.4,
-        30: -17.8,
-        40: -13.6,
-        50: -10.2,
-        60: -7.6,
-        70: -5.3,
-        80: -3.4,
-        90: -1.6,
-        100: 0
-    }
-
+def setVolume(volChoice, decibel):
     try:
-        while True:
-            if (volChoice == "volume"):
-                # If the input is only volume, prompt user for a desired volume level
-                print("\nWhat volume would you like to set to?")
-                print("*** MUST BE AN INCREMENT OF 10 ***")
-                time.sleep(2)
-
-                volChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
-
-            volChoice = convertToInt(volChoice) # Convert string representation of number to integer
-            
-            if volChoice in volumeMapping:
-                volume.SetMasterVolumeLevel(volumeMapping[volChoice], None) # Grabs the decibel value from volume mapping dict
-                print(f"Setting volume to {volChoice}")
-                return True
-
-            # Prompt the user again for a valid volume value
-            print(f"\nInvalid volume value: {volChoice}. Valid volume levels are increments of 10 between 0 and 100.")
-            time.sleep(2)
-
-            volChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
+        volume.SetMasterVolumeLevel(decibel, None)
+        print(f"Setting volume to {volChoice}")
+        return f"Successfully set volume to {volChoice}"
 
     except Exception as e:
         print(f"Error occured while setting volume: {str(e)}")
         return False
+
+
+# The inputs to this function are: [fname lname], [email], and [domain]
+def addContact(name, email, domain):
+
+    # TO-DO: Create error handling to ensure a proper domain name is passed (gmail, outlook, etc.)
+    try:
+        account = {
+            "name" : name,
+            "email" : email,
+            "domain": domain, 
+        }
+        with open("source/contact_list.txt", "a") as f:
+            f.write(account.get("name") + " " + account.get("email") + " " + account.get("domain") + "\n")
+
+        return f"Successfully added {name} {email}@{domain} to contact list"
+
+    except Exception as e:
+        print(f"Error adding {name} to contact list: {e}")
 
 def pull_contact(string):
     with open("source/my_account.txt", "r") as f:
@@ -649,31 +445,6 @@ class sub_window_int:
 #   Otherwise:
 #       it searches for a document with the document name being whatever comes after 'document' in the string
 def searchForDocument(docChoice):
-    docChoice = docChoice.rstrip(string.punctuation)
-    docChoiceSplit = docChoice.split()
-    wordsAfterDocument = None
-
-    if docChoiceSplit[-1] == "document":    # If the last word in the string is "document", we need to prompt user for a document name
-        print("\nWhat document would you like to search for?")
-            
-        time.sleep(2)
-
-        docChoice = promptUser(3, removePunctuation = True, makeLowerCase = False)
-
-    else:
-        try:
-            # Grab the position of "document" from the array
-            indexDocument = docChoiceSplit.index("document")
-
-            # Pull every word after document
-            wordsAfterDocument = docChoiceSplit[indexDocument + 1:]
-
-            # Combine the words after document back into string
-            docChoice = " ".join(wordsAfterDocument)
-
-        except ValueError:
-            print("'Document' not found in array.")
-
     try:
         docChoice = "Document: " + docChoice
 
@@ -684,374 +455,11 @@ def searchForDocument(docChoice):
         # Type in document name and press enter
         pyautogui.typewrite(docChoice, interval = 0.2)
         pyautogui.press('enter')
-        return True
+        return f"Successful search for {docChoice}"
     
     except Exception as e:
         print(f"Error occured while searching for document: {e}")
         return False
-
-class mouseGrid():
-    def __init__(self):
-        self.userChoiceFlag = 0
-
-        # Open a new window
-        self.mouseGrid = Tk()
-
-        # Make this window transparent
-        self.mouseGrid.attributes("-alpha", 0.3, "-fullscreen", TRUE)
-
-        self.screenHeight = self.mouseGrid.winfo_screenheight()
-        self.screenWidth = self.mouseGrid.winfo_screenwidth()
-
-        # These variables store the center position's of the color grid
-        self.redCenter = [self.screenWidth / 3 / 2, self.screenHeight / 3 / 2, 1]
-        self.greenCenter = [self.screenWidth / 3 / 2, self.screenHeight / 3 / 2 + self.screenHeight / 3, 1]
-        self.blueCenter = [self.screenWidth / 3 / 2, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
-        self.purpleCenter = [self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2, 1]
-        self.yellowCenter = [self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2 + self.screenHeight / 3, 1]
-        self.whiteCenter = [self.screenWidth / 3 / 2 + self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
-        self.blackCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2, 1]
-        self.orangeCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + self.screenHeight / 3, 1]
-        self.pinkCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
-
-        self.drawColorGrid()
-        self.mouseGrid.mainloop()
-
-        
-    def drawColorGrid(self):
-        # Make 9 frames (3 * 3 grid)
-        # One for each portion of the grid
-        self.redFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "red")
-        self.redFrame.grid(row = 0, column = 0)
-        self.redFrame.grid_propagate(False)
-
-        self.greenFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "green")
-        self.greenFrame.grid(row = 1, column = 0, padx = 0, pady = 0)
-        self.greenFrame.grid_propagate(False)
-
-        self.blueFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "blue")
-        self.blueFrame.grid(row = 2, column = 0, padx = 0, pady = 0)
-        self.blueFrame.grid_propagate(False)
-
-        self.purpleFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "purple")
-        self.purpleFrame.grid(row = 0, column = 1, padx = 0, pady = 0)
-        self.purpleFrame.grid_propagate(False)
-
-        self.yellowFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "gold")
-        self.yellowFrame.grid(row = 1, column = 1, padx = 0, pady = 0)
-        self.yellowFrame.grid_propagate(False)
-
-        self.whiteFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "white")
-        self.whiteFrame.grid(row = 2, column = 1, padx = 0, pady = 0)
-        self.whiteFrame.grid_propagate(False)
-
-        self.blackFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "black")
-        self.blackFrame.grid(row = 0, column = 2, padx = 0, pady = 0)
-        self.blackFrame.grid_propagate(False)
-
-        self.orangeFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "orange red")
-        self.orangeFrame.grid(row = 1, column = 2, padx = 0, pady = 0)
-        self.orangeFrame.grid_propagate(False)
-
-        self.pinkFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "deep pink")
-        self.pinkFrame.grid(row = 2, column = 2, padx = 0, pady = 0)
-        self.pinkFrame.grid_propagate(False)
-
-        self.inputBox = Text(self.blackFrame, height = 1, width = 10, border = 2, relief = "solid")
-        self.inputBox.grid(row = 0, column = 0,sticky = NE)
-
-        self.submit_button = Button(self.blackFrame, text = "Submit", command = self.getUserChoice, border = 2, relief = "solid")
-        self.submit_button.grid(row = 1, column = 0, sticky = NE)
-
-    # This function will be used when we need to re-draw the grid
-    #   It simply deletes all of the frames, and we can re-draw them by calling: drawColorGrid()
-    def deleteColorGrid(self):
-        self.redFrame.destroy()
-        self.greenFrame.destroy()
-        self.blueFrame.destroy()
-        self.purpleFrame.destroy()
-        self.yellowFrame.destroy()
-        self.whiteFrame.destroy()
-        self.blackFrame.destroy()
-        self.orangeFrame.destroy()
-        self.pinkFrame.destroy()
-
-    # This function grabs the text inside of the box next to the submit button
-    def getUserChoice(self):
-        self.inputBoxChoice = self.inputBox.get(1.0, "end-1c")
-
-        # If the user specifies they wish to record, we call our prompt user function which records and uses the speech recognition model
-        #   The output of the model is formatted to have no trailing punctuation and to be all lowercase
-        if (self.inputBoxChoice == "Record"):
-            self.userChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
-            self.displaySubgrid(self.userChoice)
-            
-        elif (self.inputBoxChoice == "Destroy"):
-            self.deleteColorGrid()
-            self.mouseGrid.update_idletasks()
-            self.mouseGrid.update()
-
-            time.sleep(5)
-
-            self.drawColorGrid()
-            self.mouseGrid.update_idletasks()
-            self.mouseGrid.update()
-        
-        else:
-            print("Enter a correct input")
-
-    def displaySubgrid(self, colorChoice):
-    
-        self.displayFlag = 0
-        while True:
-            try:
-                if (jellyfish.jaro_winkler_similarity(colorChoice, "red") > 0.7):      # top left
-                    self.subgrid = Canvas(self.redFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.redCenter[0], self.redCenter[1], self.redCenter[2])
-                    self.displayFlag = 1
-                
-                elif (jellyfish.jaro_winkler_similarity(colorChoice, "green") > 0.85):  # middle left
-                    self.subgrid = Canvas(self.greenFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.greenCenter[0], self.greenCenter[1], self.greenCenter[2])
-                    self.displayFlag = 1
-
-                elif (jellyfish.jaro_winkler_similarity(colorChoice, "blue") > 0.85):   # bottom left
-                    self.subgrid = Canvas(self.blueFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.blueCenter[0], self.blueCenter[1], self.blueCenter[2])
-                    self.displayFlag = 1
-
-                elif (jellyfish.jaro_winkler_similarity(colorChoice, "purple") > 0.85): # top center
-                    self.subgrid = Canvas(self.purpleFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.purpleCenter[0], self.purpleCenter[1], self.purpleCenter[2])
-                    self.displayFlag = 1
-
-                elif (jellyfish.jaro_winkler_similarity(colorChoice, "yellow") > 0.85): # center
-                    self.subgrid = Canvas(self.yellowFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.yellowCenter[0], self.yellowCenter[1], self.yellowCenter[2])
-                    self.displayFlag = 1
-
-                elif (jellyfish.jaro_winkler_similarity(colorChoice, "white") > 0.85):  # bottom center
-                    self.subgrid = Canvas(self.whiteFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.whiteCenter[0], self.whiteCenter[1], self.whiteCenter[2])
-                    self.displayFlag = 1
-
-                elif (jellyfish.jaro_winkler_similarity(colorChoice, "black") > 0.85):  # top right
-                    self.subgrid = Canvas(self.blackFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.blackCenter[0], self.blackCenter[1], self.blackCenter[2])
-                    self.displayFlag = 1
-
-                elif (jellyfish.jaro_winkler_similarity(colorChoice, "orange") > 0.85):   # middle right
-                    self.subgrid = Canvas(self.orangeFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.orangeCenter[0], self.orangeCenter[1], self.orangeCenter[2])
-                    self.displayFlag = 1
-
-                elif (jellyfish.jaro_winkler_similarity(colorChoice, "pink") > 0.7):   # bottom right
-                    self.subgrid = Canvas(self.pinkFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
-                    print(f"Moving to {colorChoice} center")
-                    pyautogui.moveTo(self.pinkCenter[0], self.pinkCenter[1], self.pinkCenter[2])
-                    self.displayFlag = 1
-
-                else:
-                    raise ValueError(print(f"Error: {e}"))
-                
-                # return True
-            
-
-                if (self.displayFlag):
-                    print("Displaying subgrid...")
-
-                    # Draw horizontal lines
-                    self.subgrid.create_line(0, self.screenHeight / 9, self.screenWidth / 3, self.screenHeight / 9, width = 5)  
-                    self.subgrid.create_line(0, self.screenHeight * 2 / 9, self.screenWidth / 3, self.screenHeight * 2 / 9, width = 5)
-
-                    # Draw vertical lines
-                    self.subgrid.create_line(self.screenWidth / 9, 0, self.screenWidth / 9, self.screenHeight / 3, width = 5)
-                    self.subgrid.create_line(self.screenWidth * 2 / 9, 0, self.screenWidth * 2 / 9, self.screenHeight / 3, width = 5)
-
-                    # Place the canvas onto user choice location
-                    self.subgrid.grid(padx = 0, pady = 0)
-
-                    self.mouseGrid.update_idletasks()
-                    self.mouseGrid.update()
-
-                    self.dynamicInstructionText = StringVar()
-                    
-
-                    if (self.userChoice == "Red." or self.userChoice == "Red" or self.userChoice == "red"):
-                        self.dynamicInstruction_label = Label(self.blackFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
-                        self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
-
-                    else:
-                        self.dynamicInstruction_label = Label(self.redFrame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.dynamicInstructionText, wraplength = 200)
-                        self.dynamicInstruction_label.grid(row = 0, column = 1, sticky = NE)
-
-                    self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
-                    
-                    self.mouseGrid.update_idletasks()
-                    self.mouseGrid.update()
-
-                    print("\nSay 'Get more specific' to specify a subgrid.")
-                    time.sleep(3)
-
-                    self.userChoice = recordAndUseModel()
-
-                    if (self.userChoice == "Get more specific." or self.userChoice == "Get more specific" or self.userChoice == "get more specific"):
-                        self.moveToInnerPosition()
-                        self.mouseOrKeyboardAction()
-
-                    else:
-                        self.mouseOrKeyboardAction()
-
-                else:
-                    print("Incorrect input. Say the color which you'd like your cursor to be in...")
-            
-            except ValueError as ve:
-                print(f"Invalid color: {colorChoice}")
-                time.sleep(2)
-                colorChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
-                    
-            except Exception as e:
-                print(f"Error displaying subgrid: {e}")
-
-
-
-    def moveToInnerPosition(self):
-        print("\nSay 1-9 to move to an inner grid position")
-        print("OR say EXIT or CANCEL if the cursor is where you want it.")
-
-        time.sleep(5)
-
-        self.currentMouseX, self.currentMouseY = pyautogui.position()   # Get the XY position of the mouse.
-
-        self.userChoice = recordAndUseModel()
-
-        if (self.userChoice == "1"):
-            print("Moving to 1...")
-            pyautogui.move(-(self.screenWidth / 9), -(self.screenHeight / 9), 0.5)
-
-        elif (self.userChoice == "2"):
-            print("Moving to 2...")
-            pyautogui.move(0, -(self.screenHeight / 9), 0.5)
-
-        elif (self.userChoice == "3"):
-            print("Moving to 3...")
-            pyautogui.move((self.screenWidth / 9), -(self.screenHeight / 9), 0.5)
-
-        elif (self.userChoice == "4"):
-            print("Moving to 4...")
-            pyautogui.move(-(self.screenWidth / 9), 0, 0.5)
-
-        # 5 is the center
-
-        elif (self.userChoice == "6"):
-            print("Moving to 6...")
-            pyautogui.move((self.screenWidth / 9), 0, 0.5)
-
-        elif (self.userChoice == "7"):
-            print("Moving to 7...")
-            pyautogui.move(-(self.screenWidth / 9), (self.screenHeight / 9), 0.5)
-
-        elif (self.userChoice == "8"):
-            print("Moving to 8...")
-            pyautogui.move(0, (self.screenHeight / 9), 0.5)
-
-        elif (self.userChoice == "9"):
-            print("Moving to 9...")
-            pyautogui.move((self.screenWidth / 9), (self.screenHeight / 9), 0.5)
-
-        elif (self.userChoice == "Exit." or self.userChoice == "exit" or self.userChoice == "Cancel." or self.userChoice == "cancel"):
-            print("Cancelling...")
-
-    def mouseOrKeyboardAction(self):
-        self.mouseOrKeyboardFlag = 0
-
-        while(self.mouseOrKeyboardFlag == 0):
-
-            print("\n***Options***")
-            print("* Left click, double click, right click")
-            print("* Type something, key press")
-            print("* Get more specific")
-            print("* I'm done")
-
-            time.sleep(5)
-
-            self.userChoice = recordAndUseModel()
-
-            if (self.userChoice == "Click." or self.userChoice == "click" or self.userChoice == "Left click." or self.userChoice == "left click"): # or self.userChoice == "you"):
-                self.mouseGrid.wm_state("iconic")
-                time.sleep(0.2)
-                pyautogui.leftClick()
-
-            elif (self.userChoice == "Double click." or self.userChoice == "Double click" or self.userChoice == "double click"):
-                self.mouseGrid.wm_state("iconic")
-                time.sleep(0.2)
-                pyautogui.doubleClick()
-
-            elif (self.userChoice == "Right click." or self.userChoice == "right click"):
-                self.mouseGrid.wm_state("iconic")
-                time.sleep(0.2)
-                pyautogui.rightClick()
-
-            elif (self.userChoice == "Type something." or self.userChoice == "type something"): # or self.userChoice == "you"):
-                self.mouseGrid.wm_state("iconic")
-                time.sleep(0.2)
-                pyautogui.leftClick()
-
-                print("Speak what you would like to type.")
-                time.sleep(3)
-
-                microphone.record(10)
-                self.prediction = whisper.use_model(RECORD_PATH)
-
-                pyautogui.write(self.prediction, interval=0.25)
-
-            elif (self.userChoice == "Key press." or self.userChoice == "key press"):
-                print("Which key would you like to press?")
-                self.prediction = recordAndUseModel()
-
-            elif (self.userChoice == "Get more specific." or self.userChoice == "get more specific"):
-                print("Get more specific...")
-                self.getMoreSpecific()
-
-            elif (self.userChoice == "I'm done." or self.userChoice == "i'm done"):
-                self.mouseOrKeyboardFlag = 1
-
-
-    def getMoreSpecific(self):
-        self.finalChoiceFlag = 0
-
-        while (self.finalChoiceFlag == 0):
-            print("Say left, right, up, or down.")
-            print("If your cursor is at the position you want, say 'I'm done.'")
-
-            time.sleep(5)
-
-            self.userChoice = recordAndUseModel()
-
-            if (self.userChoice == "Left." or self.userChoice == "left"):
-                pyautogui.move(-15, 0, 0.2)
-
-            elif (self.userChoice == "Right." or self.userChoice == "right"):
-                pyautogui.move(15, 0, 0.2)
-
-            elif (self.userChoice == "Up." or self.userChoice == "up"):
-                pyautogui.move(0, -15, 0.2)
-
-            elif (self.userChoice == "Down." or self.userChoice == "down" or self.userChoice == "Down!"):
-                pyautogui.move(0, 15, 0.2)
-
-            elif (self.userChoice == "I'm done." or self.userChoice == "i'm done"):
-                self.finalChoiceFlag = 1
-
-
 
 
 def recordAndUseModel():
