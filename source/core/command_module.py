@@ -333,18 +333,19 @@ def searchForDocument(docChoice):
         print(f"Error occured while searching for document: {e}")
         return False
 
-class mouseGrid():
+class MouseGrid():
     def __init__(self):
         self.userChoiceFlag = 0
 
         # Open a new window
-        self.mouseGrid = Tk()
+        self.MouseGridWindow = Tk()
 
         # Make this window transparent
-        self.mouseGrid.attributes("-alpha", 0.3, "-fullscreen", TRUE)
+        self.MouseGridWindow.attributes("-alpha", 0.3, "-fullscreen", TRUE)
 
-        self.screenHeight = self.mouseGrid.winfo_screenheight()
-        self.screenWidth = self.mouseGrid.winfo_screenwidth()
+        # Grab the screen height and screen width from window (should be 1920 X 1080 in most cases)
+        self.screenHeight = self.MouseGridWindow.winfo_screenheight()
+        self.screenWidth = self.MouseGridWindow.winfo_screenwidth()
 
         # These variables store the center position's of the color grid
         self.redCenter = [self.screenWidth / 3 / 2, self.screenHeight / 3 / 2, 1]
@@ -358,45 +359,45 @@ class mouseGrid():
         self.pinkCenter = [self.screenWidth / 3 / 2 + 2 * self.screenWidth / 3, self.screenHeight / 3 / 2 + 2 * self.screenHeight / 3, 1]
 
         self.drawColorGrid()
-        self.mouseGrid.mainloop()
+        self.MouseGridWindow.mainloop()
 
         
     def drawColorGrid(self):
         # Make 9 frames (3 * 3 grid)
         # One for each portion of the grid
-        self.redFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "red")
+        self.redFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "red")
         self.redFrame.grid(row = 0, column = 0)
         self.redFrame.grid_propagate(False)
 
-        self.greenFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "green")
+        self.greenFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "green")
         self.greenFrame.grid(row = 1, column = 0, padx = 0, pady = 0)
         self.greenFrame.grid_propagate(False)
 
-        self.blueFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "blue")
+        self.blueFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "blue")
         self.blueFrame.grid(row = 2, column = 0, padx = 0, pady = 0)
         self.blueFrame.grid_propagate(False)
 
-        self.purpleFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "purple")
+        self.purpleFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "purple")
         self.purpleFrame.grid(row = 0, column = 1, padx = 0, pady = 0)
         self.purpleFrame.grid_propagate(False)
 
-        self.yellowFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "gold")
+        self.yellowFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "gold")
         self.yellowFrame.grid(row = 1, column = 1, padx = 0, pady = 0)
         self.yellowFrame.grid_propagate(False)
 
-        self.whiteFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "white")
+        self.whiteFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "white")
         self.whiteFrame.grid(row = 2, column = 1, padx = 0, pady = 0)
         self.whiteFrame.grid_propagate(False)
 
-        self.blackFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "black")
+        self.blackFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "black")
         self.blackFrame.grid(row = 0, column = 2, padx = 0, pady = 0)
         self.blackFrame.grid_propagate(False)
 
-        self.orangeFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "orange red")
+        self.orangeFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "orange red")
         self.orangeFrame.grid(row = 1, column = 2, padx = 0, pady = 0)
         self.orangeFrame.grid_propagate(False)
 
-        self.pinkFrame = Frame(self.mouseGrid, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "deep pink")
+        self.pinkFrame = Frame(self.MouseGridWindow, width = self.screenWidth / 3, height = self.screenHeight / 3, borderwidth = 5, relief = "raised", bg = "deep pink")
         self.pinkFrame.grid(row = 2, column = 2, padx = 0, pady = 0)
         self.pinkFrame.grid_propagate(False)
 
@@ -431,14 +432,14 @@ class mouseGrid():
             
         elif (self.inputBoxChoice == "Destroy"):
             self.deleteColorGrid()
-            self.mouseGrid.update_idletasks()
-            self.mouseGrid.update()
+            self.MouseGridWindow.update_idletasks()
+            self.MouseGridWindow.update()
 
             time.sleep(5)
 
             self.drawColorGrid()
-            self.mouseGrid.update_idletasks()
-            self.mouseGrid.update()
+            self.MouseGridWindow.update_idletasks()
+            self.MouseGridWindow.update()
         
         else:
             print("Enter a correct input")
@@ -522,8 +523,8 @@ class mouseGrid():
                     # Place the canvas onto user choice location
                     self.subgrid.grid(padx = 0, pady = 0)
 
-                    self.mouseGrid.update_idletasks()
-                    self.mouseGrid.update()
+                    self.MouseGridWindow.update_idletasks()
+                    self.MouseGridWindow.update()
 
                     self.dynamicInstructionText = StringVar()
                     
@@ -538,8 +539,8 @@ class mouseGrid():
 
                     self.dynamicInstructionText.set("If you'd like to get more specific, say yes. Otherwise, you can make an action where your cursor is.")
                     
-                    self.mouseGrid.update_idletasks()
-                    self.mouseGrid.update()
+                    self.MouseGridWindow.update_idletasks()
+                    self.MouseGridWindow.update()
 
                     print("\nSay 'Get more specific' to specify a subgrid.")
                     time.sleep(3)
@@ -629,22 +630,22 @@ class mouseGrid():
             self.userChoice = recordAndUseModel()
 
             if (self.userChoice == "Click." or self.userChoice == "click" or self.userChoice == "Left click." or self.userChoice == "left click"): # or self.userChoice == "you"):
-                self.mouseGrid.wm_state("iconic")
+                self.MouseGridWindow.wm_state("iconic")
                 time.sleep(0.2)
                 pyautogui.leftClick()
 
             elif (self.userChoice == "Double click." or self.userChoice == "Double click" or self.userChoice == "double click"):
-                self.mouseGrid.wm_state("iconic")
+                self.MouseGridWindow.wm_state("iconic")
                 time.sleep(0.2)
                 pyautogui.doubleClick()
 
             elif (self.userChoice == "Right click." or self.userChoice == "right click"):
-                self.mouseGrid.wm_state("iconic")
+                self.MouseGridWindow.wm_state("iconic")
                 time.sleep(0.2)
                 pyautogui.rightClick()
 
             elif (self.userChoice == "Type something." or self.userChoice == "type something"): # or self.userChoice == "you"):
-                self.mouseGrid.wm_state("iconic")
+                self.MouseGridWindow.wm_state("iconic")
                 time.sleep(0.2)
                 pyautogui.leftClick()
 

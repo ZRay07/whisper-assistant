@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import font
 from source.core.command_module import *
+from source.core.command_module import MouseGrid
 from source.core.model_interface import *
 import argparse
 
@@ -79,12 +80,12 @@ class mainScreen:
         self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.scrollDown_button =    Button(self.cmd_bar, text = "Scroll Down",          font = self.buttonFont, command = lambda: [handleScrollAction(self.validateScrollInput("down"), "down")],           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [mouseGrid],                                       bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [sign_in, self.bring_to_front],            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [self.add_contact],                                 bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
-        self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [searchForDocument(self.validateDocumentInput("document"))],                        bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [MouseGrid],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                    bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
+        self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         
         # Place the buttons in the frame
         self.openApp_button.grid(row = 0, column = 0, pady = 5)
@@ -431,7 +432,7 @@ class mainScreen:
         self.cmdHistoryTitle_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 40, height = 1, bg = "azure3")
         self.cmdHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
 
-        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 40, height = 20, bg = "azure3", wraplength = 225, anchor = "s")
+        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 40, height = 20, bg = "azure3", wraplength = 400, anchor = "s")
         self.cmdHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
 
@@ -531,7 +532,7 @@ class InputValidation(mainScreen):
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
             print("\n***Navigate mouse + keyboard***")
             beepgood()
-            mouseGrid()
+            self.mouseGrid = MouseGrid()
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
             print("\n***Email sign-in***")
@@ -554,15 +555,8 @@ class InputValidation(mainScreen):
                     else:
                         self.contactName = self.userChoiceSplit[1] + " " + self.userChoiceSplit[2]  # If "contact" is not in the string, they the user specified a name
 
-                    self.contactName = self.validateContactNameInput(self.contactName)
-                    self.appendNewCommandHistory(f"Got name: {self.contactName}")
-
-                    self.contactEmail = self.validateContactEmailInput()
-                    self.appendNewCommandHistory(f"Got email: {self.contactEmail}")
-
-                    self.contactEmailDomain = self.validateContactEmailDomainInput()
-                    self.appendNewCommandHistory(f"Got email domain: {self.contactEmailDomain}")
-
+                    # The following three lines validate the inputs, call the command, and update command history
+                    self.contactName, self.contactEmail, self.contactEmailDomain = self.validateAllContactInputs(self.contactName)
                     self.commandUpdate = addContact(self.contactName, self.contactEmail, self.contactEmailDomain)
                     self.appendNewCommandHistory(self.commandUpdate)
 
@@ -878,7 +872,19 @@ class InputValidation(mainScreen):
             except Exception as e:
                 print(f"Error occured while getting contact email domain: {e}")
 
+    def validateAllContactInputs(self, contactName):
+        print("called")
+        contactName = self.validateContactNameInput(contactName)
+        self.appendNewCommandHistory(f"Got name: {contactName}")
 
+        self.contactEmail = self.validateContactEmailInput()
+        self.appendNewCommandHistory(f"Got email: {self.contactEmail}")
+
+        self.contactEmailDomain = self.validateContactEmailDomainInput()
+        self.appendNewCommandHistory(f"Got email domain: {self.contactEmailDomain}")
+
+        return contactName, self.contactEmail, self.contactEmailDomain
+        
     # This function is used to update GUI labels
     # Simply pass a label name such as:
     #   userInstruction_label, or
