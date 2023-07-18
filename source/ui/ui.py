@@ -4,14 +4,18 @@ from source.core.model_interface import *
 import keyboard
 import threading
 # The first screen to be displayed to users
-class mainScreen:
+#listen for key words
+class mainScreen( command_exe):
+
     def __init__(self):
         # Create root window
+        
         self.root = Tk()
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
         self.root.minsize(200, 200)          # set a min size of 200 x 200 pixels
         self.root.config(bg = "skyblue")     # set the background color
-
+        
+        #Bind Recurring record function to the window
         # Set the starting size of the window and its location
         self.root.geometry("1100x700+480+200")
         self.drawRightFrame()
@@ -46,8 +50,8 @@ class mainScreen:
         self.scrollUp_button = Button(self.cmd_bar, text = "Scroll Up", command = lambda: handleScrollAction("up", "up"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.scrollDown_button = Button(self.cmd_bar, text = "Scroll Down", command = lambda: handleScrollAction("down", "down"), bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.setVol_button = Button(self.cmd_bar, text = "Set Volume", command = setVolume, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "light grey", command = mouseGrid, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = lambda:[sign_in,bring_to_front], bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.mouseControl_button = Button(self.cmd_bar, text = "Navigate Mouse and Keyboard", bg = "light grey", command = self.mouseGrid, activebackground = "green", activeforeground = "skyblue", relief = RAISED)
+        self.emailSignIn_button = Button(self.cmd_bar, text = "Email sign-in", command = lambda:[self.sign_in,bring_to_front], bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.exit_button = Button(self.cmd_bar, text = "Exit", command = self.root.quit, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         
         # Place the buttons in the frame
@@ -84,8 +88,6 @@ class mainScreen:
         self.Add_contact_butt = Button(self.right_frame, text = "Add Contact", command = self.add_contact, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
         self.Add_contact_butt.grid(row = 5, column = 0, padx = 10, pady = 10 )
        #Write email button
-        self.Account_Email_func_button = Button(self.right_frame, text = "Account and Email functions", command = sub_window_int, bg = "light grey", activebackground = "green", activeforeground = "skyblue", relief = RAISED)
-        self.Account_Email_func_button.grid(row = 5, column = 1, padx = 10, pady = 10)
 
 
         self.transcribedLabel = StringVar()
@@ -142,7 +144,7 @@ class mainScreen:
         self.predictionLabel.set(self.prediction)
         print("Prediction: " + self.prediction)
         #A wait func might allow the above line to complete first
-        commandExec(self.prediction)
+        self.commandExec(self.prediction)
 
     def transcribeSpeech(self):
         # TO-DO: Figure out a way to ask how long the user would like to record for
@@ -175,7 +177,7 @@ class mainScreen:
         
         string = string.replace(" ", "")
         return string
-
+    '''
     def add_contact(self):
          confirm = False
          while confirm == False:
@@ -240,7 +242,7 @@ class mainScreen:
                     beepbad()
                     self.update_screen() 
                     confirm = True
-           
+           '''
 
 
     #Call this and use root as the input. Brings window to the foreground.
@@ -276,129 +278,7 @@ class mainScreen:
                  
 
 
-    def create_account(self):
-           #THIS IS THE OLD METHOD
-           #Prompt user to give a name
-            confirm = False
-            correct = False
-            while confirm == False or  correct == False:
-                    self.transcribedLabel.set("")
-                    self.transcribedLabel.set("Please give me your name.")
-                    self.setlabel("please give me your name.\n")
-                    #This should update the screen
-                    self.update_screen()
-                    microphone.record(3)
-                    self.pred_name = whisper.use_model(RECORD_PATH)
-                    #display the name
-                    #THIS IS WITH THREADING
-                    #t_label1 = threading.thread(target = self.setlabel, args = "please give me your name.\n")
-                    
-                    #t_record = threading.thread(target = self.rec_3sec)
-                    self.transcribedLabel.set("")
-                    self.transcribedLabel.set("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'No' or 'Exit'.")
-                    #This should update the screen
-                    self.update_screen()
-                    microphone.record(4)
-                    if_yes1 = whisper.use_model(RECORD_PATH)
-                    #if correct - > 
-                    print(if_yes1)
-                    if(if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes." or if_yes1 == "Yeah." or if_yes1 =="Yeah"):
-                        confirm = True 
-                        correct = True
-                    else:
-                        confirm = False
-                        correct = False
-                    
-                    if (confirm == True): 
-                        #We have to toggle correct or it makes an inf loop
-                        while (correct == True):
-                    #   print(if_yes1)
-                    #prompt user for email -> 
-                            self.transcribedLabel.set("")
-                            self.transcribedLabel.set("What is your email?")
-                            #This should update the screen
-                            self.root.update_idletasks()
-                            self.root.update()
-                            microphone.record(4)
-                            self.pred_email = whisper.use_model(RECORD_PATH)
-                            #This removes spaces and punctuation from the email
-                            self.pred_email = self.format_email(self.pred_email)
-                            self.transcribedLabel.set("")
-                            self.transcribedLabel.set("I heard: " + self.pred_email + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
-                            #This should update the screen
-                            self.update_screen()
-                            #time.sleep(2)
-                            #Verify
-                            microphone.record(3)
-                            if_yes2 = whisper.use_model(RECORD_PATH)
-                            print(if_yes2)
-                            #time.sleep(5)
-                            if (if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes."or if_yes2 == "Yeah." or if_yes2 =="Yeah"):
-                                 correct = False
-                                 print(if_yes2)
-                            else:
-                                 correct = True
-                        if (correct == False):   
-                            
-                            while(correct == False):
-                                self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
-                                #This should update the screen
-                                self.update_screen()
-                                self.pred_domain = self.rec_3sec()
-                                self.setlabel("I heard: " + self.pred_domain + "\n Is this correct?\nSay 'Yes', 'Exit', or anything else.\n I'm listening.")
-                                #This should update the screen
-                                self.update_screen()
-                                #time.sleep(2)
-                                #Verify
-                                microphone.record(3)
-                                if_yes3 = whisper.use_model(RECORD_PATH)
-                                #Add a password if you like
-                                print(if_yes3)
-                                if  (if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes." or if_yes3 == "Yeah." or if_yes3 =="Yeah"):
-                                    correct = True
-                                else:
-                                     correct = False
-                                    
-                            if(confirm == True):        
-                                
-                                while confirm == True:
-                                    self.setlabel("Would you like to add a password? Yes or No.")
-                                    self.update_screen()
-
-                                    if_yes4 = self.rec_3sec()
-                                    if (if_yes4 == "Yes" or if_yes4 == "Yes." or if_yes4 == "yes" or if_yes4 == "yes."): 
-                                        print(if_yes4)
-                                        self.setlabel("What would you like your password to be?")
-                                        self.update_screen()
-                                    # time.sleep(1)
-                                        self.pred_password = self.rec_3sec()
-                                        self.setlabel("I heard: " + self.pred_password + "\n Is this correct?\nSay 'Yes', or anything else.\n")
-                                #This should update the screen
-                                        self.update_screen()
-                                        if_yes5 = self.rec_3sec()
-                                        if (if_yes5 == "Yes" or if_yes5 == "Yes." or if_yes5 == "yes" or if_yes5 == "yes."):
-                                            confirm = False
-                                
-                                    
-                                            if (confirm == False):    
-                                                    self.account = {
-                                                        "name" : self.pred_name ,
-                                                        "email" : self.pred_email ,
-                                                        "domain": self.pred_domain , 
-                                                        "password" : self.pred_password 
-                                                        }
-                                                    with open("source/my_account.txt", "w") as f:
-                                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + " " + self.account.get("password") )
-                                    else:
-                                        self.account = {
-                                                "name" : self.pred_name ,
-                                                "email" : self.pred_email ,
-                                                "domain": self.pred_domain , 
-                                                "password" : self.pred_password 
-                                                }
-                                        with open("source/my_account.txt", "w") as f:
-                                                f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain"))
-                            
+    
                     
             
 
