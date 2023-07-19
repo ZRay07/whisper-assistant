@@ -965,7 +965,6 @@ class InputValidation(mainScreen):
         try:
             while True:
                 self.setLabel(self.userInstruction_label, "say \"sherpa\" and we'll listen for a command")
-                print("Testing where print from...")
                 self.keywordCheck = self.promptUser(2, True, True)
                 
 

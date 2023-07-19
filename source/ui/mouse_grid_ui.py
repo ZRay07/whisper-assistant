@@ -1,11 +1,10 @@
-import time
-import string
-import threading
 from source.core.model_interface import *
 from source.core.command_module import convertToInt
 from source.core.mouse_grid_commands import *
+import time
+import string
+import threading
 from tkinter import *
-from tkinter import messagebox
 import pyautogui
 
 class MouseGrid():
