@@ -3,7 +3,9 @@ import string
 import threading
 from source.core.model_interface import *
 from source.core.command_module import convertToInt
+from source.core.mouse_grid_commands import *
 from tkinter import *
+from tkinter import messagebox
 import pyautogui
 
 class MouseGrid():
@@ -73,7 +75,7 @@ class MouseGrid():
         self.pinkFrame.grid(row=2, column=2, padx=0, pady=0)
         self.pinkFrame.grid_propagate(False)
 
-        self.userInteraction_frame = Frame(self.pinkFrame, height = 300, width = 400, bg = "lime green")
+        self.userInteraction_frame = Frame(self.pinkFrame, height = 400, width = self.screenWidth / 3, bg = "lime green")
         self.userInteraction_frame.grid(row = 1, column = 1, sticky = "se")
 
         self.listeningProcessing_label = Label(self.userInteraction_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 24, "bold"), width = 16, height = 1, bg = "lime green")
@@ -82,7 +84,10 @@ class MouseGrid():
         self.userInstruction_label = Label(self.userInteraction_frame, text = "Say a color and we'll move the cursor there", font = ("Franklin Gothic Medium", 12, "bold"), width = 38, height = 3, bg = "lime green", wraplength = 350)
         self.userInstruction_label.grid(row = 1, column = 0)
 
-        self.SpaceHolder_frame = Frame(self.userInteraction_frame, height = 36, width = 400, bg = "yellow")
+        self.userInputError_label = Label(self.userInteraction_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "slate gray", wraplength = 500, fg = "#710505", anchor = "center")
+        self.userInputError_label.grid(row = 2, column = 0)
+
+        self.SpaceHolder_frame = Frame(self.userInteraction_frame, height = 36, width = self.screenWidth / 3, bg = "yellow")
         self.SpaceHolder_frame.grid(row = 2, column = 0, sticky = "se")
 
         # Configure the row and column weights of the pinkFrame
@@ -103,30 +108,9 @@ class MouseGrid():
         self.orangeFrame.destroy()
         self.pinkFrame.destroy()
 
-    # This function grabs the text inside of the box next to the submit button
-    def getUserChoice(self):
-        self.inputBoxChoice = self.inputBox.get(1.0, "end-1c")
 
-        # If the user specifies they wish to record, we call our prompt user function which records and uses the speech recognition model
-        #   The output of the model is formatted to have no trailing punctuation and to be all lowercase
-        if (self.inputBoxChoice == "Record"):
-            self.userChoice = promptUser(3, removePunctuation = True, makeLowerCase = True)
-            self.displaySubgrid(self.userChoice)
-            
-        elif (self.inputBoxChoice == "Destroy"):
-            self.deleteColorGrid()
-            self.MouseGridWindow.update_idletasks()
-            self.MouseGridWindow.update()
-
-            time.sleep(5)
-
-            self.drawColorGrid()
-            self.MouseGridWindow.update_idletasks()
-            self.MouseGridWindow.update()
-        
-        else:
-            print("Enter a correct input")
-
+    # The input to this function comes from listenForColors()
+    # The validation function guarantees that the variable being passed will be a color in one of the if statements
     def displaySubgrid(self, colorChoice):
         try:
             if (colorChoice == "red"):      # top left
@@ -203,106 +187,38 @@ class MouseGrid():
             print(f"Error displaying subgrid: {e}")
 
 
-
+    # The input to this function comes from getInnerGridInput()
+    # The validation function guarantees that the variable being passed will be an int from 1-9
     def moveToInnerPosition(self, innerGridChoice):
         try:
-            if (innerGridChoice == 1):
-                print("Moving to 1...")
-                pyautogui.move(-(self.screenWidth / 9), -(self.screenHeight / 9), 0.5)
+            movements = {
+                1: (-(self.screenWidth / 9), -(self.screenHeight / 9)),
+                2: (0, -(self.screenHeight / 9)),
+                3: ((self.screenWidth / 9), -(self.screenHeight / 9)),
+                4: (-(self.screenWidth / 9), 0),
+                # 5 is the center position
+                6: ((self.screenWidth / 9), 0),
+                7: (-(self.screenWidth / 9), (self.screenHeight / 9)),
+                8: (0, (self.screenHeight / 9)),
+                9: ((self.screenWidth / 9), (self.screenHeight / 9))
+            }
 
-            elif (innerGridChoice == 2):
-                print("Moving to 2...")
-                pyautogui.move(0, -(self.screenHeight / 9), 0.5)
-
-            elif (innerGridChoice == "3"):
-                print("Moving to 3...")
-                pyautogui.move((self.screenWidth / 9), -(self.screenHeight / 9), 0.5)
-
-            elif (innerGridChoice == "4"):
-                print("Moving to 4...")
-                pyautogui.move(-(self.screenWidth / 9), 0, 0.5)
-
-            # 5 is the center
-
-            elif (innerGridChoice == "6"):
-                print("Moving to 6...")
-                pyautogui.move((self.screenWidth / 9), 0, 0.5)
-
-            elif (innerGridChoice == "7"):
-                print("Moving to 7...")
-                pyautogui.move(-(self.screenWidth / 9), (self.screenHeight / 9), 0.5)
-
-            elif (innerGridChoice == "8"):
-                print("Moving to 8...")
-                pyautogui.move(0, (self.screenHeight / 9), 0.5)
-
-            elif (innerGridChoice == "9"):
-                print("Moving to 9...")
-                pyautogui.move((self.screenWidth / 9), (self.screenHeight / 9), 0.5)
-
+            # Check the dictionary for a matching number
+            # If matching number found,
+            #   then set "movement" to the two x and y positions stored in the grid
+            if innerGridChoice in movements:
+                movement = movements[innerGridChoice]
+                print(f"Moving to {innerGridChoice}")
+                pyautogui.move(*movement, 0.5)  # The * operator just unpacks the 2 x and y positions
+            
             else:
-                raise ValueError
+                raise ValueError("Invalid inner grid choice")
         
         except ValueError as ve:
-            print(f"Invalid inner grid choice: {ve}")
+            print(ve)
 
         except Exception as e:
             print(f"Error occured while selecting inner grid: {e}")
-
-    def mouseOrKeyboardAction(self):
-        self.mouseOrKeyboardFlag = 0
-
-        while(self.mouseOrKeyboardFlag == 0):
-
-            print("\n***Options***")
-            print("* Left click, double click, right click")
-            print("* Type something, key press")
-            print("* Get more specific")
-            print("* I'm done")
-
-            time.sleep(5)
-
-            self.userChoice = recordAndUseModel()
-
-            if (self.userChoice == "Click." or self.userChoice == "click" or self.userChoice == "Left click." or self.userChoice == "left click"): # or self.userChoice == "you"):
-                self.MouseGridWindow.wm_state("iconic")
-                time.sleep(0.2)
-                pyautogui.leftClick()
-
-            elif (self.userChoice == "Double click." or self.userChoice == "Double click" or self.userChoice == "double click"):
-                self.MouseGridWindow.wm_state("iconic")
-                time.sleep(0.2)
-                pyautogui.doubleClick()
-
-            elif (self.userChoice == "Right click." or self.userChoice == "right click"):
-                self.MouseGridWindow.wm_state("iconic")
-                time.sleep(0.2)
-                pyautogui.rightClick()
-
-            elif (self.userChoice == "Type something." or self.userChoice == "type something"): # or self.userChoice == "you"):
-                self.MouseGridWindow.wm_state("iconic")
-                time.sleep(0.2)
-                pyautogui.leftClick()
-
-                print("Speak what you would like to type.")
-                time.sleep(3)
-
-                microphone.record(10)
-                self.prediction = whisper.use_model(RECORD_PATH)
-
-                pyautogui.write(self.prediction, interval=0.25)
-
-            elif (self.userChoice == "Key press." or self.userChoice == "key press"):
-                print("Which key would you like to press?")
-                self.prediction = recordAndUseModel()
-
-            elif (self.userChoice == "Get more specific." or self.userChoice == "get more specific"):
-                print("Get more specific...")
-                self.getMoreSpecific()
-
-            elif (self.userChoice == "I'm done." or self.userChoice == "i'm done"):
-                self.mouseOrKeyboardFlag = 1
-
 
     def getMoreSpecific(self):
         self.finalChoiceFlag = 0
@@ -381,9 +297,9 @@ class MouseGridInputValidator(MouseGrid):
         except Exception as e:
             print(f"Error updating {label} with \"{message}\": {e}")
         
-
-    def validateInnerGridInput(self):
-        self.validInnerGridPosition = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+    # This function will continuously prompt the user until they provide a number between 1 and 9
+    def getInnerGridInput(self):
+        self.validInnerGridPosition = {1, 2, 3, 4, 5, 6, 7, 8, 9, "exit"}
 
         # Continuously prompt the user for an inner grid position (1-9)
         while True:
@@ -392,6 +308,7 @@ class MouseGridInputValidator(MouseGrid):
                 self.setLabel(self.userInstruction_label, "Say an inner grid position (1-9)")
                 time.sleep(2)
 
+                # Get the input
                 self.innerGridPosition = self.promptUser(2, True, True)
                 self.innerGridPosition = convertToInt(self.innerGridPosition)
 
@@ -404,6 +321,120 @@ class MouseGridInputValidator(MouseGrid):
 
             except Exception as e:
                 print(f"Error while gathering inner grid postion: {e}")
+
+    # This function will get the user input once they've entered the subgrid phase
+    # They will choose a color -> choose a subgrid -> and then be prompted with these options
+    def getUserChoice(self):
+        self.validUserOptions = {"left click", "right click", "double click", 
+                            "type something", "key press",
+                            "get more specific"}
+        try:
+            while True:
+                self.setLabel(self.userInstruction_label, "What would you like to do now?")
+                time.sleep(2)
+                self.userChoice = self.promptUser(2, True, True)
+
+                if self.userChoice in self.validUserOptions:
+                    return self.userChoice
+
+                else:
+                    print(f"Invalid choice: {self.userChoice}")
+                    self.setLabel(self.userInstruction_label, f"Invalid grid position: {self.innerGridPosition}")
+
+        except Exception as e:
+            print(f"Error while gathering user selection: {e}")
+
+    # This function takes an input for what the user wants to do
+    # and maps it to a function call
+    def handleSelectedOption(self, selectedOption):
+        # First, check if they want to click anything, as these are easier to deal with
+        try:
+            clickChoices = {
+                "left click": [performClick, self, "left"],
+                "right click": [performClick, self, "right"],
+                "double click": [performClick, self, "double"]
+            }
+
+            if selectedOption in clickChoices:
+                func, *args = clickChoices[selectedOption]
+                self.commandUpdate = func(*args)
+                return self.commandUpdate   # Exit the function, and return commandUpdate
+
+        except Exception as e:
+            print(f"Error during clicking: {e}")
+
+        try:
+            if (selectedOption == "type something"):
+                self.recordDuration = self.getRecordDuration()
+                self.userTextInput = self.getUserTextInput(self.recordDuration)
+                self.commandUpdate = enterTextInput(self, self.userTextInput)
+
+            elif (selectedOption == "key press"):
+                print("gather key press and perform function")
+
+        except Exception as e:
+            print(f"Error during type function: {e}")
+
+            # Add functionality for functions below
+            print("drag to")
+            print("get more specific")
+
+    # This function will continuously prompt the user until they provide a number
+    def getRecordDuration(self):
+        try:
+            while True:
+                self.setLabel(self.userInstruction_label, "How long would you like to record for (in seconds)?")
+                time.sleep(2)
+                self.recordDuration = self.promptUser(2, True, True)
+                self.recordDuration = convertToInt(self.recordDuration)
+
+                if isinstance(self.recordDuration, int):
+                    self.confirmation = self.confirmUserInput(self.recordDuration)
+
+                    if self.confirmation:
+                        return self.recordDuration
+
+                else:
+                    print(f"You must say a number. You said: {self.recordDuration}")
+                    self.setLabel(self.userInputError_label, f"You must say a number. You said: {self.innerGridPosition}")
+
+        except Exception as e:
+            print(f"Error while gathering record duration: {e}")
+
+    # This function will continuously prompt the user for audio based off there record duration
+    # It will then confirm the user's text with them
+    def getUserTextInput(self, recordDuration):
+        try:
+            while True:
+                self.setLabel(self.userInstruction_label, "What would you like to type?")
+                time.sleep(2)
+                self.userTextInput = self.promptUser(recordDuration, True, True)
+
+                self.confirmation = self.confirmUserInput(self.userTextInput)
+
+                if self.confirmation:
+                    return self.userTextInput
+
+        except Exception as e:
+            print(f"Error while gathering text input: {e}")
+
+
+    # This function will specifically wait for the user to reply "yes" or "no"
+    def confirmUserInput(self, userInput):
+        while True:
+            self.setLabel(self.userInstruction_label, f"Is {userInput} correct?")
+            time.sleep(2)
+            self.confirmation = self.promptUser(2, True, True)
+
+            if self.confirmation == "yes":  # User confirmed the input
+                return True
+            
+            elif self.confirmation == "no":  # User did not confirm input
+                return None
+            
+            else:
+                pass
+            
 
     # This function should be called as soon as the mouse window is launched
     # First, it updates the userInstruction label to let the users know we're first waiting for a color
@@ -422,12 +453,15 @@ class MouseGridInputValidator(MouseGrid):
                 if (self.colorChoice in self.colors):
                     self.setLabel(self.listeningProcessing_label, "Waiting...")
                     self.displaySubgrid(self.colorChoice)
-                    self.innerGridChoice = self.validateInnerGridInput()
-                    self.moveToInnerPosition(self.innerGridChoice)
-                    break
+                    self.innerGridChoice = self.getInnerGridInput()
+                    if self.innerGridChoice in [5, "exit"]:
+                        pass
+                    else:
+                        self.moveToInnerPosition(self.innerGridChoice)
+                    self.selectedOption = self.getUserChoice()
+                    self.handleSelectedOption(self.selectedOption)
 
-                elif (self.colorChoice == "you"):   # I found the model defaults to you if there is no sound passed
-                    pass                                                                # In this case, do nothing
+                    break
 
                 elif (self.colorChoice == "exit"):
                     break
@@ -442,4 +476,4 @@ class MouseGridInputValidator(MouseGrid):
         thread.daemon = True  # Set the thread as a daemon thread
         thread.start()
 
-mouseGrid = MouseGridInputValidator()
+#mouseGrid = MouseGridInputValidator()
