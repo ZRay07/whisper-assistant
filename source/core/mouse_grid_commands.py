@@ -7,8 +7,8 @@ import pyautogui
 # These are things like: left click, double click, right click, etc.
 
 def performClick(mouseGrid, clickType):
-    # Exit the mouse grid
-    mouseGrid.MouseGridWindow.destroy()
+    # Minimize the mouse grid so we can click on the windows behind it
+    mouseGrid.MouseGridWindow.iconify()
     time.sleep(0.2)
 
     if clickType == "left":
@@ -20,19 +20,26 @@ def performClick(mouseGrid, clickType):
     elif clickType == "double":
         pyautogui.doubleClick()
 
-    # Bring back the main window
+    # Bring back the window
     mouseGrid.mouseGridWindow.deiconify()
 
     return f"Successfully {clickType} clicked"
 
 def enterTextInput(mouseGrid, textInput):
     # Exit the mouse grid
-    mouseGrid.MouseGridWindow.destroy()
-    time.sleep(1)
+    mouseGrid.MouseGridWindow.iconify()
+    time.sleep(2)
 
     # Type!
+    print("clicking")
     pyautogui.leftClick()
-    pyautogui.write(textInput, interval = 0.25)
+
+    print(f"typing: {textInput}")
+    pyautogui.write(textInput, interval = 0.05)
+
+    mouseGrid.MouseGridWindow.destroy()
+
+    return f"Successfully typed: {textInput}"
 
 # Function to start the typing thread
 # This function is called to run the text input function

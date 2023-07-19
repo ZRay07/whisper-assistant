@@ -248,6 +248,7 @@ class MouseGrid():
 class MouseGridInputValidator(MouseGrid):
     def __init__(self):
         self.colors = {"red", "purple", "black", "green", "yellow", "orange", "blue", "white", "pink"}
+        self.typeSomething = None
         self.startListeningThread()
 
         super().__init__()
@@ -367,6 +368,7 @@ class MouseGridInputValidator(MouseGrid):
                 self.recordDuration = self.getRecordDuration()
                 self.userTextInput = self.getUserTextInput(self.recordDuration)
                 self.commandUpdate = enterTextInput(self, self.userTextInput)
+                self.typeSomething = True
 
             elif (selectedOption == "key press"):
                 print("gather key press and perform function")
@@ -463,6 +465,7 @@ class MouseGridInputValidator(MouseGrid):
                     break
 
                 elif (self.colorChoice == "exit"):
+                    self.MouseGridWindow.destroy()
                     break
 
         except Exception as e:

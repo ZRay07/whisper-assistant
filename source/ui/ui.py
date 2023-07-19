@@ -560,6 +560,17 @@ class InputValidation(mainScreen):
             # Minimize the main screen window first
             self.root.iconify()
             self.mouseGrid = MouseGridInputValidator()
+            
+            # Bring back the main screen window
+            if self.mouseGrid.typeSomething:    # If we type something, we wanna wait for longer
+                time.sleep(self.mouseGrid.recordDuration / 10)
+            else:
+                time.sleep(1)
+
+            if (self.root.wm_state() == "iconic"):  # if the window is minimized
+                    self.root.wm_state("zoomed")        # bring it back to full size
+            self.appendNewCommandHistory(str(self.mouseGrid.commandUpdate))
+
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
             print("\n***Email sign-in***")
@@ -964,6 +975,7 @@ class InputValidation(mainScreen):
         time.sleep(1)
         try:
             while True:
+
                 self.setLabel(self.userInstruction_label, "say \"sherpa\" and we'll listen for a command")
                 self.keywordCheck = self.promptUser(2, True, True)
                 
