@@ -80,14 +80,14 @@ class MouseGrid():
         self.listeningProcessing_label = Label(self.userInteraction_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 24, "bold"), width = 16, height = 1, bg = "lime green")
         self.listeningProcessing_label.grid(row = 0, column = 0)
 
-        self.userInstruction_label = Label(self.userInteraction_frame, text = "Say a color and we'll move the cursor there", font = ("Franklin Gothic Medium", 12, "bold"), width = 38, height = 3, bg = "lime green", wraplength = 350)
+        self.userInstruction_label = Label(self.userInteraction_frame, text = "Say a color and we'll move the cursor there", font = ("Franklin Gothic Medium", 12, "bold"), width = 38, height = 5, bg = "lime green", wraplength = 500)
         self.userInstruction_label.grid(row = 1, column = 0)
 
-        self.userInputError_label = Label(self.userInteraction_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "slate gray", wraplength = 500, fg = "#710505", anchor = "center")
+        self.userInputError_label = Label(self.userInteraction_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "lime green", wraplength = 500, fg = "#710505", anchor = "center")
         self.userInputError_label.grid(row = 2, column = 0)
 
-        self.SpaceHolder_frame = Frame(self.userInteraction_frame, height = 36, width = self.screenWidth / 3, bg = "yellow")
-        self.SpaceHolder_frame.grid(row = 2, column = 0, sticky = "se")
+        self.SpaceHolder_frame = Frame(self.userInteraction_frame, height = 36, width = self.screenWidth / 3, bg = "lime green")
+        self.SpaceHolder_frame.grid(row = 3, column = 0, sticky = "se")
 
         # Configure the row and column weights of the pinkFrame
         self.pinkFrame.grid_rowconfigure(1, weight = 1)

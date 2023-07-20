@@ -28,13 +28,10 @@ def performClick(mouseGrid, clickType):
 def enterTextInput(mouseGrid, textInput):
     # Exit the mouse grid
     mouseGrid.MouseGridWindow.iconify()
-    time.sleep(2)
+    time.sleep(0.2)
 
     # Type!
-    print("clicking")
     pyautogui.leftClick()
-
-    print(f"typing: {textInput}")
     pyautogui.write(textInput, interval = 0.05)
 
     mouseGrid.MouseGridWindow.destroy()
