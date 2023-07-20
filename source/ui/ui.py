@@ -162,7 +162,7 @@ class mainScreen(operations):
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
         print("Prediction: " + self.prediction)
-        engine.say("Prediction " + self.prediction) # check if works, should respond with what it predicted user said
+        operations.engine.say("Prediction " + self.prediction) # check if works, should respond with what it predicted user said
         #A wait func might allow the above line to complete first
         self.commandExec(self.prediction)
 
@@ -189,7 +189,7 @@ class mainScreen(operations):
     def setlabel(self, string):
         self.transcribedLabel.set("")
         self.transcribedLabel.set(string)
-        engine.say(self.transcribedLabel) # test if transcribe function will read back predicted words
+        operations.engine.say(self.transcribedLabel) # test if transcribe function will read back predicted words
         
     #These were needed for threading
     def rec_3sec(self):

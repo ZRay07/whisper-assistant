@@ -279,7 +279,7 @@ class sub_window_int:
         self.prediction = whisper.use_model(RECORD_PATH)
         self.transcribedLabel.set(self.prediction)
 
-sub_window_int()
+#sub_window_int()
 
 
 #name, email, domain, password = account_info_in()
