@@ -17,3 +17,4 @@ jellyfish
 scipy
 pyttsx3
 word2number
+pyinstaller
