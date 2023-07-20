@@ -9,14 +9,13 @@ parser.add_argument('-d', '--disable', help = 'Disable keyword listening', actio
 args = parser.parse_args()
 
 # The first screen to be displayed to users
-class mainScreen:
+class mainScreen(operations):
     def __init__(self):
         # Create root window
         self.root = Tk()
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
         self.root.minsize(200, 200)          # set a min size of 200 x 200 pixels
         self.root.config(bg = "AntiqueWhite3")     # set the background color
-
         # Set the starting size of the window and its location
         #self.root.geometry("1100x700+480+200")
         self.root.geometry("1900x1000+0+0")
@@ -74,16 +73,16 @@ class mainScreen:
         self.cmd_bar.grid(row = 2, column = 0)
 
         self.buttonFont = font.Font(family = "Franklin Gothic Medium", size = 12)
-        self.openApp_button =       Button(self.cmd_bar, text = "Open Application",     font = self.buttonFont, command = lambda: [handleApplicationAction(self.validateAppInput("app", "open"), "open")],  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.closeApp_button =      Button(self.cmd_bar, text = "Close Application",    font = self.buttonFont, command = lambda: [handleApplicationAction(self.validateAppInput("app", "close"), "close")],bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.scrollDown_button =    Button(self.cmd_bar, text = "Scroll Down",          font = self.buttonFont, command = lambda: [handleScrollAction(self.validateScrollInput("down"), "down")],           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.openApp_button =       Button(self.cmd_bar, text = "Open Application",     font = self.buttonFont, command = lambda: [self.handleApplicationAction(self.validateAppInput("app", "open"), "open")],  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.closeApp_button =      Button(self.cmd_bar, text = "Close Application",    font = self.buttonFont, command = lambda: [self.handleApplicationAction(self.validateAppInput("app", "close"), "close")],bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.scrollDown_button =    Button(self.cmd_bar, text = "Scroll Down",          font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("down"), "down")],           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [self.setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [print("placeholder")],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [self.sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                    bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
-        self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [self.addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
+        self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [self.searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         
         # Place the buttons in the frame
@@ -265,12 +264,12 @@ class mainScreen:
                         confirm = True
                     else: 
                         self.setlabel("Please try again")
-                        beepbad()
+                        self.beepbad()
                         self.update_screen() 
                         confirm = False
             else:
                     self.setlabel("Please try again")
-                    beepbad()
+                    self.beepbad()
                     self.update_screen() 
                     confirm = True
            
@@ -487,14 +486,14 @@ class InputValidation(mainScreen):
             print(f"self.appName: {self.appName}")
             self.appName = self.validateAppInput(self.appName, "open")
             print(f"self.appName: {self.appName}")
-            self.commandUpdate = handleApplicationAction(self.appName, "open")
+            self.commandUpdate = self.handleApplicationAction(self.appName, "open")
             self.appendNewCommandHistory(str(self.commandUpdate))
 
         elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "close") > 0.85):      # Close application
             print("\n***Close Application***")
             self.appName = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
             self.appName = self.validateAppInput(self.appName, "close")
-            self.commandUpdate = handleApplicationAction(self.appName, "close")
+            self.commandUpdate = self.handleApplicationAction(self.appName, "close")
             self.appendNewCommandHistory(str(self.commandUpdate))
 
         # There was an index error being caused here. 
@@ -507,7 +506,7 @@ class InputValidation(mainScreen):
                     print("\n***Scroll Up***")
                     self.scrollAmount = self.userChoiceSplit[-1]
                     self.scrollAmount = self.validateScrollInput(self.scrollAmount)
-                    self.commandUpdate = handleScrollAction(self.scrollAmount, "up")
+                    self.commandUpdate = self.handleScrollAction(self.scrollAmount, "up")
                     self.appendNewCommandHistory(str(self.commandUpdate))
 
                 
@@ -515,7 +514,7 @@ class InputValidation(mainScreen):
                     print("\n***Scroll Down***")
                     self.scrollAmount = self.userChoiceSplit[-1]
                     self.scrollAmount = self.validateScrollInput(self.scrollAmount)
-                    self.commandUpdate = handleScrollAction(self.scrollAmount, "down")
+                    self.commandUpdate = self.handleScrollAction(self.scrollAmount, "down")
                     self.appendNewCommandHistory(str(self.commandUpdate))
 
 
@@ -525,19 +524,19 @@ class InputValidation(mainScreen):
                     print("\n***Set Volume***")
                     self.volChoice = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
                     self.volume, self.decibel = self.validateVolumeInput(self.volChoice)
-                    self.commandUpdate = setVolume(self.volume, self.decibel)
+                    self.commandUpdate = self.setVolume(self.volume, self.decibel)
                     self.appendNewCommandHistory(str(self.commandUpdate))
 
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
             print("\n***Navigate mouse + keyboard***")
-            beepgood()
+            self.beepgood()
             #self.mouseGrid = MouseGrid()
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
             print("\n***Email sign-in***")
-            beepgood()
-            sign_in()
+            self.beepgood()
+            self.current_window = self.sign_in()
 
         elif(jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "add") > 0.85):     # Add contact
             if len(self.userChoiceSplit) >= 5:
@@ -557,13 +556,13 @@ class InputValidation(mainScreen):
 
                     # The following three lines validate the inputs, call the command, and update command history
                     self.contactName, self.contactEmail, self.contactEmailDomain = self.validateAllContactInputs(self.contactName)
-                    self.commandUpdate = addContact(self.contactName, self.contactEmail, self.contactEmailDomain)
+                    self.commandUpdate = self.addContact(self.contactName, self.contactEmail, self.contactEmailDomain)
                     self.appendNewCommandHistory(self.commandUpdate)
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
             print("\nSearching now...\n")
-            beepgood()
-            google_search()
+            self.beepgood()
+            self.google_search()
 
 
         elif(jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "search") > 0.85):
@@ -573,15 +572,17 @@ class InputValidation(mainScreen):
                     print("\n***Search for a document***")
                     self.docChoice = userChoice
                     self.docChoice = self.validateDocumentInput(self.docChoice)
-                    self.commandUpdate = searchForDocument(self.docChoice)
+                    self.commandUpdate = self.searchForDocument(self.docChoice)
                     self.appendNewCommandHistory(str(self.commandUpdate))
-
+        elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
+            contact, subject, body = self.validate_new_email()
+            self.start_new_mail(self.current_window,contact,subject,body)
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
-            beepgood()
+            self.beepgood()
             print("***Exiting***")
 
         else:
-            beepbad()
+            self.beepbad()
             print(f"Unrecognized command: {userChoice}")
             
             # GUI Update
@@ -670,7 +671,7 @@ class InputValidation(mainScreen):
                 if scrollAmount in {"up", "down"}:
                     scrollAmount = 100  # Default scroll amount if user doesn't specify a number
                 else:
-                    scrollAmount = convertToInt(scrollAmount) # Convert string representation of number to integer
+                    scrollAmount = self.convertToInt(scrollAmount) # Convert string representation of number to integer
                     
                 if scrollAmount is None  or scrollAmount < 0 or scrollAmount > 1000:
                     raise ValueError
@@ -723,7 +724,7 @@ class InputValidation(mainScreen):
 
                     volChoice = self.promptUser(3, True, True)
 
-                volChoice = convertToInt(volChoice) # Convert string representation of number to integer
+                volChoice = self.convertToInt(volChoice) # Convert string representation of number to integer
                 
                 if volChoice in volumeMapping:
                     return volChoice, volumeMapping[volChoice]
@@ -952,6 +953,8 @@ class InputValidation(mainScreen):
                     self.commandRequest = self.promptUser(5, True, True)
                     self.commandExec(self.commandRequest)
 
+                    #self.keywordCheck = None
+
                 elif (self.keywordCheck.rstrip(string.punctuation).lower() == "you"):   # I found the model defaults to you if there is no sound passed
                     pass                                                                # In this case, do nothing
 
@@ -960,7 +963,68 @@ class InputValidation(mainScreen):
 
         except Exception as e:
             print(f"Error while listening for keyword: {e}")
+    
+    def start_new_mail(self, current_window, contact, subject, body):
+        driver = webdriver.Firefox()
+        driver.switch_to.window(self.current_window)
 
+    #validate the info needed to write an email
+    def validate_new_email(self):
+        time.sleep(1)
+        try:
+             while True:
+                contactName = self.validate_contact_inp()
+                subject = self.validate_subject_inp()
+                body = self.validate_body_inp()
+                return contactName, subject, body
+
+        except Exception as e:
+            print(f"Error while validating email input: {e}")
+            
+    #Function to validate the contact user wishes to email
+    def validate_contact_inp(self):
+        #
+        time.sleep(1)
+        try: 
+            while True: 
+                self.setLabel(self.userInstruction_label, "We are listening for the person you wish to contact.")
+                contactName = self.promptUser(3,True,False)
+
+                #check if the name is in our file if not loop
+                #pull var of email
+                # if name is in file exe the below
+                self.setLabel(self.userInstruction_label, f"You wish to contact{contactName} ?\n Say yes if correct:")
+                if_yes = self.promptUser(3,True,True)
+                if (if_yes == "yes"):
+                    #change to email
+                    return contactName
+        except Exception as e:
+            print(f"Error while listening for contact: {e}")
+    #function to validate the subject user wishes to write about
+    def validate_subject_inp(self) :
+        time.sleep(1)
+        try:
+            while True: 
+                self.setLabel(self.userInstruction_label, "We are listening for the subject of your email.")
+                subject = self.promptUser(3,True,False)
+                self.setLabel(self.userInstruction_label, f"{subject} is the subect of your email?\n Say yes if correct:")
+                if_yes = self.promptUser(3,True,True)
+                if (if_yes == "yes"):
+                    return subject
+        except Exception as e:
+            print(f"Error while listening for subject {e}")
+    def validate_body_inp(self) :
+        time.sleep(1)
+        try:
+            while True: 
+                self.setLabel(self.userInstruction_label, "We are listening for the body of your email.")
+                body = self.promptUser(10,True,False)
+                self.setLabel(self.userInstruction_label, f"{body} \n is the body of your email?\n Say yes if correct:")
+                if_yes = self.promptUser(3,True,True)
+                if (if_yes == "yes"):
+                    return body
+        except Exception as e:
+            print(f"Error while listening for body {e}")
     # Function to start the keyword listening thread
     # This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
     def startListeningThread(self):
