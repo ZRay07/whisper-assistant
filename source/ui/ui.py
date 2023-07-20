@@ -120,6 +120,8 @@ class mainScreen(operations):
                                      bg = "SlateGray3", relief = FLAT, activebackground = "green", command = self.recordAndUseModel)
         self.record_button.grid(row = 1, column = 0, pady = 10)
 
+
+
        # Add area to show user input history
         self.userInputHistory_frame = Frame(self.center_frame, width = 340, height = 500,
                                      bg = "LightCyan4", borderwidth = 2, relief = "solid")
@@ -144,11 +146,6 @@ class mainScreen(operations):
         # Configure the 4th row of the center frame(which contains error messages), to stretch to the bottom of the frame
         self.center_frame.rowconfigure(4, weight = 1)
 
-        engine = pyttsx3.init() # initialize
-        engine.setProperty('rate', 100) # adjust settings
-#        engine.say("We heard:" + self.predictionLabel) # what engine will say
-        engine.runAndWait() # runs engine until 'sentence' is over
-
         #This is the create account button
        # self.create_account_bar = Frame(self.center_frame, width = 375, height = 250
                                   #      bg = "azure3", borderwidth = 2, relief = "solid")
@@ -165,6 +162,7 @@ class mainScreen(operations):
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
         print("Prediction: " + self.prediction)
+        engine.say("Prediction " + self.prediction) # check if works, should respond with what it predicted user said
         #A wait func might allow the above line to complete first
         self.commandExec(self.prediction)
 
@@ -182,17 +180,17 @@ class mainScreen(operations):
 
         self.transcribedLabel.set(self.prediction)
 
+
     def bring_to_front(root): 
         root.attributes('-topmost', 1)
         root.attributes('-topmost', 0)
-
-    def handleUserNameValidation():
-        print("Handling user name validation")
 
     #These were needed for threading
     def setlabel(self, string):
         self.transcribedLabel.set("")
         self.transcribedLabel.set(string)
+        engine.say(self.transcribedLabel) # test if transcribe function will read back predicted words
+        
     #These were needed for threading
     def rec_3sec(self):
         microphone.record(3)
@@ -279,7 +277,33 @@ class mainScreen(operations):
     def bring_to_front(root): 
          root.attributes('-topmost', 1)
          root.attributes('-topmost', 0)
-
+    #This fuction will return who the person wishes to contact and what they wish to say.
+    def write_email(self):
+        confirm = False
+        #Loop to make sure the contact's name is correct
+        while confirm == False:
+            self.transcribedLabel.set("")
+            self.setlabel("What is the first name of the person you would like to contact?\n")
+                        #This should update the screen
+            self.update_screen()
+            self.pred_name = whisper.use_model(RECORD_PATH)
+                        #display the name
+                        #THIS IS WITH THREADING
+                        #t_label1 = threading.thread(target = self.setlabel, args = "please give me your name.\n")
+                        
+                        #t_record = threading.thread(target = self.rec_3sec)
+            self.transcribedLabel.set("")
+            self.transcribedLabel.set("I heard " + self.pred_1st_name + "\nIs this correct?\nSay 'Yes', 'No' or 'Exit'.")
+            self.update_screen()
+            microphone.record(4)
+            if_yes1 = whisper.use_model(RECORD_PATH)
+            if (jellyfish.jaro_winkler_similarity(if_yes1, "Yes" or "Yeah") > 0.65):
+                 confirm = True
+            else:
+                 comfirm = False
+                 self.transcribedLabel.set("")
+                 self.transcribedLabel.set("Sorry about that, please try again.")
+                 
 
 
     def create_account(self):
