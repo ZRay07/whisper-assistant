@@ -40,11 +40,6 @@ class mainScreen(operations):
                                  bg = "slate gray", borderwidth = 2, relief = FLAT)
         self.left_frame.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "ns")       # Places the frame onto the window
 
-        # Adding image to the left hand frame
-#        self.mountainImage = PhotoImage(file = "source/ui/images/mountain3.gif")
-#        self.small_image = self.mountainImage.subsample(3 , 3)
-#        Label(self.left_frame, image = self.small_image).grid(row = 0, column = 0, padx = 10, pady = 10)
-
         self.title_frame = Frame(self.left_frame, width = 315, height = 100, bg = "slate gray")
         self.title_frame.grid(row = 0, column = 0)
 
@@ -124,7 +119,6 @@ class mainScreen(operations):
         self.record_button.grid(row = 1, column = 0, pady = 10)
 
 
-
        # Add area to show user input history
         self.userInputHistory_frame = Frame(self.center_frame, width = 340, height = 500,
                                      bg = "LightCyan4", borderwidth = 2, relief = "solid")
@@ -149,12 +143,6 @@ class mainScreen(operations):
         # Configure the 4th row of the center frame(which contains error messages), to stretch to the bottom of the frame
         self.center_frame.rowconfigure(4, weight = 1)
 
-        #This is the create account button
-       # self.create_account_bar = Frame(self.center_frame, width = 375, height = 250
-                                  #      bg = "azure3", borderwidth = 2, relief = "solid")
-      #  self.create_account_bar.grid(row = 4, column = 0, columnspan = 1, padx = 0, pady = 0 )
-      #  self.create_account_label = Label(self.create_account_bar, height = 1, width = 40, bg = "azure3", textvariable = self.create_account_label, wraplength = 500)
-      #  self.create_account_label.grid(row = 0, column = 1, padx = 0, pady = 10)
 
     def update_screen(self):
          self.root.update_idletasks()
@@ -168,21 +156,6 @@ class mainScreen(operations):
         self.engine.say("Prediction " + self.prediction) # check if works, should respond with what it predicted user said
         #A wait func might allow the above line to complete first
         self.commandExec(self.prediction)
-
-    def transcribeSpeech(self):
-        # TO-DO: Figure out a way to ask how long the user would like to record for
-
-        #self.recordDurationLabel.set("How long would you like to record for? (in seconds)")
-
-        #microphone.record(3)
-        #self.prediction = whisper.use_model(RECORD_PATH)
-        #self.recordDurationLabel.set(self.prediction)
-
-        microphone.record(15)   #int(self.prediction))
-        self.prediction = whisper.use_model(RECORD_PATH)
-
-        self.transcribedLabel.set(self.prediction)
-
 
     def bring_to_front(root): 
         root.attributes('-topmost', 1)
@@ -207,73 +180,7 @@ class mainScreen(operations):
                 string = string.replace(i,"")
         
         string = string.replace(" ", "")
-        return string
-
-    def add_contact(self):
-         confirm = False
-         while confirm == False:
-            self.setlabel("Please give me their name.")
-            self.update_screen()
-            microphone.record(3)
-            self.pred_name = whisper.use_model(RECORD_PATH)
-            self.setlabel("I heard " + self.pred_name + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
-            self.update_screen()
-            microphone.record(4)
-            if_yes1 = whisper.use_model(RECORD_PATH)
-            print(if_yes1)
-            if (if_yes1 == "Yes" or if_yes1 == "Yes." or if_yes1 == "yes" or if_yes1 == "yes." or if_yes1 == "Yeah." or if_yes1 =="Yeah"):
-                confirm = True
-                #Stuff
-            
-                print(if_yes1)
-            else: 
-                 confirm = False
-            while confirm == True:     
-                self.setlabel("What is their email?")
-                self.update_screen()
-                microphone.record(3)
-                self.pred_email = whisper.use_model(RECORD_PATH)
-                self.pred_email = self.format_email(self.pred_email)
-                self.setlabel("I heard " + self.pred_email + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
-                self.update_screen()
-                microphone.record(4)
-                if_yes2 = whisper.use_model(RECORD_PATH)
-            
-                if(if_yes2 == "Yes" or if_yes2 == "Yes." or if_yes2 == "yes" or if_yes2 == "yes." or if_yes2 == "Yeah." or if_yes2 =="Yeah"):
-                        #Have to toggle this to exit the loop
-                        confirm = False
-                else: 
-                        confirm = True
-            if(confirm == False):  
-                while confirm == False:                                        
-                    self.setlabel("What domain does the email belong to?\n (Gmail, outlook, proton, ect..)")
-                    self.update_screen()
-                    microphone.record(3)
-                    self.pred_domain = whisper.use_model(RECORD_PATH)
-                    self.setlabel("I heard " + self.pred_domain + "\nIs this correct?\nSay 'Yes', 'Exit', or anything else.")
-                    self.update_screen()
-                    microphone.record(4)
-                    if_yes3 = whisper.use_model(RECORD_PATH)
-                    if(if_yes3 == "Yes" or if_yes3 == "Yes." or if_yes3 == "yes" or if_yes3 == "yes." or if_yes3 == "Yeah." or if_yes3 =="Yeah"):
-                        self.account = {
-                                        "name" : self.pred_name ,
-                                        "email" : self.pred_email ,
-                                        "domain": self.pred_domain , 
-                        }
-                        with open("source/contact_list.txt", "a") as f:
-                                        f.write(self.account.get("name") + " " + self.account.get("email") + " " + self.account.get("domain") + "\n")
-                        confirm = True
-                    else: 
-                        self.setlabel("Please try again")
-                        self.beepbad()
-                        self.update_screen() 
-                        confirm = False
-            else:
-                    self.setlabel("Please try again")
-                    self.beepbad()
-                    self.update_screen() 
-                    confirm = True
-           
+        return string     
 
 
     #Call this and use root as the input. Brings window to the foreground.
@@ -468,11 +375,6 @@ class mainScreen(operations):
         # Add a transcription box
         self.transcription_label = Label(self.right_frame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.transcribedLabel, wraplength = 200)
         self.transcription_label.grid(row = 1, column = 0, padx = 10, pady = 10)
-
-        # Add a transcribe button
-        self.transcribe_button = Button(self.right_frame, text = "Transcribe", font = "Times 14",
-                                     bg = "#ADD8E6", relief = "solid", activebackground = "green", activeforeground = "skyblue", command = self.transcribeSpeech)
-        self.transcribe_button.grid(row = 2, column = 0, padx = 10, pady = 5)
 
         self.predictionLabel = StringVar()
         self.predictionLabel.set("Predicted commands will appear here")
