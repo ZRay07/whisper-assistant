@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import font
 from source.core.command_module import *
 from source.core.model_interface import *
+from source.ui.mouse_grid_ui import MouseGridInputValidator
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -73,6 +74,7 @@ class mainScreen(operations):
         self.cmd_bar.grid(row = 2, column = 0)
 
         self.buttonFont = font.Font(family = "Franklin Gothic Medium", size = 12)
+
         self.openApp_button =       Button(self.cmd_bar, text = "Open Application",     font = self.buttonFont, command = lambda: [self.handleApplicationAction(self.validateAppInput("app", "open"), "open")],  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.closeApp_button =      Button(self.cmd_bar, text = "Close Application",    font = self.buttonFont, command = lambda: [self.handleApplicationAction(self.validateAppInput("app", "close"), "close")],bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
@@ -80,6 +82,7 @@ class mainScreen(operations):
         self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [self.setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [print("placeholder")],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [self.sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+
         self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                    bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [self.addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
         self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [self.searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
@@ -162,7 +165,7 @@ class mainScreen(operations):
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
         print("Prediction: " + self.prediction)
-        operations.engine.say("Prediction " + self.prediction) # check if works, should respond with what it predicted user said
+        self.engine.say("Prediction " + self.prediction) # check if works, should respond with what it predicted user said
         #A wait func might allow the above line to complete first
         self.commandExec(self.prediction)
 
@@ -189,7 +192,7 @@ class mainScreen(operations):
     def setlabel(self, string):
         self.transcribedLabel.set("")
         self.transcribedLabel.set(string)
-        operations.engine.say(self.transcribedLabel) # test if transcribe function will read back predicted words
+        self.engine.say(self.transcribedLabel) # test if transcribe function will read back predicted words
         
     #These were needed for threading
     def rec_3sec(self):
@@ -554,8 +557,21 @@ class InputValidation(mainScreen):
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
             print("\n***Navigate mouse + keyboard***")
+
             self.beepgood()
-            #self.mouseGrid = MouseGrid()
+            # Minimize the main screen window first
+            self.root.iconify()
+            self.mouseGrid = MouseGridInputValidator()
+            
+            # Bring back the main screen window
+            if self.mouseGrid.typeSomething:    # If we type something, we wanna wait for longer
+                time.sleep(self.mouseGrid.recordDuration / 10)
+            else:
+                time.sleep(1)
+
+            if (self.root.wm_state() == "iconic"):  # if the window is minimized
+                    self.root.wm_state("zoomed")        # bring it back to full size
+            self.appendNewCommandHistory(str(self.mouseGrid.commandUpdate))
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
             print("\n***Email sign-in***")
@@ -962,8 +978,8 @@ class InputValidation(mainScreen):
         time.sleep(1)
         try:
             while True:
-                self.setLabel(self.userInstruction_label, "say \"sherpa\" and we'll listen for a command")
 
+                self.setLabel(self.userInstruction_label, "say \"sherpa\" and we'll listen for a command")
                 self.keywordCheck = self.promptUser(2, True, True)
                 
 
@@ -985,6 +1001,13 @@ class InputValidation(mainScreen):
                 elif (self.keywordCheck.rstrip(string.punctuation).lower() == "exit"):
                     break
 
+                # Check if the main window is minimized,
+                #   if it is, we want to break out of keyword listening
+                #self.minimized = self.root.wm_state() == "iconic"
+
+                #if self.minimized:
+                    #break
+                
         except Exception as e:
             print(f"Error while listening for keyword: {e}")
     
