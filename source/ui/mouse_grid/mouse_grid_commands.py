@@ -1,10 +1,41 @@
 import time
-import threading
 import pyautogui
 
 
 # This file stores functionality for commands in mouse grid
 # These are things like: left click, double click, right click, etc.
+    # The input to this function comes from getInnerGridInput()
+    # The validation function guarantees that the variable being passed will be an int from 1-9
+def moveToInnerPosition(mouseGrid, innerGridChoice):
+    try:
+        movements = {
+            1: (-(mouseGrid.screenWidth / 9), -(mouseGrid.screenHeight / 9)),
+            2: (0, -(mouseGrid.screenHeight / 9)),
+            3: ((mouseGrid.screenWidth / 9), -(mouseGrid.screenHeight / 9)),
+            4: (-(mouseGrid.screenWidth / 9), 0),
+            # 5 is the center position
+            6: ((mouseGrid.screenWidth / 9), 0),
+            7: (-(mouseGrid.screenWidth / 9), (mouseGrid.screenHeight / 9)),
+            8: (0, (mouseGrid.screenHeight / 9)),
+            9: ((mouseGrid.screenWidth / 9), (mouseGrid.screenHeight / 9))
+        }
+
+        # Check the dictionary for a matching number
+        # If matching number found,
+        #   then set "movement" to the two x and y positions stored in the grid
+        if innerGridChoice in movements:
+            movement = movements[innerGridChoice]
+            print(f"Moving to {innerGridChoice}")
+            pyautogui.move(*movement, 0.5)  # The * operator just unpacks the 2 x and y positions
+        
+        else:
+            raise ValueError("Invalid inner grid choice")
+    
+    except ValueError as ve:
+        print(ve)
+
+    except Exception as e:
+        print(f"Error occured while selecting inner grid: {e}")
 
 def performClick(mouseGrid, clickType):
     # Minimize the mouse grid so we can click on the windows behind it

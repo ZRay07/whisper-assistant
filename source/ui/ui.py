@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import font
 from source.core.command_module import *
 from source.core.model_interface import *
-from source.ui.mouse_grid_ui import MouseGridInputValidator
+from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -75,13 +75,12 @@ class mainScreen(operations):
         self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.scrollDown_button =    Button(self.cmd_bar, text = "Scroll Down",          font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("down"), "down")],           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [self.setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [print("placeholder")],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [MouseGridInputValidator()],                                                   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [self.sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-
-        self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                    bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [self.addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
         self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [self.searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         
         # Place the buttons in the frame
         self.openApp_button.grid(row = 0, column = 0, pady = 5)
