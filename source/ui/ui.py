@@ -473,6 +473,7 @@ class InputValidation(mainScreen):
 
             if (self.root.wm_state() == "iconic"):  # if the window is minimized
                     self.root.wm_state("zoomed")        # bring it back to full size
+            time.sleep(0.1)
             self.appendNewCommandHistory(str(self.mouseGrid.commandUpdate))
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
@@ -565,14 +566,14 @@ class InputValidation(mainScreen):
     def validateAppInput(self, appName, action):
         if (appName not in VALID_APPS and appName not in {"application", "app"}):
             # Graphical UI Update
-            self.setLabel(self.userInputError_label, f"Invalid application name \"{appName}\". Please try again")
+            self.setLabel(self.userInputError_label, f"Invalid application name \"{appName}\".")
 
         # Remove essential services from VALID_APPS list so they aren't accessible to close
         if action == "close":
             removeEssentialServices(ESSENTIAL_SERVICES)
 
         # Either an appname can be passed, or the user can simply say "open application"
-        #   If the user specifies a specific app, the while true loop will be skipped 
+        #   If the user specifies a valid app, the if statement will never be entered and while true loop will be skipped 
         #   Otherwise, the function continuously prompts for a valid app name
         
         if (appName in {"application", "app"} or appName not in VALID_APPS):
@@ -599,6 +600,7 @@ class InputValidation(mainScreen):
                     # Graphical UI Update
                     self.setLabel(self.userInputError_label, f"Invalid application name \"{appName}\". Please try again")   
 
+        # Return when while true loop is exited
         return appName
     
     def validateScrollInput(self, scrollAmount):

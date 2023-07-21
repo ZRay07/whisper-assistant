@@ -1,5 +1,5 @@
 from source.core.model_interface import *
-from source.core.command_module import convertToInt
+from source.core.command_module import operations
 from source.core.mouse_grid_commands import *
 import time
 import string
@@ -7,6 +7,7 @@ import threading
 from tkinter import *
 import pyautogui
 
+Commands = operations()
 class MouseGrid():
     def __init__(self):
         
@@ -219,36 +220,53 @@ class MouseGrid():
         except Exception as e:
             print(f"Error occured while selecting inner grid: {e}")
 
-    def getMoreSpecific(self):
-        self.finalChoiceFlag = 0
+    # This function is used to update GUI labels
+    # Simply pass a label name such as:
+    #   userInstruction_label, or
+    #   listeningProcessing_label
+    # and the message you'd like to update it with such as:
+    #   "provide me a color"
+    def setLabel(self, label, message):
+        try:
+            label.config(text = message)
+            return True
 
-        while (self.finalChoiceFlag == 0):
-            print("Say left, right, up, or down.")
-            print("If your cursor is at the position you want, say 'I'm done.'")
+        except Exception as e:
+            print(f"Error updating {label} with \"{message}\": {e}")
+            return False
+        
 
-            time.sleep(5)
-
-            self.userChoice = self.promptUser(3, True, True)
-
-            if (self.userChoice == "left"):
-                pyautogui.move(-15, 0, 0.2)
-
-            elif (self.userChoice == "right"):
-                pyautogui.move(15, 0, 0.2)
-
-            elif (self.userChoice == "up"):
-                pyautogui.move(0, -15, 0.2)
-
-            elif (self.userChoice == "down"):
-                pyautogui.move(0, 15, 0.2)
-
-            elif (self.userChoice == "I'm done." or self.userChoice == "i'm done"):
-                self.finalChoiceFlag = 1
 
 class MouseGridInputValidator(MouseGrid):
     def __init__(self):
-        self.colors = {"red", "purple", "black", "green", "yellow", "orange", "blue", "white", "pink"}
+        self.colors = {"red", "purple", "black", "green", "yellow", "orange", "blue", "white", "pink"}  # used in listenForColors
+        self.validInnerGridPosition = {1, 2, 3, 4, 5, 6, 7, 8, 9}   # used in getInnerGridPosition
+        self.validUserOptions = {"left click", "right click", "double click", "type something", "enter key press", "continue moving cursor"} # used in getUserAction
+        self.validMovementDirections = {"right", "left", "up", "down", "i'm done"}
+        
+        # This array is from PyAutoGui (it's a list of available special keys), used in getUserKeyInput
+        self.validKeyboardKeys = [
+            'accept', 'add', 'alt', 'altleft', 'altright', 'apps', 'backspace',
+            'browserback', 'browserfavorites', 'browserforward', 'browserhome',
+            'browserrefresh', 'browsersearch', 'browserstop', 'capslock', 'clear',
+            'convert', 'ctrl', 'ctrlleft', 'ctrlright', 'decimal', 'del', 'delete',
+            'divide', 'down', 'end', 'enter', 'esc', 'escape', 'execute', 'f1', 'f10',
+            'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19', 'f2', 'f20',
+            'f21', 'f22', 'f23', 'f24', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9',
+            'final', 'fn', 'hanguel', 'hangul', 'hanja', 'help', 'home', 'insert', 'junja',
+            'kana', 'kanji', 'launchapp1', 'launchapp2', 'launchmail',
+            'launchmediaselect', 'left', 'modechange', 'multiply', 'nexttrack',
+            'nonconvert', 'num0', 'num1', 'num2', 'num3', 'num4', 'num5', 'num6',
+            'num7', 'num8', 'num9', 'numlock', 'pagedown', 'pageup', 'pause', 'pgdn',
+            'pgup', 'playpause', 'prevtrack', 'print', 'printscreen', 'prntscrn',
+            'prtsc', 'prtscr', 'return', 'right', 'scrolllock', 'select', 'separator',
+            'shift', 'shiftleft', 'shiftright', 'sleep', 'space', 'stop', 'subtract', 'tab',
+            'up', 'volumedown', 'volumemute', 'volumeup', 'win', 'winleft', 'winright', 'yen',
+            'command', 'option', 'optionleft', 'optionright'
+        ]
+
         self.typeSomething = None
+        self.commandUpdate = None
         self.startListeningThread()
 
         super().__init__()
@@ -264,12 +282,6 @@ class MouseGridInputValidator(MouseGrid):
             self.userInput = whisper.use_model(RECORD_PATH)
             self.setLabel(self.listeningProcessing_label, "Waiting...")
 
-            # I've found the default if there is no sound is to predict "you"
-            # In this case, I think it's best to interpret the input as silence and not update the user input history
-#            if self.userInput != "you":
-#                self.appendNewUserInputHistory(self.userInput)
-
-
             if removePunctuation:
                 self.userInput = self.userInput.rstrip(string.punctuation)
 
@@ -282,25 +294,24 @@ class MouseGridInputValidator(MouseGrid):
             print("Error occured during recording: ", str(e))
             return False
         
-    # This function is used to update GUI labels
-    # Simply pass a label name such as:
-    #   userInstruction_label, or
-    #   listeningProcessing_label
-    # and the message you'd like to update it with such as:
-    #   "provide me a color"
-    def setLabel(self, label, message):
-        try:
-            self.message = message
-            self.label = label
-            self.label.config(text = self.message)
+    # This function will specifically wait for the user to reply "yes" or "no"
+    def confirmUserInput(self, userInput):
+        while True:
+            self.setLabel(self.userInstruction_label, f"Is {userInput} correct?")
+            time.sleep(2)
+            self.confirmation = self.promptUser(2, True, True)
 
-        except Exception as e:
-            print(f"Error updating {label} with \"{message}\": {e}")
+            if self.confirmation == "yes":  # User confirmed the input
+                return True
+            
+            elif self.confirmation == "no":  # User did not confirm input
+                return None
+            
+            else:
+                pass
         
     # This function will continuously prompt the user until they provide a number between 1 and 9
     def getInnerGridInput(self):
-        self.validInnerGridPosition = {1, 2, 3, 4, 5, 6, 7, 8, 9, "exit"}
-
         # Continuously prompt the user for an inner grid position (1-9)
         while True:
             try:
@@ -310,7 +321,7 @@ class MouseGridInputValidator(MouseGrid):
 
                 # Get the input
                 self.innerGridPosition = self.promptUser(2, True, True)
-                self.innerGridPosition = convertToInt(self.innerGridPosition)
+                self.innerGridPosition = Commands.convertToInt(self.innerGridPosition)
 
                 if self.innerGridPosition in self.validInnerGridPosition:
                     return self.innerGridPosition
@@ -324,15 +335,12 @@ class MouseGridInputValidator(MouseGrid):
 
     # This function will get the user input once they've entered the subgrid phase
     # They will choose a color -> choose a subgrid -> and then be prompted with these options
-    def getUserChoice(self):
-        self.validUserOptions = {"left click", "right click", "double click", 
-                            "type something", "key press",
-                            "get more specific"}
+    def getUserAction(self):
         try:
             while True:
                 self.setLabel(self.userInstruction_label, "What would you like to do now?")
                 time.sleep(2)
-                self.userChoice = self.promptUser(2, True, True)
+                self.userChoice = self.promptUser(5, True, True)
 
                 if self.userChoice in self.validUserOptions:
                     return self.userChoice
@@ -346,39 +354,47 @@ class MouseGridInputValidator(MouseGrid):
 
     # This function takes an input for what the user wants to do
     # and maps it to a function call
-    def handleSelectedOption(self, selectedOption):
+    def handleAction(self, userAction):
         # First, check if they want to click anything, as these are easier to deal with
         try:
             clickChoices = {
-                "left click": [performClick, self, "left"],
-                "right click": [performClick, self, "right"],
-                "double click": [performClick, self, "double"]
+                "left click": ["left"],
+                "right click": ["right"],
+                "double click": ["double"]
             }
 
-            if selectedOption in clickChoices:
-                func, *args = clickChoices[selectedOption]
-                self.commandUpdate = func(*args)
-                return self.commandUpdate   # Exit the function, and return commandUpdate
+            if userAction in clickChoices:      # if user says "right click", the dictionary's values will be pulled by providing the "right click" key
+                self.commandUpdate = performClick(self, clickChoices[userAction])    
+                return self.commandUpdate
+
+            elif (userAction == "type something"):                                    # User requests to type something
+                self.recordDuration = self.getRecordDuration()                      # Get a record duration from the user
+                self.userTextInput = self.getUserTextInput(self.recordDuration)     # Get a text input from the user
+                self.commandUpdate = enterTextInput(self, self.userTextInput)       # Run the function and save return value
+                self.typeSomething = True   # This changes how fast we re-open the main window
+                return self.commandUpdate
+
+            elif (userAction == "enter key press"):
+                self.userKeyInput = self.getUserKeyInput()
+                self.commandUpdate = enterKeypressInput(self, self.userKeyInput)
+                return self.commandUpdate
+                
+            elif (userAction == "continue moving cursor"):
+                while True:
+                    self.moveCursorDirection = self.getUserCursorDirection()
+
+                    if self.moveCursorDirection == "i'm done":
+                        return None
+
+                    moveCursorSlightly(self.moveCursorDirection)
+            
+            elif (userAction == "drag to"):
+                print("drag to")
 
         except Exception as e:
-            print(f"Error during clicking: {e}")
+            print(f"Error in handling action: {e}")
 
-        try:
-            if (selectedOption == "type something"):
-                self.recordDuration = self.getRecordDuration()
-                self.userTextInput = self.getUserTextInput(self.recordDuration)
-                self.commandUpdate = enterTextInput(self, self.userTextInput)
-                self.typeSomething = True
-
-            elif (selectedOption == "key press"):
-                print("gather key press and perform function")
-
-        except Exception as e:
-            print(f"Error during type function: {e}")
-
-            # Add functionality for functions below
-            print("drag to")
-            print("get more specific")
+            
 
     # This function will continuously prompt the user until they provide a number
     def getRecordDuration(self):
@@ -387,7 +403,7 @@ class MouseGridInputValidator(MouseGrid):
                 self.setLabel(self.userInstruction_label, "How long would you like to record for (in seconds)?")
                 time.sleep(2)
                 self.recordDuration = self.promptUser(2, True, True)
-                self.recordDuration = convertToInt(self.recordDuration)
+                self.recordDuration = Commands.convertToInt(self.recordDuration)
 
                 if isinstance(self.recordDuration, int):
                     self.confirmation = self.confirmUserInput(self.recordDuration)
@@ -402,7 +418,7 @@ class MouseGridInputValidator(MouseGrid):
         except Exception as e:
             print(f"Error while gathering record duration: {e}")
 
-    # This function will continuously prompt the user for audio based off there record duration
+    # This function will prompt the user for text based off their record duration
     # It will then confirm the user's text with them
     def getUserTextInput(self, recordDuration):
         try:
@@ -419,23 +435,53 @@ class MouseGridInputValidator(MouseGrid):
         except Exception as e:
             print(f"Error while gathering text input: {e}")
 
+    # This function will continuously prompt the user for a valid key to press
+    #   Some valid keys are: "win" -> windows key, "enter", "f1-12", etc.
+    # The user will then be prompted to confirm their desired key
+    def getUserKeyInput(self):
+        try:
+            while True:
+                self.setLabel(self.userInstruction_label, "What key-press would you like to simulate?")
+                time.sleep(2)
+                self.userKeyInput = self.promptUser(3, True, True)
 
-    # This function will specifically wait for the user to reply "yes" or "no"
-    def confirmUserInput(self, userInput):
-        while True:
-            self.setLabel(self.userInstruction_label, f"Is {userInput} correct?")
-            time.sleep(2)
-            self.confirmation = self.promptUser(2, True, True)
+                if self.userKeyInput in self.validKeyboardKeys:
+                    self.confirmation = self.confirmUserInput(self.userKeyInput)
 
-            if self.confirmation == "yes":  # User confirmed the input
-                return True
-            
-            elif self.confirmation == "no":  # User did not confirm input
-                return None
-            
-            else:
-                pass
-            
+                elif self.userKeyInput == "you":
+                    pass
+
+                else:
+                    self.setLabel(self.userInputError_label, f"Invalid key: {self.userKeyInput}")
+                    continue    # return to top of loop
+
+                if self.confirmation:
+                    return self.userKeyInput
+
+        except Exception as e:
+            print(f"Error while getting key press input: {e}")
+
+    # This function will continuously prompt the user for a valid direction to move the cursor
+    #   The user can also say "I'm done"
+    def getUserCursorDirection(self):
+        try:
+            while True:
+                self.setLabel(self.userInstruction_label, "Which direction would you like to move the cursor?")
+                time.sleep(2)
+                self.movementDirection = self.promptUser(2, True, True)
+
+                if self.movementDirection in self.validMovementDirections:
+                    return self.movementDirection
+
+                elif self.movementDirection == "you":
+                    pass
+
+                else:
+                    self.setLabel(self.userInputError_label, f"Invalid direction: {self.movementDirection}")
+                    continue    # return to top of loop
+
+        except Exception as e:
+            print(f"Error while getting cursor movement direction: {e}")
 
     # This function should be called as soon as the mouse window is launched
     # First, it updates the userInstruction label to let the users know we're first waiting for a color
@@ -450,17 +496,19 @@ class MouseGridInputValidator(MouseGrid):
 
                 self.colorChoice = self.promptUser(2, True, True)
                 
-
                 if (self.colorChoice in self.colors):
                     self.setLabel(self.listeningProcessing_label, "Waiting...")
                     self.displaySubgrid(self.colorChoice)
                     self.innerGridChoice = self.getInnerGridInput()
-                    if self.innerGridChoice in [5, "exit"]:
+
+                    if self.innerGridChoice == 5:
                         pass
                     else:
                         self.moveToInnerPosition(self.innerGridChoice)
-                    self.selectedOption = self.getUserChoice()
-                    self.handleSelectedOption(self.selectedOption)
+
+                    while self.commandUpdate is None:
+                        self.userAction = self.getUserAction()
+                        self.commandUpdate = self.handleAction(self.userAction)
 
                     break
 
@@ -477,5 +525,3 @@ class MouseGridInputValidator(MouseGrid):
         thread = threading.Thread(target = self.listenForColors)
         thread.daemon = True  # Set the thread as a daemon thread
         thread.start()
-
-#mouseGrid = MouseGridInputValidator()
