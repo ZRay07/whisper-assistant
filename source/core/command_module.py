@@ -288,6 +288,8 @@ class operations:   #audio beep functions
         self.current_window = driver.current_window_handle
         print(self.current_window)
         return self.current_window
+    
+
     def searchForDocument(docChoice):
         try:
             docChoice = "Document: " + docChoice
@@ -304,20 +306,11 @@ class operations:   #audio beep functions
         except Exception as e:
             print(f"Error occured while searching for document: {e}")
             return False
-
-
-    def recordAndUseModel():
-        microphone.record(3)
-        prediction = whisper.use_model(RECORD_PATH)
-
-        print("We heard " + prediction)
-
-        return prediction
+# end class definition        
 
 
 
-
-    # For closing applications, we want to remove some essential windows services 
+# For closing applications, we want to remove some essential windows services 
 #   to ensure the user does not close programs essential for their OS to function correctly
 ESSENTIAL_SERVICES = ["event viewer", "task scheduler", "windows powershell ise", "system configuration",
                         "run", "task manager", "windows memory diagnostic", "windows administrative tools",
@@ -338,8 +331,9 @@ def removeEssentialServices(essentialServices):
         for appName in removedApps:
             print(f"- {appName}")  
 
-    # This function will generate a list of all the apps on users pc and store it in a json file
-    # Its used to check for errors in open/close application methods
+
+# This function will generate a list of all the apps on users pc and store it in a json file
+# Its used to check for errors in open/close application methods
 def loadValidApps():
     try:
         with open("data/app_data.json") as json_file:
@@ -348,7 +342,9 @@ def loadValidApps():
     except Exception as e:
         print("Error occured while loading valid app names: ", str(e))
         return False
-    # This if statement executes if apps are not already saved to a file
+    
+
+# This if statement executes if apps are not already saved to a file
 if os.path.exists("data/app_data.json"):
     VALID_APPS = loadValidApps()
 else:
@@ -356,6 +352,5 @@ else:
     VALID_APPS = loadValidApps()
     
 if __name__ == "__main__":
-
     print("This should only run if called from cmd line")
     

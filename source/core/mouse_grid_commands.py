@@ -9,7 +9,7 @@ import pyautogui
 def performClick(mouseGrid, clickType):
     # Minimize the mouse grid so we can click on the windows behind it
     mouseGrid.MouseGridWindow.iconify()
-    time.sleep(0.2)
+    time.sleep(0.1)
 
     if clickType == "left":
         pyautogui.leftClick()
@@ -21,12 +21,12 @@ def performClick(mouseGrid, clickType):
         pyautogui.doubleClick()
 
     # Bring back the window
-    mouseGrid.mouseGridWindow.deiconify()
+    mouseGrid.MouseGridWindow.destroy()
 
     return f"Successfully {clickType} clicked"
 
 def enterTextInput(mouseGrid, textInput):
-    # Exit the mouse grid
+    # Minimze the mouse grid
     mouseGrid.MouseGridWindow.iconify()
     time.sleep(0.2)
 
@@ -34,41 +34,34 @@ def enterTextInput(mouseGrid, textInput):
     pyautogui.leftClick()
     pyautogui.write(textInput, interval = 0.05)
 
+    # Exit the mouse grid
     mouseGrid.MouseGridWindow.destroy()
 
     return f"Successfully typed: {textInput}"
 
-# Function to start the typing thread
-# This function is called to run the text input function
-# I was having errors where the listening was taking over before the type function executed
-#def enterTextInputThread(mouseGrid, textInput):
-#    thread = threading.Thread(target = enterTextInput(mouseGrid, textInput))
-#    thread.daemon = True  # Set the thread as a daemon thread
-#    thread.start()
+def enterKeypressInput(mouseGrid, keyInput):
+    # Minimize the mouse grid
+    mouseGrid.MouseGridWindow.iconify()
+    time.sleep(0.2)
 
+    # Enter key pres
+    pyautogui.leftClick()
+    pyautogui.press(keyInput)
 
+    # Exit the mouse grid
+    mouseGrid.MouseGridWindow.iconify()
 
+    return f"Successfully pressed {keyInput}"
 
+def moveCursorSlightly(direction):
+    if (direction == "left"):
+        pyautogui.move(-15, 0, 0.2)
 
+    elif (direction == "right"):
+        pyautogui.move(15, 0, 0.2)
 
+    elif (direction == "up"):
+        pyautogui.move(0, -15, 0.2)
 
-#            elif (self.userChoice == "Type something." or self.userChoice == "type something"): # or self.userChoice == "you"):
-#                self.MouseGridWindow.wm_state("iconic")
-#                time.sleep(0.2)
-#                pyautogui.leftClick()
-#
-#                print("Speak what you would like to type.")
-#                time.sleep(3)
-#
-#                microphone.record(10)
-#                self.prediction = whisper.use_model(RECORD_PATH)
-#
-#                pyautogui.write(self.prediction, interval=0.25)
-#
-#            elif (self.userChoice == "Key press." or self.userChoice == "key press"):
-#                print("Which key would you like to press?")
-#                self.prediction = recordAndUseModel()
-#
-#            elif (self.userChoice == "Get more specific." or self.userChoice == "get more specific"):
-#                print("Get more specific...")
-#                self.getMoreSpecific()
+    elif (direction == "down"):
+        pyautogui.move(0, 15, 0.2)
