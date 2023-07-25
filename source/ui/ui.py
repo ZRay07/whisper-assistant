@@ -1,17 +1,19 @@
+import argparse
+import threading
+import string
 from tkinter import *
 from tkinter import font
+
 from source.core.command_module import *
 from source.core.model_interface import *
 from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
-import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--disable', help = 'Disable keyword listening', action = 'store_true')
-args = parser.parse_args()
+import jellyfish
 
 # The first screen to be displayed to users
 class mainScreen(operations):
     def __init__(self):
+        self.keyword = "record"
         # Create root window
         self.root = Tk()
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
@@ -130,7 +132,7 @@ class mainScreen(operations):
         self.userInputHistory_label = Label(self.userInputHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 45, height = 20, bg = "azure3", wraplength = 500, anchor = "s")
         self.userInputHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
-        self.userInstruction_label = Label(self.userInputHistory_frame, text = "Say \"sherpa\" and we'll listen for a command", font = ("Franklin Gothic Medium", 12), width = 60, height = 3, bg = "AntiqueWhite3", wraplength = 500)
+        self.userInstruction_label = Label(self.userInputHistory_frame, text = f"Say \"{self.keyword}\" and we'll listen for a command", font = ("Franklin Gothic Medium", 12), width = 60, height = 3, bg = "AntiqueWhite3", wraplength = 500)
         self.userInstruction_label.grid(row = 2, column = 0, sticky = "ew")
 
         self.listeningProcessing_label = Label(self.center_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 24), width = 16, height = 1, bg = "slate gray")
@@ -152,7 +154,7 @@ class mainScreen(operations):
         self.prediction = whisper.use_model(RECORD_PATH)
         self.predictionLabel.set(self.prediction)
         print("Prediction: " + self.prediction)
-        self.engine.say("Prediction " + self.prediction) # check if works, should respond with what it predicted user said
+#        self.engine.say("Prediction " + self.prediction) # check if works, should respond with what it predicted user said
         #A wait func might allow the above line to complete first
         self.commandExec(self.prediction)
 
@@ -516,9 +518,11 @@ class InputValidation(mainScreen):
                     self.docChoice = self.validateDocumentInput(self.docChoice)
                     self.commandUpdate = self.searchForDocument(self.docChoice)
                     self.appendNewCommandHistory(str(self.commandUpdate))
+
         elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
             contact, subject, body = self.validate_new_email()
             self.start_new_mail(self.current_window,contact,subject,body)
+
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
             self.beepgood()
             print("***Exiting***")
@@ -641,7 +645,7 @@ class InputValidation(mainScreen):
     def validateVolumeInput(self, volChoice):
         # Actual volume levels and corresponding decibel levels
         volumeMapping = {
-            0: -60.0,
+            0: -40.0,
             10: -33.0,
             20: -23.4,
             30: -17.8,
@@ -882,11 +886,11 @@ class InputValidation(mainScreen):
         try:
             while True:
 
-                self.setLabel(self.userInstruction_label, "say \"sherpa\" and we'll listen for a command")
+                self.setLabel(self.userInstruction_label, f"Say \"{self.keyword}\" and we'll listen for a command")
                 self.keywordCheck = self.promptUser(2, True, True)
                 
 
-                if (self.keywordCheck.rstrip(string.punctuation).lower() == "sherpa"):
+                if (self.keywordCheck == self.keyword):
                     self.setLabel(self.listeningProcessing_label, "Waiting...")
                     print("\nSpeak a command")
 
@@ -896,20 +900,11 @@ class InputValidation(mainScreen):
                     self.commandRequest = self.promptUser(5, True, True)
                     self.commandExec(self.commandRequest)
 
-                    #self.keywordCheck = None
-
-                elif (self.keywordCheck.rstrip(string.punctuation).lower() == "you"):   # I found the model defaults to you if there is no sound passed
+                elif (self.keywordCheck == "you"):   # I found the model defaults to you if there is no sound passed
                     pass                                                                # In this case, do nothing
 
-                elif (self.keywordCheck.rstrip(string.punctuation).lower() == "exit"):
+                elif (self.keywordCheck == "exit"):
                     break
-
-                # Check if the main window is minimized,
-                #   if it is, we want to break out of keyword listening
-                #self.minimized = self.root.wm_state() == "iconic"
-
-                #if self.minimized:
-                    #break
                 
         except Exception as e:
             print(f"Error while listening for keyword: {e}")
@@ -983,4 +978,7 @@ class InputValidation(mainScreen):
         thread.start()
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--disable', help = 'Disable keyword listening', action = 'store_true')
+    args = parser.parse_args()
     inputValidator = InputValidation()

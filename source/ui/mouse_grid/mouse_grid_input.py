@@ -1,11 +1,11 @@
+import string
+import time
+import threading
+
 from source.ui.mouse_grid.mouse_grid_ui import MouseGrid
-from source.core.model_interface import microphone, whisper, RECORD_PATH    # Our modules
+from source.core.model_interface import microphone, whisper, RECORD_PATH
 from source.core.command_module import operations
 from source.ui.mouse_grid.mouse_grid_commands import *
-
-import string
-import time         # Native python libraries
-import threading
 
 Commands = operations()
 
