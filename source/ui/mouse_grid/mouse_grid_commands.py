@@ -51,7 +51,7 @@ def performClick(mouseGrid, clickType):
     elif clickType == "double":
         pyautogui.doubleClick()
 
-    # Bring back the window
+    # Destroy the window
     mouseGrid.MouseGridWindow.destroy()
 
     return f"Successfully {clickType} clicked"
