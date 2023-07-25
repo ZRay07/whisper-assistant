@@ -110,20 +110,16 @@ class mainScreen(operations):
         self.center_frame.grid(row = 0, column = 1, padx = 20, pady = 10, sticky = "nsew")
         self.center_frame.grid_columnconfigure(0, weight = 1)   # Allow the widgets within the center frame to expand horizontally
 
-        # Label the center frame
-        self.commandDirection_label = Label(self.center_frame, text = "Say \"sherpa\" OR click \"Record\"", font = ("Franklin Gothic Medium", 24), bg = "slate gray")
-        self.commandDirection_label.grid(row = 0, column = 0, padx = 250, pady = 10)
-
         # Add record button
         self.record_button = Button(self.center_frame, text = "Record", font = ("Franklin Gothic Medium", 24),
                                      bg = "SlateGray3", relief = FLAT, activebackground = "green", command = self.recordAndUseModel)
-        self.record_button.grid(row = 1, column = 0, pady = 10)
+        self.record_button.grid(row = 0, column = 0, pady = 10)
 
 
        # Add area to show user input history
         self.userInputHistory_frame = Frame(self.center_frame, width = 340, height = 500,
                                      bg = "LightCyan4", borderwidth = 2, relief = "solid")
-        self.userInputHistory_frame.grid(row = 2, column = 0, columnspan = 1, padx = 5, pady = 5)
+        self.userInputHistory_frame.grid(row = 1, column = 0, columnspan = 1, padx = 5, pady = 5)
 
         # Add label at the top of the frame to show what's in the box
         self.userInputHistoryTitle_label = Label(self.userInputHistory_frame, text = "User input history will appear here", font = ("Franklin Gothic Medium", 12), width = 45, height = 1, bg = "azure3")
@@ -132,10 +128,10 @@ class mainScreen(operations):
         self.userInputHistory_label = Label(self.userInputHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 45, height = 20, bg = "azure3", wraplength = 500, anchor = "s")
         self.userInputHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
-        self.userInstruction_label = Label(self.userInputHistory_frame, text = f"Say \"{self.keyword}\" and we'll listen for a command", font = ("Franklin Gothic Medium", 12), width = 60, height = 3, bg = "AntiqueWhite3", wraplength = 500)
+        self.userInstruction_label = Label(self.userInputHistory_frame, text = f"Say \"{self.keyword}\" and we'll listen for a command", font = ("Franklin Gothic Medium", 24), width = 45, height = 3, bg = "AntiqueWhite3", wraplength = 500)
         self.userInstruction_label.grid(row = 2, column = 0, sticky = "ew")
 
-        self.listeningProcessing_label = Label(self.center_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 24), width = 16, height = 1, bg = "slate gray")
+        self.listeningProcessing_label = Label(self.center_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 36), width = 16, height = 1, bg = "slate gray")
         self.listeningProcessing_label.grid(row = 3, column = 0, sticky = "ew")
 
         self.userInputError_label = Label(self.center_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "slate gray", wraplength = 500, fg = "#710505", anchor = "center")
