@@ -3,12 +3,19 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import time 
 import pyautogui
 from tkinter import*
 from source.core.model_interface import microphone, whisper, RECORD_PATH
 
 driver = webdriver.Firefox()
+
+#def getDriver():
+     
+
+#def Alreadyrunning():
+#     try
 def sign_in():
         name, email, domain, password = account_info_in()
         #driver = webdriver.Firefox()
@@ -95,9 +102,9 @@ def new_email(current_window, contact, subject, body):
                 print("You're in here")
                 el1 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "splitPrimaryButton")))
                 el1.click()
-                print("\n Found the 1st one")
+                print("\n Found the 1st")
                 ele2 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "Z4n09")))
-                ele2.send_keys(contact)
+                ele2.sendkeys(contact)
                 ele3 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-TextField-field")))
                 ele3.send_keys(subject)
                 ele4 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "dFCbN")))
@@ -294,6 +301,40 @@ class sub_window_int:
 
 #name, email, domain, password = account_info_in()
 #print(password)
-current_window = sign_in()
-time.sleep(2)
-new_email(current_window, "tcohenwest@gmail.com", "Work please", "If you see me then you have won.")
+#current_window = sign_in()
+#time.sleep(2)
+#new_email(current_window, "tcohenwest@gmail.com", "Work please", "If you see me then you have won.")
+
+def validate_contact_inp(self):
+        #
+        time.sleep(1)
+        try: 
+            while True: 
+                self.setLabel(self.userInstruction_label, "We are listening for the person you wish to contact.")
+                contactName = self.promptUser(3,True,False)
+
+                #check if the name is in our file if not loop
+                #pull var of email
+                # if name is in file exe the below
+                self.setLabel(self.userInstruction_label, f"You wish to contact {contactName} ?\n Say yes if correct:")
+
+                if_yes = self.promptUser(3,True,True)
+                
+                if (if_yes == "yes"):
+                    #Using this we can see if the user has this person in their contacts
+                    found,email,domain = self.pull_contact(contactName)
+                    print(f"found:{found}\n email:{email}\ndomain: {domain}\n")
+                    #If they do then return their email address
+                    if (found == True):
+                        address = f"{email}@{domain}.com"
+                        return address
+                    #if they don't prompt for their addy
+                    else:
+                        self.setLabel(self.userInstruction_label, f"{contactName} is not in your contacts\n Please tell me their information.")
+                        new_email = self.validateContactEmailInput()
+                        
+                        new_domain = self.validateContactEmailDomainInput()
+                        address = f"{new_email}@{new_domain}.com"
+                        return address
+        except Exception as e:
+            print(f"Error while listening for contact: {e}")            

@@ -28,7 +28,7 @@ class operations:   #audio beep functions
     def __init__(self):
         self.current_window =" "
         self.session_id = " "
-        self.driver = webdriver.Firefox()
+        #self.driver = webdriver.Firefox()
     def beepgood(self):
         winsound.Beep(1000, 250)
         winsound.Beep(1500, 250)
@@ -153,7 +153,9 @@ class operations:   #audio beep functions
             print(f"Error adding {name} to contact list: {e}")
 
     def pull_contact(self, string):
-        found = True
+        found = False
+        count = 0
+        space = " "
         with open("source/my_account.txt", "r") as f:
             contacts = f.readlines()
 
@@ -165,21 +167,28 @@ class operations:   #audio beep functions
                 extr_3 = extr_2[2].partition(" ")
                 email = extr_3[0]
                 domain = extr_3[2]
-                try:
-                    if (first_name + " " + last_name == string):
-                        contact = {
-                            'name' : first_name + " " + last_name,
-                            'email' : email , 
-                            'domain' : domain
-                        }
-                    else: 
-                        found = False
-                except Exception as e:
-                    print((f"Unable to locate contact in list: {e}"))
-                #copy string until second " " is found 
+                count +=1
+                print(f"\nName:{first_name} {last_name}")
+                
+                if (f"{first_name}{space}{last_name}" == string):
+                    contact = {
+                        'name' : f"{first_name}{space}{last_name}",
+                        'email' : email , 
+                        'domain' : domain
+                    }
+                    print(f"\n{first_name}{space}{last_name}")
+                    print(f"\n{email}")
+                    print(f"\n{domain}")
+                    found = True
+                    return found, contact.get('email'), contact.get('domain')
+                
+            if  (found == False):    
+
+                return found, "None", "None"
+
+               #copy string until second " " is found 
                 #compare with user input
                 #If same pull the info from the line and save as dict
-        return found, contact.get('email'), contact.get('domain')
 
 
     def account_info_in(self):
@@ -225,7 +234,7 @@ class operations:   #audio beep functions
 
     def sign_in(self):
         name, email, domain, password = self.account_info_in()
-       
+        self.driver = webdriver.Firefox()       
 
         #so the pages have time to load 
         wait = WebDriverWait(self.driver, 30)
@@ -258,8 +267,9 @@ class operations:   #audio beep functions
         el2.send_keys(password)
         el2.send_keys(Keys.RETURN)
         time.sleep(2)
-        el4 = wait.until(self.driver.find_element(By.ID,("idSIButton9"))) 
-        el4.click()
+        
+        pyautogui.click(x=1080, y=675)
+
        #//*[@id="idSIButton9"]
        #//*[@id="idSIButton9"]
         #elements = driver.find_elements(By.CLASS_NAME, "method-select-chevron")
@@ -287,6 +297,7 @@ class operations:   #audio beep functions
     #       it searches for a document with the document name being whatever comes after 'document' in the string
         self.current_window = self.driver.current_window_handle
         print(self.current_window)
+        print(self.driver)
         return self.current_window
     
 
