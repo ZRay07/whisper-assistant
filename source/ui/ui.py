@@ -21,7 +21,7 @@ class mainScreen(operations):
         self.root.config(bg = "AntiqueWhite3")     # set the background color
         # Set the starting size of the window and its location
         #self.root.geometry("1100x700+480+200")
-        self.root.geometry("1900x1000+0+0")
+        self.root.geometry("1600x800+200+50")
         self.drawLeftFrame()
         self.drawCenterFrame()
         self.drawRightFrame()
@@ -81,7 +81,9 @@ class mainScreen(operations):
         self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [self.sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [self.addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
+        self.createDocument_button= Button(self.cmd_bar, text = "Create Document",      font = self.buttonFont, command = lambda: [self.createDocument()],                                                       bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [self.searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.record_button =        Button(self.cmd_bar, text = "Record",               font = self.buttonFont, command = lambda: [self.commandExec(self.promptUser(5, True, True))],                            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         
         # Place the buttons in the frame
@@ -94,8 +96,11 @@ class mainScreen(operations):
         self.emailSignIn_button.grid(row = 6, column = 0, pady = 5)
         self.createAcc_button.grid(row = 7, column = 0, pady = 5)
         self.addContact_button.grid(row = 8, column = 0, pady = 5)
-        self.docSearch_button.grid(row = 9, column = 0, pady = 5)
-        self.exit_button.grid(row = 10, column = 0, pady = 5)
+        self.createDocument_button.grid(row = 9, column = 0, pady = 5)
+        self.docSearch_button.grid(row = 10, column = 0, pady = 5)
+
+        self.record_button.grid(row = 11, column = 0, pady = (30, 5))
+        self.exit_button.grid(row = 12, column = 0, pady = 5)
 
     # This frame contains:
     # Record button
@@ -110,16 +115,10 @@ class mainScreen(operations):
         self.center_frame.grid(row = 0, column = 1, padx = 20, pady = 10, sticky = "nsew")
         self.center_frame.grid_columnconfigure(0, weight = 1)   # Allow the widgets within the center frame to expand horizontally
 
-        # Add record button
-        self.record_button = Button(self.center_frame, text = "Record", font = ("Franklin Gothic Medium", 24),
-                                     bg = "SlateGray3", relief = FLAT, activebackground = "green", command = self.recordAndUseModel)
-        self.record_button.grid(row = 0, column = 0, pady = 10)
-
-
        # Add area to show user input history
         self.userInputHistory_frame = Frame(self.center_frame, width = 340, height = 500,
                                      bg = "LightCyan4", borderwidth = 2, relief = "solid")
-        self.userInputHistory_frame.grid(row = 1, column = 0, columnspan = 1, padx = 5, pady = 5)
+        self.userInputHistory_frame.grid(row = 0, column = 0, columnspan = 1, padx = 5, pady = 5)
 
         # Add label at the top of the frame to show what's in the box
         self.userInputHistoryTitle_label = Label(self.userInputHistory_frame, text = "User input history will appear here", font = ("Franklin Gothic Medium", 12), width = 45, height = 1, bg = "azure3")
@@ -128,14 +127,14 @@ class mainScreen(operations):
         self.userInputHistory_label = Label(self.userInputHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 45, height = 20, bg = "azure3", wraplength = 500, anchor = "s")
         self.userInputHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
-        self.userInstruction_label = Label(self.userInputHistory_frame, text = f"Say \"{self.keyword}\" and we'll listen for a command", font = ("Franklin Gothic Medium", 24), width = 45, height = 3, bg = "AntiqueWhite3", wraplength = 500)
+        self.userInstruction_label = Label(self.userInputHistory_frame, text = f"Say \"{self.keyword}\" and we'll listen for a command", font = ("Franklin Gothic Medium", 24), width = 38, height = 3, bg = "AntiqueWhite3", wraplength = 500)
         self.userInstruction_label.grid(row = 2, column = 0, sticky = "ew")
 
         self.listeningProcessing_label = Label(self.center_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 36), width = 16, height = 1, bg = "slate gray")
-        self.listeningProcessing_label.grid(row = 3, column = 0, sticky = "ew")
+        self.listeningProcessing_label.grid(row = 1, column = 0, sticky = "ew")
 
         self.userInputError_label = Label(self.center_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "slate gray", wraplength = 500, fg = "#710505", anchor = "center")
-        self.userInputError_label.grid(row = 4, column = 0)
+        self.userInputError_label.grid(row = 2, column = 0)
 
         # Configure the 4th row of the center frame(which contains error messages), to stretch to the bottom of the frame
         self.center_frame.rowconfigure(4, weight = 1)
@@ -355,35 +354,15 @@ class mainScreen(operations):
         # Add area to show command message history
         self.cmdHistory_frame = Frame(self.right_frame, width = 250, height = 500,
                                      bg = "azure3", borderwidth = 2, relief = "solid")
-        self.cmdHistory_frame.grid(row = 0, column = 0, columnspan = 1, padx = 20, pady = 5)
+        self.cmdHistory_frame.grid(row = 0, column = 0, padx = 20, pady = 5)
 
         # Add label at the top of the frame to show what's in the box
         self.cmdHistoryTitle_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 40, height = 1, bg = "azure3")
         self.cmdHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
 
-        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 40, height = 20, bg = "azure3", wraplength = 400, anchor = "s")
+        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 40, height = 10, bg = "azure3", wraplength = 400, anchor = "s")
         self.cmdHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
-
-
-        self.transcribedLabel = StringVar()
-        self.transcribedLabel.set("Transcribed speech will appear here.\n\n\n\n")
-
-        # Add a transcription box
-        self.transcription_label = Label(self.right_frame, height = 10, width = 30, bg = "light cyan", relief = "solid", textvariable = self.transcribedLabel, wraplength = 200)
-        self.transcription_label.grid(row = 1, column = 0, padx = 10, pady = 10)
-
-        self.predictionLabel = StringVar()
-        self.predictionLabel.set("Predicted commands will appear here")
-
-        self.prediction_label = Label(self.right_frame, textvariable = self.predictionLabel, font = ("Franklin Gothic Medium", 12), width = 40, height = 5,  bg = "azure3", wraplength = 500, anchor = "center")
-        self.prediction_label.grid(row = 3, column = 0, padx = 0, pady = 10)
-
-       # self.recordDurationLabel = StringVar()
-        #self.recordDurationLabel.set("Record Duration")
-
-       # self.recordDuration_label = Label(self.right_frame, height = 1, width = 30, bg = "light cyan", relief = "solid", textvariable = self.recordDurationLabel, wraplength = 200)
-       # self.recordDuration_label.grid(row = 3, column = 1, padx = 10, pady = 10)
 
 # This class is meant to store the various functions we'll use for validating a user's input
 # Input validation should always occur before passing the argument to the function in command_module
