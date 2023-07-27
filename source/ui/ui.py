@@ -13,6 +13,7 @@ import jellyfish
 # The first screen to be displayed to users
 class mainScreen(operations):
     def __init__(self):
+        super().__init__()
         self.keyword = "record"
         # Create root window
         self.root = Tk()
@@ -477,6 +478,8 @@ class InputValidation(mainScreen):
             print("\n***Email sign-in***")
             self.beepgood()
             self.current_window = self.sign_in()
+            print("\nMade it")
+
 
         elif(jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "add") > 0.85):     # Add contact
             if len(self.userChoiceSplit) >= 5:
@@ -516,9 +519,8 @@ class InputValidation(mainScreen):
                     self.appendNewCommandHistory(str(self.commandUpdate))
 
         elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
-            contact, subject, body = self.validate_new_email()
-            self.start_new_mail(self.current_window,contact,subject,body)
-
+            address, subject, body = self.validate_new_email()
+            self.start_new_mail(self.current_window,self.driver, address,subject,body)
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
             self.beepgood()
             print("***Exiting***")
@@ -905,8 +907,8 @@ class InputValidation(mainScreen):
         except Exception as e:
             print(f"Error while listening for keyword: {e}")
     
-    def start_new_mail(self, current_window, contact, subject, body):
-        self.driver.switch_to.window(current_window)
+    def start_new_mail(self, current_window, driver, address, subject, body):
+        driver.switch_to.window(current_window)
         #wait = WebDriverWait(driver, 30)
         wait1 = WebDriverWait(self.driver, 5)
       #element 1 is the 'New email' button
@@ -919,7 +921,7 @@ class InputValidation(mainScreen):
                 el1.click()
                 print("\n Found the 1st one")
                 ele2 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "Z4n09")))
-                ele2.send_keys(contact)
+                ele2.send_keys(address)
                 ele3 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-TextField-field")))
                 ele3.send_keys(subject)
                 ele4 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "dFCbN")))
@@ -952,24 +954,26 @@ class InputValidation(mainScreen):
                 #check if the name is in our file if not loop
                 #pull var of email
                 # if name is in file exe the below
-                self.setLabel(self.userInstruction_label, f"You wish to contact{contactName} ?\n Say yes if correct:")
+                self.setLabel(self.userInstruction_label, f"You wish to contact {contactName} ?\n Say yes if correct:")
 
                 if_yes = self.promptUser(3,True,True)
                 
                 if (if_yes == "yes"):
                     #Using this we can see if the user has this person in their contacts
                     found,email,domain = self.pull_contact(contactName)
+                    print(f"found:{found}\n email:{email}\ndomain: {domain}\n")
                     #If they do then return their email address
                     if (found == True):
-                        address = email+"@"+domain+".com"
+                        address = f"{email}@{domain}.com"
                         return address
                     #if they don't prompt for their addy
                     else:
                         self.setLabel(self.userInstruction_label, f"{contactName} is not in your contacts\n Please tell me their information.")
+                        time.sleep(2)
                         new_email = self.validateContactEmailInput()
                         
                         new_domain = self.validateContactEmailDomainInput()
-                        address = new_email +"@", new_domain + ".com"
+                        address = f"{new_email}@{new_domain}.com"
                         return address
                 
                            
