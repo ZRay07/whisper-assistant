@@ -1,9 +1,6 @@
-.venv
+*env
 *.wav
 data
-saved
 geckodriver.log
 *.pyc
 *.app_data.json
-venv
-

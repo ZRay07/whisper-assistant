@@ -72,7 +72,5 @@ class ASR_model:
 microphone = Recorder()
 whisper = ASR_model()
 
-if __name__ == "__main__":
-    print("Called from command line")
 
 

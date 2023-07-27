@@ -1,35 +1,28 @@
-#from AppOpener import open
-#from PIL import Image
-#open("matlab r b")
-#im = Image.open('C:/Users/cohent1/Pictures/Camera Roll/glass.jfif')
-#im.show()
+import time
+import os
+import json
+import winsound
+
+from source.core.model_interface import *
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time 
-
-import AppOpener        # used for opening / closing applications
-import pyautogui        # used to control mouse cursor
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume    # used for audio
-from ctypes import cast, POINTER                                # audio
-from comtypes import CLSCTX_ALL                                 # audio
-from source.core.model_interface import *
-from tkinter import *
-import jellyfish
-import winsound # for creating beeps
-import pyttsx3  # for text to speech if needed (ex: says begin recording)
-import string
-import json
-import os
+from AppOpener import open as app_opener_open, close as app_opener_close, mklist as app_opener_mklist
+import pyautogui
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+import pyttsx3
 from word2number import w2n
-import threading
 
 # Set the device which we will change audio levels for
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 volume = cast(interface, POINTER(IAudioEndpointVolume))
+
 #1080 675
 class operations:   #audio beep functions
     def __init__(self):
@@ -54,13 +47,13 @@ class operations:   #audio beep functions
     # User voice input has been split by word
     # If user says "open application" -> the if statement will be entered which will prompt for an app name
     #   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
-    def handleApplicationAction(appName, action):
+    def handleApplicationAction(self, appName, action):
         try:
             if appName in VALID_APPS:
                 if action == "open":
-                    AppOpener.open(appName, throw_error = True)
+                    app_opener_open(appName, throw_error = True)
                 elif action == "close":
-                    AppOpener.close(appName, throw_error = True)
+                    app_opener_close(appName, throw_error = True)
                 else:
                     print("Invalid action: ", action)
                     return False
@@ -106,7 +99,7 @@ class operations:   #audio beep functions
             print("Only integers or number strings are allowed", str(e))
             return None
 
-    def handleScrollAction(scrollAmount, direction):
+    def handleScrollAction(self, scrollAmount, direction):
         try:        
             if direction == "up":
                 print(f"Scrolling up by {scrollAmount} clicks")
@@ -128,8 +121,10 @@ class operations:   #audio beep functions
     #   So a user may say "set volume" or "set volume to 80"
     #   if the user says "set volume", the function should prompt the user and record an audio clip to get the number they'd like to set their volume to
     #   if the user says "set volume to 80", the function should automatically set the volume to 80 without prompting again
-    def setVolume(volChoice, decibel):
+    def setVolume(self, volChoice, decibel):
         try:
+            print(f"decibel: {decibel}")
+            print(f"volume: {volume}")
             volume.SetMasterVolumeLevel(decibel, None)
             print(f"Setting volume to {volChoice}")
             return f"Successfully set volume to {volChoice}"
@@ -295,7 +290,7 @@ class operations:   #audio beep functions
         return self.current_window
     
 
-    def searchForDocument(docChoice):
+    def searchForDocument(self, docChoice):
         try:
             docChoice = "Document: " + docChoice
 
@@ -344,6 +339,7 @@ def loadValidApps():
         with open("data/app_data.json") as json_file:
             data = json.load(json_file)
             return set(data.keys())
+        
     except Exception as e:
         print("Error occured while loading valid app names: ", str(e))
         return False
@@ -353,9 +349,16 @@ def loadValidApps():
 if os.path.exists("data/app_data.json"):
     VALID_APPS = loadValidApps()
 else:
-    AppOpener.mklist(path = "data")
+    app_opener_mklist(path = "data")
     VALID_APPS = loadValidApps()
-    
+
 if __name__ == "__main__":
-    print("This should only run if called from cmd line")
-    
+    # For testing purposes
+    mute_status = volume.GetMute()
+    print("Mute status:", mute_status)
+
+    volume_range = volume.GetVolumeRange()
+
+    min_volume, max_volume = volume_range[:2]
+    print("Minimum volume:", min_volume, "dB")
+    print("Maximum volume:", max_volume, "dB")
