@@ -46,6 +46,10 @@ def sign_in():
         time.sleep(2)
         
         pyautogui.click(x=1080, y=675)
+
+      #  el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "splitPrimaryButton")))
+      #  print("\n Found it or nah?")
+      #  el3.click()
         #el4 = wait.until(driver.find_element(By.ID,("idSIButton9"))) 
         #el4.click()
        #//*[@id="idSIButton9"]
@@ -85,15 +89,21 @@ def new_email(current_window, contact, subject, body):
       wait1 = WebDriverWait(driver, 1)
       #element 1 is the 'New email' button
      # //*[@id="id__130"]
-      for i in range(50): 
-             try:
-                id_num = 99 + i 
-                print(id_num)
-                print("\n")
-                el1 = wait1.until(EC.presence_of_element_located((By.ID, f"id__{id_num}")))
+      try:
+              #  id_num = 99 + i 
+               # print(id_num)
+                print("You're in here")
+                el1 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "splitPrimaryButton")))
                 el1.click()
+                print("\n Found the 1st one")
+                ele2 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "Z4n09")))
+                ele2.send_keys(contact)
+                ele3 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-TextField-field")))
+                ele3.send_keys(subject)
+                ele4 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "dFCbN")))
+                ele4.send_keys(body)
                 #print(id_num+"\n")
-             except Exception as e:
+      except Exception as e:
                  print(f"Error during clicking. \nError: {e}")
           #for i in range(50): 
           ##      id_num = 149 + i 
@@ -285,5 +295,5 @@ class sub_window_int:
 #name, email, domain, password = account_info_in()
 #print(password)
 current_window = sign_in()
-time.sleep(3)
+time.sleep(2)
 new_email(current_window, "tcohenwest@gmail.com", "Work please", "If you see me then you have won.")

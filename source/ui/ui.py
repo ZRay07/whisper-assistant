@@ -915,18 +915,36 @@ class InputValidation(mainScreen):
             print(f"Error while listening for keyword: {e}")
     
     def start_new_mail(self, current_window, contact, subject, body):
-        driver = webdriver.Firefox()
-        driver.switch_to.window(self.current_window)
-
+        self.driver.switch_to.window(current_window)
+        #wait = WebDriverWait(driver, 30)
+        wait1 = WebDriverWait(self.driver, 5)
+      #element 1 is the 'New email' button
+     # //*[@id="id__130"]
+        try:
+              #  id_num = 99 + i 
+               # print(id_num)
+                print("You're in here")
+                el1 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "splitPrimaryButton")))
+                el1.click()
+                print("\n Found the 1st one")
+                ele2 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "Z4n09")))
+                ele2.send_keys(contact)
+                ele3 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-TextField-field")))
+                ele3.send_keys(subject)
+                ele4 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "dFCbN")))
+                ele4.send_keys(body)
+                #print(id_num+"\n")
+        except Exception as e:
+                 print(f"Error during clicking. \nError: {e}")
     #validate the info needed to write an email
     def validate_new_email(self):
         time.sleep(1)
         try:
              while True:
-                contactName = self.validate_contact_inp()
+                address = self.validate_contact_inp()
                 subject = self.validate_subject_inp()
                 body = self.validate_body_inp()
-                return contactName, subject, body
+                return address, subject, body
 
         except Exception as e:
             print(f"Error while validating email input: {e}")
@@ -944,10 +962,27 @@ class InputValidation(mainScreen):
                 #pull var of email
                 # if name is in file exe the below
                 self.setLabel(self.userInstruction_label, f"You wish to contact{contactName} ?\n Say yes if correct:")
+
                 if_yes = self.promptUser(3,True,True)
+                
                 if (if_yes == "yes"):
-                    #change to email
-                    return contactName
+                    #Using this we can see if the user has this person in their contacts
+                    found,email,domain = self.pull_contact(contactName)
+                    #If they do then return their email address
+                    if (found == True):
+                        address = email+"@"+domain+".com"
+                        return address
+                    #if they don't prompt for their addy
+                    else:
+                        self.setLabel(self.userInstruction_label, f"{contactName} is not in your contacts\n Please tell me their information.")
+                        new_email = self.validateContactEmailInput()
+                        
+                        new_domain = self.validateContactEmailDomainInput()
+                        address = new_email +"@", new_domain + ".com"
+                        return address
+                
+                           
+
         except Exception as e:
             print(f"Error while listening for contact: {e}")
     #function to validate the subject user wishes to write about
