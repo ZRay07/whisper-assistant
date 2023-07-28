@@ -11,8 +11,9 @@ from source.core.command_module import operations
 Commands = operations()
 
 class WordInputValidator(WordWindow):
-    def __init__(self, title, size, start_position):
-        super().__init__(title, size, start_position)
+    def __init__(self, title, size, document_name = None):
+        super().__init__(title, size)
+        self.document_name = document_name
         self.instruction_sleep_time = 2
 
         self.command_handler = WordCommandHandler()
@@ -243,6 +244,12 @@ class WordInputValidator(WordWindow):
         except Exception as e:
             print(f"Error while getting cursor movement direction: {e}")
 
+    def validate_font_name(self):
+        print("validating font name")
+
+    def validate_font_emphasis(self):
+        print("validating font emphasis")
+
     # This function should be called as soon as the word ui is launched
     # First, it updates the userInstruction label to let the users know we're first waiting for a command
     #   It will continuously listen until it hears a command
@@ -255,6 +262,9 @@ class WordInputValidator(WordWindow):
                 self.setLabel(self.user_inputs.user_instruction_label2, "Say 'insert text' or a command")
 
                 self.command_choice = self.promptUser(5, True, True)
+
+                if self.command_choice != "you":
+                    self.appendNewUserInputHistory(self.command_choice)
                 
                 if (self.command_choice in self.valid_commands):
                     # Get the corresponding function from the dictionary
@@ -280,5 +290,6 @@ class WordInputValidator(WordWindow):
         thread.daemon = True  # Set the thread as a daemon thread
         thread.start()
 
-word_window = WordInputValidator("Microsoft Word Menu", (300, 600), (300 , 300))
-word_window.mainloop()
+if __name__ == "__main__":
+    word_window = WordInputValidator("Microsoft Word Menu", (300, 600))
+    word_window.mainloop()

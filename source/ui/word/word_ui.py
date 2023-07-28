@@ -9,13 +9,19 @@ import pyautogui
 
 # This class creates the window, and creates objects which create the frames that store widgets
 class WordWindow(tk.Tk):
-    def __init__(self, title, size, start_position):
+    def __init__(self, title, size):
         super().__init__()
+
+        # Set the starting position so it always appears on furthest right point of screen
+        self.start_x_position = self.winfo_screenwidth() - size[0] - 5
+        self.start_y_position = 0
 
         # Main setup (title, geometry, minimum size)
         self.title(title)
-        self.geometry(f"{size[0]}x{size[1]}+{start_position[0]}+{start_position[1]}")
+        self.geometry(f"{size[0]}x{size[1]}+{self.start_x_position}+{self.start_y_position}")
         self.minsize(size[0], size[1])
+
+        self.configure(background = "black")
 
         # TO-DO - Create an antiquewhite3 ring around the gray, similar to the landing page
 
@@ -25,18 +31,19 @@ class WordWindow(tk.Tk):
 
         # Create the user input box, user instruction label
         self.user_inputs = UserInput(self)
+        self.user_inputs.input_history_label1["width"] = size[0]
+        self.user_inputs.input_history_label1["wraplength"] = size[0] - 5
 
         # Create the listening label, and error message label
         self.feedback_msg = FeedbackMessages(self)
 
-        # Allow options frame inside of window to expand 
-        self.grid_rowconfigure(0, weight = 1)
+        # Create the window grid 
+        self.grid_rowconfigure((0, 4), weight = 1)
 
         # Ensure expansion of user history is greater than options labels
-        self.grid_rowconfigure(1, weight = 2)
+        self.grid_rowconfigure(2, weight = 2)
 
-        # Expand feedback message frame
-        self.grid_rowconfigure(2, weight = 1)
+
 
         self.grid_columnconfigure(0, weight = 1)
 
@@ -48,6 +55,18 @@ class WordWindow(tk.Tk):
         except Exception as e:
             print(f"Error updating {label} with \"{message}\": {e}")
             return False
+        
+    def appendNewUserInputHistory(self, message):
+        # This function updates the user input history
+        # It's meant to be used after every recording, to display what the model has transcripted
+        try:
+            self.newText = message
+            self.currentText = self.user_inputs.input_history_label1.cget("text")
+            self.updatedText = self.currentText + "\n" + self.newText
+            self.updatedText.capitalize()
+            self.user_inputs.input_history_label1.config(text = self.updatedText)
+        except Exception as e:
+            print(f"Error updating user input history with \"{message}\": {e}")
 
 
 class UserOptions(ttk.Frame):
@@ -123,7 +142,9 @@ class UserInput(ttk.Frame):
         ttk.Label(self, background = "red").grid(row = 0, rowspan = 2, column = 0, sticky = "nsew")
 
         # Places the frame onto the window
-        self.grid(row = 1, column = 0, sticky = "nsew")
+        ttk.Separator(orient = "horizontal").grid(row = 1, column = 0)
+        self.grid(row = 2, column = 0, sticky = "nsew")
+        ttk.Separator(orient = "horizontal").grid(row = 3, column = 0)
 
         # Create the widgets
         self.create_input_display()
@@ -133,14 +154,19 @@ class UserInput(ttk.Frame):
         self.input_history_label1 = ttk.Label(self, text = "user input history",
                                             font = ("Franklin Gothic Medium", 12),
                                             background = "slate gray",
-                                            anchor = "center")
+                                            anchor = "s",
+                                            justify = "center"
+                                            )
+
         #self.input_history_label1.configure(padding = "60 60")
+        print(self.input_history_label1.configure())
         
         self.user_instruction_label2 = ttk.Label(self, 
                                                     text = "Say 'input text' or a command",
                                                     font = ("Franklin Gothic Medium", 12),
-                                                    background = "slate gray",
-                                                    anchor = "center")
+                                                    background = "antiquewhite3",
+                                                    anchor = "n",
+                                                    justify = "center")
         #self.user_instruction_label2.configure(padding = "20 60")
         
     def layout_user_input_display(self):
@@ -149,8 +175,8 @@ class UserInput(ttk.Frame):
         self.grid_rowconfigure((0, 1), weight = 1)
         self.grid_columnconfigure(0, weight = 1)
 
-        self.input_history_label1.grid(row = 0, column = 0, sticky = "s")
-        self.user_instruction_label2.grid(row = 1, column = 0, sticky = "n")
+        self.input_history_label1.grid(row = 0, column = 0, sticky = "ew")
+        self.user_instruction_label2.grid(row = 1, column = 0, sticky = "ew")
 
 
 class FeedbackMessages(ttk.Frame):
@@ -161,7 +187,7 @@ class FeedbackMessages(ttk.Frame):
         ttk.Label(self, background = "white").grid(row = 0, rowspan = 2, column = 0, sticky = "nsew")
 
         # Place the frame onnto the window
-        self.grid(row = 2, column = 0, sticky = "nsew")
+        self.grid(row = 4, column = 0, sticky = "nsew")
 
         self.create_feedback_messages()
         self.layout_feedback_messages()
