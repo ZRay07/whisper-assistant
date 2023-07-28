@@ -301,6 +301,23 @@ class operations:   #audio beep functions
         except Exception as e:
             print(f"Error occured while searching for document: {e}")
             return False
+        
+    def formatString(self, text, format):
+        if format == "remove spaces":
+            split_input = text.split()
+            split_input = [word.capitalize() for word in split_input]
+            formatted_input = "".join(split_input)
+
+        elif format == "replace spaces with underscores":
+            formatted_input = text.replace(" ", "_")
+
+        elif format == "replace spaces with hyphens":
+            formatted_input = text.replace(" ", "-")
+
+        return formatted_input
+
+
+
 # end class definition        
 
 

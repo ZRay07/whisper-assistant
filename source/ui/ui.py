@@ -7,6 +7,7 @@ from tkinter import font
 from source.core.command_module import *
 from source.core.model_interface import *
 from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
+from source.ui.word.word_ui_input import WordInputValidator
 
 import jellyfish
 
@@ -81,7 +82,7 @@ class mainScreen(operations):
         self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [self.sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [self.addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
-        self.createDocument_button= Button(self.cmd_bar, text = "Create Document",      font = self.buttonFont, command = lambda: [self.createDocument()],                                                       bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.createDocument_button= Button(self.cmd_bar, text = "Create Document",      font = self.buttonFont, command = lambda: [],                                                                            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [self.searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.record_button =        Button(self.cmd_bar, text = "Record",               font = self.buttonFont, command = lambda: [self.commandExec(self.promptUser(5, True, True))],                            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
         self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
@@ -433,7 +434,7 @@ class InputValidation(mainScreen):
                     self.appendNewCommandHistory(str(self.commandUpdate))
 
 
-        elif (jellyfish.jaro_winkler_similarity(userChoice, "Navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Mouse Control") > 0.85):
+        elif (jellyfish.jaro_winkler_similarity(userChoice, "navigate mouse and keyboard") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "mouse control") > 0.85):
             print("\n***Navigate mouse + keyboard***")
 
             self.beepgood()
@@ -483,6 +484,24 @@ class InputValidation(mainScreen):
             self.beepgood()
             self.google_search()
 
+        elif (jellyfish.jaro_winkler_similarity(userChoice, "create document") > 0.85):
+            print("\n***Create a document***")
+
+            # Get the name of the document they are trying to create
+            docChoice = self.validateSaveDocumentName()
+
+            # Minimize landing page
+            self.root.iconify()
+
+            # Open word
+            self.handleApplicationAction("spotify", "open")
+
+            # Launch the UI for interacting with word
+            self.word_window = WordInputValidator("Microsoft Word Menu", (300, 600), docChoice)
+            self.word_window.mainloop()
+
+
+            
 
         elif(jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "search") > 0.85):
             if len(self.userChoiceSplit) >= 4:
@@ -700,16 +719,84 @@ class InputValidation(mainScreen):
                     print("'Document' not found in array.")
 
             try:
-                self.setLabel(self.userInstruction_label, f"Search for {docChoice}?\nSay yes if correct.")
+                self.setLabel(self.userInstruction_label, f"Would you like to format {docChoice}?")
+                time.sleep(2)
+
+                self.userConfirmation = self.promptUser(2, True, True)
+
+                if (self.userConfirmation == "no"):
+                    return docChoice
+                
+                elif (self.userConfirmation == "yes"):
+                    docChoice = self.formatUserInput(docChoice)
+                    return docChoice
+            
+            except Exception as e:
+                print(f"Error occured while getting document name: {e}")
+
+    # This function prompts the user for a document name they'd like to create
+    def validateSaveDocumentName(self):
+        self.userConfirmation = " "
+        while True:
+            if (self.userConfirmation != "yes"):    # If the second word in the string is "contact", we need to prompt user for a name
+                print("\nWhat name would you like to save your document as?")
+                self.setLabel(self.userInstruction_label, "What name would you like to save your document as?")
+                time.sleep(2)
+
+                self.saveDocumentName = self.promptUser(3, True, True)
+
+            try:
+                self.setLabel(self.userInstruction_label, f"Would you like to format {self.saveDocumentName}?")
+                time.sleep(2)
+
+                self.userConfirmation = self.promptUser(2, True, True)
+
+                if (self.userConfirmation == "no"):
+                    return self.saveDocumentName
+                
+                elif (self.userConfirmation == "yes"):
+                    self.saveDocumentName = self.formatUserInput(self.saveDocumentName)
+                    return self.saveDocumentName
+            
+            except Exception as e:
+                print(f"Error occured while getting document name: {e}")
+
+    # This function can format the user input
+    # Currently, there are only 3 options
+    #   remove spaces (which also capitalizes each word)
+    #   replace spaces with underscore
+    #   replace spaces with hyphens
+    def formatUserInput(self, user_input):
+        self.valid_format_options = {"remove spaces",
+                                        "replace spaces with underscores",
+                                        "replace spaces with hyphens"}
+        self.userConfirmation = " "
+        self.formatChoice = " "
+        while True:
+            if (self.userConfirmation != "yes"):    # If the second word in the string is "contact", we need to prompt user for a name
+                print(f"\nRemove spaces or replace spaces with underscores/hyphens?")
+                self.setLabel(self.userInstruction_label, "Remove spaces or replace spaces with underscores/hyphens?")
+                time.sleep(2)
+
+                self.formatChoice = self.promptUser(3, True, True)
+
+                if self.formatChoice in self.valid_format_options:
+                    self.formattedUserInput = self.formatString(user_input, self.formatChoice)
+
+                else:
+                    continue
+
+            try:
+                self.setLabel(self.userInstruction_label, f"Is {self.formattedUserInput} the correct format?")
                 time.sleep(2)
 
                 self.userConfirmation = self.promptUser(2, True, True)
 
                 if (self.userConfirmation == "yes"):
-                    return docChoice
+                    return self.formattedUserInput
             
             except Exception as e:
-                print(f"Error occured while getting document name: {e}")
+                print(f"Error occured while formatting user input: {e}")
 
     
     # This function confirms the name of the contact the user wishes to add
@@ -842,7 +929,8 @@ class InputValidation(mainScreen):
             self.newText = message
             self.currentText = self.userInputHistory_label.cget("text")
             self.updatedText = self.currentText + "\n" + self.newText
-            self.userInputHistory_label.config(text = self.updatedText.capitalize())
+            self.updatedText.capitalize()
+            self.userInputHistory_label.config(text = self.updatedText)
         except Exception as e:
             print(f"Error updating user input history with \"{message}\": {e}")
 
