@@ -3,6 +3,8 @@ import time
 import threading
 
 from source.ui.word.word_ui import WordWindow
+from source.ui.word.word_ui_commands import WordCommandHandler
+
 from source.core.model_interface import microphone, whisper, RECORD_PATH
 from source.core.command_module import operations
 
@@ -11,19 +13,22 @@ Commands = operations()
 class WordInputValidator(WordWindow):
     def __init__(self, title, size, start_position):
         super().__init__(title, size, start_position)
+        self.instruction_sleep_time = 2
+
+        self.command_handler = WordCommandHandler()
 
         self.valid_commands = {
-            "save file": "save_file", 
-            "tab in": "tab_text", 
-            "indent": "tab_text",
-            "enter new line": "new_line",
-            "make new page": "new_page",
+            "save file": self.command_handler.save_file, 
+            "tab in": self.command_handler.tab_text, 
+            "indent": self.command_handler.tab_text,
+            "enter new line": self.command_handler.new_line,
+            "make new page": self.command_handler.new_page,
             "change font": self.validate_font_name,
-            "increase font size": "increase_font_size",
-            "decrease font size": "decrease_font_size",
-            "turn on bold": "change_emphasis('bold')",
-            "turn on italic": "change_emphasis('italic')",
-            "turn on underline": "change_emphasis('underline')"
+            "increase font size": self.command_handler.increase_font_size,
+            "decrease font size": self.command_handler.decrease_font_size,
+            "turn on bold": self.validate_font_emphasis,
+            "turn on italic": self.validate_font_emphasis,
+            "turn on underline": self.validate_font_emphasis
                                }  # used in listenForCommands
         
         self.startListeningThread()
@@ -34,11 +39,11 @@ class WordInputValidator(WordWindow):
     # If makeLowerCase is true when you call it, it makes the output string lowercase
     def promptUser(self, recordDuration, removePunctuation, makeLowerCase):
         try:
-            self.setLabel(self.listeningProcessing_label, "Listening...")
+            self.setLabel(self.feedback_msg.listening_processing_label1, "Listening...")
             microphone.record(recordDuration)
-            self.setLabel(self.listeningProcessing_label, "Processing...")
+            self.setLabel(self.feedback_msg.listening_processing_label1, "Processing...")
             self.userInput = whisper.use_model(RECORD_PATH)
-            self.setLabel(self.listeningProcessing_label, "Waiting...")
+            self.setLabel(self.feedback_msg.listening_processing_label1, "Waiting...")
 
             if removePunctuation:
                 self.userInput = self.userInput.rstrip(string.punctuation)
@@ -67,7 +72,26 @@ class WordInputValidator(WordWindow):
             
             else:
                 pass
-        
+
+    # This function is a general input validator
+    # Can be called with a user input, if no user input is passed, it moves directly to getting a user input
+    # Pass an instruction to the user with 'message' for the input we're trying to gather
+    # Pass a valid list to the function with 'valid_input', this list is what the input will be checked against
+    def validate_general_input(self, message, invalid_input_message, valid_input, user_input = None):
+        try:
+            while True:
+                if user_input in valid_input:
+                    return self.user_inputs
+                
+                elif user_input is not None:
+                    self.setLabel(self.user_instruction_label2, f"{invalid_input_message}: {user_input}")
+                
+                self.setLabel(self.user_instruction_label2, message)
+                time.sleep(self.instruction_sleep_time)
+                self.user_input = self.promptUser(5, True, True)
+
+        except Exception as e:
+            print(f"Error while validating/getting user input: {e}")
 
     # This function will get the user input once they've entered the subgrid phase
     # They will choose a color -> choose a subgrid -> and then be prompted with these options
@@ -234,7 +258,7 @@ class WordInputValidator(WordWindow):
                 
                 if (self.command_choice in self.valid_commands):
                     # Get the corresponding function from the dictionary
-                    selected_command = getattr(self, "valid_commands")[self.command_choice]
+                    selected_command = self.valid_commands[self.command_choice]
 
                     # Call the selected command
                     selected_command()
@@ -244,13 +268,15 @@ class WordInputValidator(WordWindow):
                     self.destroy()
                     break
 
+                time.sleep(0.25)
+
         except Exception as e:
             print(f"Error while listening for word commands: {e}")
 
     # Function to start the keyword listening thread
     # This function is called within the __init__ method of the MouseGridInputValidator class, allowing it to run concurrently with the GUI.
     def startListeningThread(self):
-        thread = threading.Thread(target = self.listenForColors)
+        thread = threading.Thread(target = self.listenForCommands)
         thread.daemon = True  # Set the thread as a daemon thread
         thread.start()
 
