@@ -28,7 +28,7 @@ class operations:   #audio beep functions
     def __init__(self):
         self.current_window =" "
         self.session_id = " "
-    
+        #self.driver = webdriver.Firefox()
     def beepgood(self):
         winsound.Beep(1000, 250)
         winsound.Beep(1500, 250)
@@ -152,29 +152,43 @@ class operations:   #audio beep functions
         except Exception as e:
             print(f"Error adding {name} to contact list: {e}")
 
-    def pull_contact(string):
-        with open("source/my_account.txt", "r") as f:
-            contacts = f.readlines()
+    def pull_contact( string):
+        found = 0
+        count = 0
+        space = " "
+        with open("source/contact_list.txt", "r") as f:
+                contacts = f.readlines()
+               
+                for line in contacts:
+                    extr = line.partition(" ")
+                    first_name = extr[0]
+                    extr_2 = extr[2].partition(" ")
+                    last_name = extr_2[0]
+                    extr_3 = extr_2[2].partition(" ")
+                    email = extr_3[0]
+                    domain = extr_3[2]
+                    count +=1
+                    print(f"\nName:{first_name} {last_name}")
+                    
+                    if (f"{first_name}{space}{last_name}" == string):
+                        name =  f"{first_name}{space}{last_name}"
+                        email = email
+                        domain = domain
+                        print(f"\n{first_name}{space}{last_name}")
+                        print(f"\n{email}")
+                        print(f"\n{domain}")
+                        found += 1
+                        return  email, domain
+                    else:
+                        email1= "None"
+                        domain1 = "None"
+        if (found == 0):
+            return email1,domain1
+        
 
-            for line in contacts:
-                extr = line.partition(" ")
-                first_name = extr[0]
-                extr_2 = extr[2].partition(" ")
-                last_name = extr_2[0]
-                extr_3 = extr_2[2].partition(" ")
-                email = extr_3[0]
-                domain = extr_3[2]
-                if (first_name + " " + last_name == string):
-                    contact = {
-                        'name' : first_name + " " + last_name,
-                        'email' : email , 
-                        'domain' : domain
-                    }
-                
-                #copy string until second " " is found 
+               #copy string until second " " is found 
                 #compare with user input
                 #If same pull the info from the line and save as dict
-        return contact.get('name'), contact.get('email'), contact.get('domain')
 
 
     def account_info_in(self):
@@ -220,15 +234,15 @@ class operations:   #audio beep functions
 
     def sign_in(self):
         name, email, domain, password = self.account_info_in()
-        driver = webdriver.Firefox()
+        self.driver = webdriver.Firefox()       
 
         #so the pages have time to load 
-        wait = WebDriverWait(driver, 30)
+        wait = WebDriverWait(self.driver, 30)
 
-        driver.get("https://outlook.live.com/owa/")
+        self.driver.get("https://outlook.live.com/owa/")
         
         #SPECIFY WINDOW OPENS AT MAX SIZE
-        driver.maximize_window()
+        self.driver.maximize_window()
         #This is an alternative method
         # Wait for the Sign in link to become available
         ele = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "Sign in")))
@@ -253,8 +267,9 @@ class operations:   #audio beep functions
         el2.send_keys(password)
         el2.send_keys(Keys.RETURN)
         time.sleep(2)
-        el4 = wait.until(driver.find_element(By.ID,("idSIButton9"))) 
-        el4.click()
+        
+        pyautogui.click(x=1080, y=675)
+
        #//*[@id="idSIButton9"]
        #//*[@id="idSIButton9"]
         #elements = driver.find_elements(By.CLASS_NAME, "method-select-chevron")
@@ -280,8 +295,9 @@ class operations:   #audio beep functions
     #       The user is prompted for a document name
     #   Otherwise:
     #       it searches for a document with the document name being whatever comes after 'document' in the string
-        self.current_window = driver.current_window_handle
+        self.current_window = self.driver.current_window_handle
         print(self.current_window)
+        print(self.driver)
         return self.current_window
     
 

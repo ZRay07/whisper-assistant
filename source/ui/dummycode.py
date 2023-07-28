@@ -3,12 +3,19 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import time 
 import pyautogui
 from tkinter import*
 from source.core.model_interface import microphone, whisper, RECORD_PATH
 
-driver = webdriver.Firefox()
+
+
+#def getDriver():
+     
+
+#def Alreadyrunning():
+#     try
 def sign_in():
         name, email, domain, password = account_info_in()
         #driver = webdriver.Firefox()
@@ -46,6 +53,10 @@ def sign_in():
         time.sleep(2)
         
         pyautogui.click(x=1080, y=675)
+
+      #  el3 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "splitPrimaryButton")))
+      #  print("\n Found it or nah?")
+      #  el3.click()
         #el4 = wait.until(driver.find_element(By.ID,("idSIButton9"))) 
         #el4.click()
        #//*[@id="idSIButton9"]
@@ -85,15 +96,21 @@ def new_email(current_window, contact, subject, body):
       wait1 = WebDriverWait(driver, 1)
       #element 1 is the 'New email' button
      # //*[@id="id__130"]
-      for i in range(50): 
-             try:
-                id_num = 99 + i 
-                print(id_num)
-                print("\n")
-                el1 = wait1.until(EC.presence_of_element_located((By.ID, f"id__{id_num}")))
+      try:
+              #  id_num = 99 + i 
+               # print(id_num)
+                print("You're in here")
+                el1 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "splitPrimaryButton")))
                 el1.click()
+                print("\n Found the 1st")
+                ele2 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "Z4n09")))
+                ele2.sendkeys(contact)
+                ele3 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-TextField-field")))
+                ele3.send_keys(subject)
+                ele4 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "dFCbN")))
+                ele4.send_keys(body)
                 #print(id_num+"\n")
-             except Exception as e:
+      except Exception as e:
                  print(f"Error during clicking. \nError: {e}")
           #for i in range(50): 
           ##      id_num = 149 + i 
@@ -151,7 +168,7 @@ def exp_contact_list():
 #exp_contact_list()
 #format_email("T. Cohen West")
 def pull_contact(string):
-    with open("source/my_account.txt", "r") as f:
+    with open("source/contact_list.txt", "r") as f:
          contacts = f.readlines()
 
          for line in contacts:
@@ -202,7 +219,7 @@ def account_info_in():
                     'domain' : domain,
                     'password' : password
                 }
-    return contact.get('name'), contact.get('email'), contact.get('domain'), contact.get('password')
+    return contact.get('name'), contact.get('email'), contact.get('domain')
 #Make two functions 'write email' will take contact info and dictation
 #'Full Send' will send the info gathered from write email if user confirms
 def Full_send():
@@ -284,6 +301,84 @@ class sub_window_int:
 
 #name, email, domain, password = account_info_in()
 #print(password)
-current_window = sign_in()
-time.sleep(3)
-new_email(current_window, "tcohenwest@gmail.com", "Work please", "If you see me then you have won.")
+#current_window = sign_in()
+#time.sleep(2)
+#new_email(current_window, "tcohenwest@gmail.com", "Work please", "If you see me then you have won.")
+
+def validate_contact_inp(self):
+        #
+        time.sleep(1)
+        try: 
+            while True: 
+                self.setLabel(self.userInstruction_label, "We are listening for the person you wish to contact.")
+                contactName = self.promptUser(3,True,False)
+
+                #check if the name is in our file if not loop
+                #pull var of email
+                # if name is in file exe the below
+                self.setLabel(self.userInstruction_label, f"You wish to contact {contactName} ?\n Say yes if correct:")
+
+                if_yes = self.promptUser(3,True,True)
+                
+                if (if_yes == "yes"):
+                    #Using this we can see if the user has this person in their contacts
+                    found,email,domain = self.pull_contact(contactName)
+                    print(f"found:{found}\n email:{email}\ndomain: {domain}\n")
+                    #If they do then return their email address
+                    if (found == True):
+                        address = f"{email}@{domain}.com"
+                        return address
+                    #if they don't prompt for their addy
+                    else:
+                        self.setLabel(self.userInstruction_label, f"{contactName} is not in your contacts\n Please tell me their information.")
+                        new_email = self.validateContactEmailInput()
+                        
+                        new_domain = self.validateContactEmailDomainInput()
+                        address = f"{new_email}@{new_domain}.com"
+                        return address
+        except Exception as e:
+            print(f"Error while listening for contact: {e}")            
+
+def pull_contact1( string):
+        found = 0
+        count = 0
+        space = " "
+        with open("source/contact_list.txt", "r") as f:
+                contacts = f.readlines()
+               
+                for line in contacts:
+                    extr = line.partition(" ")
+                    first_name = extr[0]
+                    extr_2 = extr[2].partition(" ")
+                    last_name = extr_2[0]
+                    extr_3 = extr_2[2].partition(" ")
+                    email = extr_3[0]
+                    domain = extr_3[2]
+                    count +=1
+                    print(f"\nName:{first_name} {last_name}")
+                    
+                    if (f"{first_name}{space}{last_name}" == string):
+                        name =  f"{first_name}{space}{last_name}"
+                        email = email
+                        domain = domain
+                        print(f"\n{first_name}{space}{last_name}")
+                        print(f"\n{email}")
+                        print(f"\n{domain}")
+                        found += 1
+                        return  email, domain
+                    else:
+                        email1= "None"
+                        domain1 = "None"
+        if (found == 0):
+            return email1,domain1
+        
+                
+       # if  (found == False):    
+
+        #    return found, "None", "None"
+
+
+
+
+email, domain = pull_contact1("Tyler Cohen")
+print(f" email:{email}\ndomain:{domain}")
