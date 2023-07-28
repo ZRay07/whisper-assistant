@@ -960,11 +960,12 @@ class InputValidation(mainScreen):
                 
                 if (if_yes == "yes"):
                     #Using this we can see if the user has this person in their contacts
-                    found,email,domain = self.pull_contact(contactName)
-                    print(f"found:{found}\n email:{email}\ndomain: {domain}\n")
+                    email,domain = self.pull_contact(contactName)
+                    
                     #If they do then return their email address
-                    if (found == True):
+                    if (email != "None"):
                         address = f"{email}@{domain}.com"
+                        print(f"{email}@{domain}.com")
                         return address
                     #if they don't prompt for their addy
                     else:

@@ -152,39 +152,39 @@ class operations:   #audio beep functions
         except Exception as e:
             print(f"Error adding {name} to contact list: {e}")
 
-    def pull_contact(self, string):
-        found = False
+    def pull_contact( string):
+        found = 0
         count = 0
         space = " "
-        with open("source/my_account.txt", "r") as f:
-            contacts = f.readlines()
-
-            for line in contacts:
-                extr = line.partition(" ")
-                first_name = extr[0]
-                extr_2 = extr[2].partition(" ")
-                last_name = extr_2[0]
-                extr_3 = extr_2[2].partition(" ")
-                email = extr_3[0]
-                domain = extr_3[2]
-                count +=1
-                print(f"\nName:{first_name} {last_name}")
-                
-                if (f"{first_name}{space}{last_name}" == string):
-                    contact = {
-                        'name' : f"{first_name}{space}{last_name}",
-                        'email' : email , 
-                        'domain' : domain
-                    }
-                    print(f"\n{first_name}{space}{last_name}")
-                    print(f"\n{email}")
-                    print(f"\n{domain}")
-                    found = True
-                    return found, contact.get('email'), contact.get('domain')
-                
-            if  (found == False):    
-
-                return found, "None", "None"
+        with open("source/contact_list.txt", "r") as f:
+                contacts = f.readlines()
+               
+                for line in contacts:
+                    extr = line.partition(" ")
+                    first_name = extr[0]
+                    extr_2 = extr[2].partition(" ")
+                    last_name = extr_2[0]
+                    extr_3 = extr_2[2].partition(" ")
+                    email = extr_3[0]
+                    domain = extr_3[2]
+                    count +=1
+                    print(f"\nName:{first_name} {last_name}")
+                    
+                    if (f"{first_name}{space}{last_name}" == string):
+                        name =  f"{first_name}{space}{last_name}"
+                        email = email
+                        domain = domain
+                        print(f"\n{first_name}{space}{last_name}")
+                        print(f"\n{email}")
+                        print(f"\n{domain}")
+                        found += 1
+                        return  email, domain
+                    else:
+                        email1= "None"
+                        domain1 = "None"
+        if (found == 0):
+            return email1,domain1
+        
 
                #copy string until second " " is found 
                 #compare with user input
