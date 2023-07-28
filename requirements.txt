@@ -1,11 +1,13 @@
 AppOpener
 jellyfish
 selenium
+pyaudio
 pyautogui
 pycaw
 pyttsx3
 sounddevice
 soundfile
+SpeechRecognition
 torch
 transformers
 wavio

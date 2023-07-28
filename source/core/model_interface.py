@@ -43,12 +43,13 @@ class ASR_model:
         except Exception as e:
             print(f"Error occured during processor/model loading: {e}")
         
-    def use_model(self, pathToAudio):
+    def use_model(self, pathToAudio, real_time = False):
         try:
             # Read audio data from the specified path
             self.data, self.srate = sf.read(pathToAudio)
 
-            print("Processing...")
+            if not real_time:
+                print("Processing...")
 
             # Preprocess the audio data using the processor
             self.input_features = self.processor(self.data, sampling_rate = 16000, return_tensors ="pt").input_features
