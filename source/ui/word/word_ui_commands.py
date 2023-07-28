@@ -6,33 +6,120 @@ from tempfile import NamedTemporaryFile
 from time import sleep
 
 from source.core.model_interface import whisper
+from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
 
 import speech_recognition as sr
 import pyautogui
     # Ctrl+End is a keyboard shortcut that moves the cursor to the end of a document.
 class WordCommandHandler():
+    def __init__(self, ui):
+        self.word_ui = ui
+        self.ribbon_popup_delay = 0.75
+        self.sequential_key_delay = 0.1
+        self.initial_save = False
 
+    def window_back_and_forth(word_command):
+        # This is a decorator function
+        # A decorator function essentially performs the same preprocessing and postprocessing steps
+        #       to a function that uses the decorator
+        # for more information: https://www.geeksforgeeks.org/decorators-in-python/
+        def wrapper(*args, **kwargs):
+            self = args[0]
+
+            # Push the UI window back
+            self.word_ui.lower()
+    
+            # Click on the Word window
+            pyautogui.click()
+
+            result = word_command(*args, **kwargs)
+
+            # Lift the UI window upfront
+            self.word_ui.focus_force()
+
+            return result
+        
+        return wrapper
+
+    @window_back_and_forth
     def save_file(self):
         print("save file")
 
+        if self.initial_save:
+            # Use control s to save document
+            pyautogui.hotkey("ctrl", "s")
+
+        else:
+            self.word_ui.setLabel(self.word_ui.feedback_msg.error_label2, "You must perform 'save file as' first")
+
+    @window_back_and_forth
+    def save_file_as(self):
+        print("save file as")
+        file_name = self.word_ui.document_name
+        key_stream = ["f", "a", "c", "y", "3"]
+
+        # Alt brings up the ribbon keys
+        pyautogui.press("alt")
+
+        # A small delay allows the ribbon options to pop up
+        sleep(self.ribbon_popup_delay)
+
+        # Go through the hotkeys until we reach file name location
+        for key in key_stream:
+            pyautogui.press(key)
+            sleep(self.sequential_key_delay)
+
+        # Type in the file name
+        pyautogui.typewrite(file_name, interval = 0.1)
+
+        # Tab over to save button
+        pyautogui.press("tab", presses = 2)
+
+        # Press the save button
+        pyautogui.press("enter")
+
+        self.initial_save = True
+
+
+
+    @window_back_and_forth
     def tab_text(self):
         print("tab text")
-        
+        pyautogui.press("tab")
+
+    @window_back_and_forth 
     def new_line(self):
         print("new line")
+        pyautogui.press("enter")
         
+    @window_back_and_forth
     def new_page(self):
         print("new page")
+        pyautogui.hotkey("ctrl", "enter")
 
+    @window_back_and_forth
     def increase_font_size(self):
         print("increase font size")
+        pyautogui.hotkey("ctrl", "]")
 
+    @window_back_and_forth
     def decrease_font_size(self):
         print("decrease font size")
+        pyautogui.hotkey("ctrl", "[")
 
+    @window_back_and_forth
+    def mouse_control(self):
+        print("mouse_control")
+        self.mouseGrid = MouseGridInputValidator()
+            
+        # Bring back the main screen window
+        if self.mouseGrid.typeSomething:    # If we type something, we wanna wait for longer
+            sleep(self.mouseGrid.recordDuration / 10)
+        else:
+            sleep(1)
 
-
-    def real_time_text_input(): # from https://github.com/davabase/whisper_real_time
+    @window_back_and_forth
+    def real_time_text_input(self): # from https://github.com/davabase/whisper_real_time
         audio_model = whisper
 
         # Energy level for mic to detect

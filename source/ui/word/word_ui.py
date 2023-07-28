@@ -198,9 +198,10 @@ class FeedbackMessages(ttk.Frame):
                                                         font = ("Franklin Gothic Medium", 24),
                                                         background = "slate gray")
         
-        self.error_label2 = ttk.Label(self, text = "error",
+        self.error_label2 = ttk.Label(self, text = "",
                                         font = ("Franklin Gothic Medium", 12),
-                                        background = "slate gray")
+                                        background = "slate gray",
+                                        foreground = "red")
         
     def layout_feedback_messages(self):
         

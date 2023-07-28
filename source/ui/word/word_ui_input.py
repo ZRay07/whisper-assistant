@@ -11,25 +11,33 @@ from source.core.command_module import operations
 Commands = operations()
 
 class WordInputValidator(WordWindow):
-    def __init__(self, title, size, document_name = None):
+    def __init__(self, title, size, document_name = "DefaultDocumentName"):
         super().__init__(title, size)
+        
         self.document_name = document_name
         self.instruction_sleep_time = 2
 
-        self.command_handler = WordCommandHandler()
+        self.command_handler = WordCommandHandler(self)
 
         self.valid_commands = {
-            "save file": self.command_handler.save_file, 
+            "insert text": self.command_handler.real_time_text_input,
+
+            "save file as": self.command_handler.save_file_as,
+            "save file": self.command_handler.save_file,
+
             "tab in": self.command_handler.tab_text, 
             "indent": self.command_handler.tab_text,
             "enter new line": self.command_handler.new_line,
             "make new page": self.command_handler.new_page,
+
             "change font": self.validate_font_name,
             "increase font size": self.command_handler.increase_font_size,
             "decrease font size": self.command_handler.decrease_font_size,
             "turn on bold": self.validate_font_emphasis,
             "turn on italic": self.validate_font_emphasis,
-            "turn on underline": self.validate_font_emphasis
+            "turn on underline": self.validate_font_emphasis,
+
+            "mouse control": self.command_handler.mouse_control
                                }  # used in listenForCommands
         
         self.startListeningThread()
@@ -262,9 +270,6 @@ class WordInputValidator(WordWindow):
                 self.setLabel(self.user_inputs.user_instruction_label2, "Say 'insert text' or a command")
 
                 self.command_choice = self.promptUser(5, True, True)
-
-                if self.command_choice != "you":
-                    self.appendNewUserInputHistory(self.command_choice)
                 
                 if (self.command_choice in self.valid_commands):
                     # Get the corresponding function from the dictionary
@@ -273,6 +278,8 @@ class WordInputValidator(WordWindow):
                     # Call the selected command
                     selected_command()
 
+                elif self.command_choice != "you":
+                    self.appendNewUserInputHistory(self.command_choice)
 
                 elif (self.command_choice == "exit"):
                     self.destroy()
@@ -291,5 +298,5 @@ class WordInputValidator(WordWindow):
         thread.start()
 
 if __name__ == "__main__":
-    word_window = WordInputValidator("Microsoft Word Menu", (300, 600))
+    word_window = WordInputValidator("Microsoft Word Menu", (300, 1000))
     word_window.mainloop()

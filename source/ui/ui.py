@@ -10,6 +10,7 @@ from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
 from source.ui.word.word_ui_input import WordInputValidator
 
 import jellyfish
+import pyautogui
 
 # The first screen to be displayed to users
 class mainScreen(operations):
@@ -494,10 +495,21 @@ class InputValidation(mainScreen):
             self.root.iconify()
 
             # Open word
-            self.handleApplicationAction("spotify", "open")
+            self.handleApplicationAction("word", "open")
+
+            # Give the window plenty of time to open
+            time.sleep(3)
+
+            # Pressing enter after Word launches creates a new blank document
+            pyautogui.press("enter")
+
+            # Maximize the window
+            # The keyboard shortcut for maximizing a window is: alt + space, then x
+            pyautogui.hotkey("alt", "space")
+            pyautogui.press("x")
 
             # Launch the UI for interacting with word
-            self.word_window = WordInputValidator("Microsoft Word Menu", (300, 600), docChoice)
+            self.word_window = WordInputValidator("Microsoft Word Menu", (300, 1000), docChoice)
             self.word_window.mainloop()
 
 
