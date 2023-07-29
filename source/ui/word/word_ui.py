@@ -19,9 +19,7 @@ class WordWindow(tk.Tk):
         # Main setup (title, geometry, minimum size)
         self.title(title)
         self.geometry(f"{size[0]}x{size[1]}+{self.start_x_position}+{self.start_y_position}")
-        self.minsize(size[0], size[1])
-
-        self.configure(background = "black")
+        self.minsize(150, 450)
 
         # TO-DO - Create an antiquewhite3 ring around the gray, similar to the landing page
 
@@ -37,14 +35,9 @@ class WordWindow(tk.Tk):
         # Create the listening label, and error message label
         self.feedback_msg = FeedbackMessages(self)
 
-        # Create the window grid 
-        self.grid_rowconfigure((0, 4), weight = 1)
-
-        # Ensure expansion of user history is greater than options labels
-        self.grid_rowconfigure(2, weight = 2)
-
-
-
+        # Create the window grid
+        self.grid_rowconfigure(1, weight = 10)
+        self.grid_rowconfigure((0, 2), weight = 1)
         self.grid_columnconfigure(0, weight = 1)
 
     def setLabel(self, label, message):
@@ -69,12 +62,13 @@ class WordWindow(tk.Tk):
             print(f"Error updating user input history with \"{message}\": {e}")
 
 
+
 class UserOptions(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
         # This label stores no text, simply the background color
-        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 7, column = 0, sticky = "nsew")
+        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 8, column = 0, sticky = "nsew")
 
         # Places the frame onto the window
         self.grid(row = 0, column = 0, sticky = "nsew")
@@ -85,11 +79,15 @@ class UserOptions(ttk.Frame):
 
     # This function will create the labels which store the command keywords
     def create_text_options(self):
-        self.user_options_label1 = ttk.Label(self, text = "Options",
+        self.user_options_label0 = ttk.Label(self, text = "Options",
                                             font = ("Franklin Gothic Medium", 24),
                                             background = "slate gray")
         
-        self.save_file_label2 = ttk.Label(self, text = "Save file",
+        self.insert_text_label1 = ttk.Label(self, text = "Insert text",
+                                            font = ("Franklin Gothic Medium", 12),
+                                            background = "slate gray")
+        
+        self.save_file_label2 = ttk.Label(self, text = "Save and name file / save file",
                                             font = ("Franklin Gothic Medium", 12),
                                             background = "slate gray")
         
@@ -118,20 +116,18 @@ class UserOptions(ttk.Frame):
     def layout_text_options(self):
 
         # Create the grid
-        self.grid_rowconfigure(0, weight = 1)
-        self.grid_rowconfigure((1, 2, 3, 4, 5, 6), weight = 2)
+        self.grid_rowconfigure((0, 1), weight = 1)
+        self.grid_rowconfigure((2, 3, 4, 5, 6, 7), weight = 2)
         self.grid_columnconfigure(0, weight = 1)
-
-        #self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight = 1)
-        #self.grid_columnconfigure((0, 1), weight = 1)
         
-        self.user_options_label1.grid(row = 0, column = 0, pady = (10, 0))
-        self.save_file_label2.grid(row = 1, column = 0, pady = (20, 5))
-        self.tab_label3.grid(row = 2, column = 0, pady = 5)
-        self.new_line_label4.grid(row = 3, column = 0, pady = 5)
-        self.change_font_label5.grid(row = 4, column = 0, pady = 5)
-        self.change_font_size_label6.grid(row = 5, column = 0, pady = 5)
-        self.change_emphasis_label7.grid(row = 6, column = 0, pady = 5)
+        self.user_options_label0.grid(row = 0, column = 0, padx = 10, pady = (10, 0))
+        self.insert_text_label1.grid(row = 1, column = 0, pady = (10, 5))
+        self.save_file_label2.grid(row = 2, column = 0, pady = 5)
+        self.tab_label3.grid(row = 3, column = 0, pady = 5)
+        self.new_line_label4.grid(row = 4, column = 0, pady = 5)
+        self.change_font_label5.grid(row = 5, column = 0, pady = 5)
+        self.change_font_size_label6.grid(row = 6, column = 0, pady = 5)
+        self.change_emphasis_label7.grid(row = 7, column = 0, pady = 5)
 
 
 class UserInput(ttk.Frame):
@@ -139,12 +135,9 @@ class UserInput(ttk.Frame):
         super().__init__(parent)
 
         # This label stores no text, simply the background color
-        ttk.Label(self, background = "red").grid(row = 0, rowspan = 2, column = 0, sticky = "nsew")
+        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 3, column = 0, sticky = "nsew")
 
-        # Places the frame onto the window
-        ttk.Separator(orient = "horizontal").grid(row = 1, column = 0)
-        self.grid(row = 2, column = 0, sticky = "nsew")
-        ttk.Separator(orient = "horizontal").grid(row = 3, column = 0)
+        self.grid(row = 1, column = 0, sticky = "nsew")
 
         # Create the widgets
         self.create_input_display()
@@ -153,30 +146,29 @@ class UserInput(ttk.Frame):
     def create_input_display(self):
         self.input_history_label1 = ttk.Label(self, text = "user input history",
                                             font = ("Franklin Gothic Medium", 12),
-                                            background = "slate gray",
+                                            background = "azure3",
                                             anchor = "s",
                                             justify = "center"
                                             )
-
-        #self.input_history_label1.configure(padding = "60 60")
-        print(self.input_history_label1.configure())
         
         self.user_instruction_label2 = ttk.Label(self, 
-                                                    text = "Say 'input text' or a command",
+                                                    text = "Say a command",
                                                     font = ("Franklin Gothic Medium", 12),
-                                                    background = "antiquewhite3",
-                                                    anchor = "n",
-                                                    justify = "center")
+                                                    background = "AntiqueWhite3",
+                                                    anchor = "center",
+                                                    justify = "center"
+                                                    )
         #self.user_instruction_label2.configure(padding = "20 60")
         
     def layout_user_input_display(self):
 
         # Create the grid
-        self.grid_rowconfigure((0, 1), weight = 1)
+        self.grid_rowconfigure((0, 1), weight = 3)
+        self.grid_rowconfigure(2, weight = 1)
         self.grid_columnconfigure(0, weight = 1)
 
-        self.input_history_label1.grid(row = 0, column = 0, sticky = "ew")
-        self.user_instruction_label2.grid(row = 1, column = 0, sticky = "ew")
+        self.input_history_label1.grid(row = 0, rowspan = 2, column = 0, sticky = "nsew", padx = 10)
+        self.user_instruction_label2.grid(row = 2, column = 0, sticky = "nsew", padx = 10)
 
 
 class FeedbackMessages(ttk.Frame):
@@ -184,10 +176,10 @@ class FeedbackMessages(ttk.Frame):
         super().__init__(parent)
 
         # This label stores no text, simply the background color
-        ttk.Label(self, background = "white").grid(row = 0, rowspan = 2, column = 0, sticky = "nsew")
+        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 2, column = 0, sticky = "nsew")
 
         # Place the frame onnto the window
-        self.grid(row = 4, column = 0, sticky = "nsew")
+        self.grid(row = 2, column = 0, sticky = "nsew")
 
         self.create_feedback_messages()
         self.layout_feedback_messages()

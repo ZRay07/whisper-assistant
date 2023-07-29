@@ -982,6 +982,9 @@ class InputValidation(mainScreen):
 
                 elif (self.keywordCheck == "exit"):
                     break
+
+                # Let the processor breathe a bit
+                time.sleep(0.25)
                 
         except Exception as e:
             print(f"Error while listening for keyword: {e}")
