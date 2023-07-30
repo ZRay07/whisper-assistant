@@ -29,15 +29,16 @@ class WordWindow(tk.Tk):
 
         # Create the user input box, user instruction label
         self.user_inputs = UserInput(self)
-        self.user_inputs.input_history_label1["wraplength"] = size[0] - 5
-        self.user_inputs.user_instruction_label2["wraplength"] = size[0] - 5
+        self.user_inputs.input_history_label1["wraplength"] = size[0] - 12
+        self.user_inputs.user_instruction_label2["wraplength"] = size[0] - 12
 
         # Create the listening label, and error message label
         self.feedback_msg = FeedbackMessages(self)
 
         # Create the window grid
-        self.grid_rowconfigure(1, weight = 3)
-        self.grid_rowconfigure((0, 2), weight = 1)
+        self.grid_rowconfigure(0, weight = 1)
+        self.grid_rowconfigure(1, weight = 5)
+        self.grid_rowconfigure(2, weight = 1, minsize = self.feedback_msg.winfo_height())
         self.grid_columnconfigure(0, weight = 1)
 
     def setLabel(self, label, message):
@@ -52,11 +53,23 @@ class WordWindow(tk.Tk):
     def appendNewUserInputHistory(self, message):
         # This function updates the user input history
         # It's meant to be used after every recording, to display what the model has transcripted
+        def count_lines(label_text):
+            lines = label_text.split("\n")
+            return len(lines)
+
         try:
             self.newText = message
             self.currentText = self.user_inputs.input_history_label1.cget("text")
             self.updatedText = self.currentText + "\n" + self.newText
             self.updatedText.capitalize()
+
+            line_count = count_lines(self.updatedText)
+            
+            if line_count > 12:
+                lines = self.updatedText.split("\n")
+                new_lines = lines[1:]
+                self.updatedText = "\n".join(new_lines)
+                
             self.user_inputs.input_history_label1.config(text = self.updatedText)
 
         except Exception as e:
@@ -170,12 +183,12 @@ class UserInput(ttk.Frame):
     def layout_user_input_display(self):
 
         # Create the grid
-        self.grid_rowconfigure((0, 1), weight = 2)
-        self.grid_rowconfigure(2, weight = 1)
+        self.grid_rowconfigure(0, weight = 3)
+        self.grid_rowconfigure(1, weight = 1, minsize = self.user_instruction_label2.winfo_height())
         self.grid_columnconfigure(0, weight = 1)
 
-        self.input_history_label1.grid(row = 0, rowspan = 2, column = 0, sticky = "nsew", padx = 10)
-        self.user_instruction_label2.grid(row = 2, column = 0, sticky = "nsew", padx = 10)
+        self.input_history_label1.grid(row = 0, column = 0, sticky = "sew", padx = 10)
+        self.user_instruction_label2.grid(row = 1, column = 0, sticky = "nsew", padx = 10)
 
 
 class FeedbackMessages(ttk.Frame):
@@ -205,7 +218,7 @@ class FeedbackMessages(ttk.Frame):
     def layout_feedback_messages(self):
         
         # Create the grid
-        self.grid_rowconfigure((0, 1), weight = 1)
+        self.grid_rowconfigure((0, 1), weight = 1, minsize = self.listening_processing_label1.winfo_height())
         self.grid_columnconfigure(0, weight = 1)
 
         self.listening_processing_label1.grid(row = 0, column = 0)
