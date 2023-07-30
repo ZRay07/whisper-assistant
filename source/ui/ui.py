@@ -932,7 +932,8 @@ class InputValidation(mainScreen):
             self.newText = message
             self.currentText = self.cmdHistory_label.cget("text")
             self.updatedText = self.currentText + "\n" + self.newText
-            self.cmdHistory_label.config(text = self.updatedText.capitalize())
+            self.updatedText = self.updatedText.capitalize()
+            self.cmdHistory_label.config(text = self.updatedText)
         except Exception as e:
             print(f"Error updating command history with \"{message}\": {e}")
 
@@ -952,8 +953,8 @@ class InputValidation(mainScreen):
         
     # This function should be called as soon as the UI is launched
     # First, it updates the userInstruction label to let the users know we're first waiting for the keyword
-    #   It will continuously listen until it hears the keyword: "sherpa"
-    #   When "sherpa" is heard:
+    #   It will continuously listen until it hears the keyword: "record"
+    #   When "record" is heard:
     #       -run another function which listens for commands
     #       -based on what the record function captured and the transcripted output
     #       -run a command
@@ -975,6 +976,7 @@ class InputValidation(mainScreen):
 
                     time.sleep(1)
                     self.commandRequest = self.promptUser(5, True, True)
+                    self.appendNewUserInputHistory(self.userInputHistory_label, self.commandRequest)
                     self.commandExec(self.commandRequest)
 
                 elif (self.keywordCheck == "you"):   # I found the model defaults to you if there is no sound passed
@@ -988,6 +990,7 @@ class InputValidation(mainScreen):
                 
         except Exception as e:
             print(f"Error while listening for keyword: {e}")
+
     
     def start_new_mail(self, current_window, driver, address, subject, body):
         driver.switch_to.window(current_window)
@@ -1011,6 +1014,9 @@ class InputValidation(mainScreen):
                 #print(id_num+"\n")
         except Exception as e:
                  print(f"Error during clicking. \nError: {e}")
+
+
+
     #validate the info needed to write an email
     def validate_new_email(self):
         time.sleep(1)
@@ -1063,6 +1069,8 @@ class InputValidation(mainScreen):
 
         except Exception as e:
             print(f"Error while listening for contact: {e}")
+
+
     #function to validate the subject user wishes to write about
     def validate_subject_inp(self) :
         time.sleep(1)
@@ -1076,6 +1084,8 @@ class InputValidation(mainScreen):
                     return subject
         except Exception as e:
             print(f"Error while listening for subject {e}")
+
+
     def validate_body_inp(self) :
         time.sleep(1)
         try:
@@ -1088,6 +1098,8 @@ class InputValidation(mainScreen):
                     return body
         except Exception as e:
             print(f"Error while listening for body {e}")
+
+
     # Function to start the keyword listening thread
     # This function is called within the __init__ method of the mainScreen class, allowing it to run concurrently with the GUI.
     def startListeningThread(self):

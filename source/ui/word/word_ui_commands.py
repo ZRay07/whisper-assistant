@@ -10,13 +10,14 @@ from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
 
 import speech_recognition as sr
 import pyautogui
-    # Ctrl+End is a keyboard shortcut that moves the cursor to the end of a document.
+
 class WordCommandHandler():
     def __init__(self, ui):
         self.word_ui = ui
 
         self.ribbon_popup_delay = 0.75
         self.sequential_key_delay = 0.1
+        self.hotkey_delay = 0.2
 
         self.initial_save = False
 
@@ -32,19 +33,34 @@ class WordCommandHandler():
             self = args[0]
 
             # Push the UI window back
-            self.word_ui.lower()
+            #self.word_ui.lower()
         
             # Click on the Word window
-            pyautogui.doubleClick(self.x_center_screen, self.y_center_screen)
+            #pyautogui.doubleClick(self.x_center_screen, self.y_center_screen)
+
+            pyautogui.hotkey("alt", "tab")
 
             result = word_command(*args, **kwargs)
 
             # Lift the UI window upfront
-            self.word_ui.focus_force()
+            #self.word_ui.focus_force()
+
+            pyautogui.hotkey("alt", "tab")
 
             return result
         
         return wrapper
+    
+    @window_back_and_forth
+    def insert_text(self, textInput):
+        print("text insert")
+
+        # First, move to the end of the docoment
+        pyautogui.hotkey("ctrl", "end")
+        sleep(self.hotkey_delay)
+
+        pyautogui.write(textInput, interval = 0.1)
+        return f"Successfully typed: {textInput}"
 
     @window_back_and_forth
     def save_file(self):
@@ -101,12 +117,18 @@ class WordCommandHandler():
         pyautogui.hotkey("ctrl", "enter")
 
     @window_back_and_forth
-    def change_font(self):
+    def change_font(self, font):
         print("change font")
-        #Alt
-        # down arrow
-        # right arrow twice
-        # input text
+        key_stream = ["down", "right", "right"]
+
+        pyautogui.press("alt")
+        sleep(self.ribbon_popup_delay)
+
+        for key in key_stream:
+            pyautogui.press(key)
+            sleep(self.sequential_key_delay)
+
+        pyautogui.typewrite(font)
 
     @window_back_and_forth
     def increase_font_size(self):
@@ -152,10 +174,12 @@ class WordCommandHandler():
     @window_back_and_forth
     def make_subscript(self):
         print("subscript")
+        pyautogui.hotkey("ctrl", "=")
 
     @window_back_and_forth
     def make_superscript(self):
         print("superscript")
+        pyautogui.hotkey("ctrl", "shift", "+")
 
     @window_back_and_forth
     def mouse_control(self):

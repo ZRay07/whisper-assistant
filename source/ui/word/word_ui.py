@@ -29,14 +29,14 @@ class WordWindow(tk.Tk):
 
         # Create the user input box, user instruction label
         self.user_inputs = UserInput(self)
-        self.user_inputs.input_history_label1["width"] = size[0]
         self.user_inputs.input_history_label1["wraplength"] = size[0] - 5
+        self.user_inputs.user_instruction_label2["wraplength"] = size[0] - 5
 
         # Create the listening label, and error message label
         self.feedback_msg = FeedbackMessages(self)
 
         # Create the window grid
-        self.grid_rowconfigure(1, weight = 10)
+        self.grid_rowconfigure(1, weight = 3)
         self.grid_rowconfigure((0, 2), weight = 1)
         self.grid_columnconfigure(0, weight = 1)
 
@@ -58,6 +58,7 @@ class WordWindow(tk.Tk):
             self.updatedText = self.currentText + "\n" + self.newText
             self.updatedText.capitalize()
             self.user_inputs.input_history_label1.config(text = self.updatedText)
+
         except Exception as e:
             print(f"Error updating user input history with \"{message}\": {e}")
 
@@ -68,7 +69,7 @@ class UserOptions(ttk.Frame):
         super().__init__(parent)
 
         # This label stores no text, simply the background color
-        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 8, column = 0, sticky = "nsew")
+        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 9, column = 0, sticky = "nsew")
 
         # Places the frame onto the window
         self.grid(row = 0, column = 0, sticky = "nsew")
@@ -112,12 +113,17 @@ class UserOptions(ttk.Frame):
                                                     font = ("Franklin Gothic Medium", 12),
                                                     background = "slate gray")
         
+        self.change_script_label8 = ttk.Label(self,
+                                                    text = "Make my text subscript / superscript",
+                                                    font = ("Franklin Gothic Medium", 12),
+                                                    background = "slate gray")
+        
     # This function will grid the text labels created above onto the frame
     def layout_text_options(self):
 
         # Create the grid
         self.grid_rowconfigure((0, 1), weight = 1)
-        self.grid_rowconfigure((2, 3, 4, 5, 6, 7), weight = 2)
+        self.grid_rowconfigure((2, 3, 4, 5, 6, 7, 8), weight = 2)
         self.grid_columnconfigure(0, weight = 1)
         
         self.user_options_label0.grid(row = 0, column = 0, padx = 10, pady = (10, 0))
@@ -128,6 +134,7 @@ class UserOptions(ttk.Frame):
         self.change_font_label5.grid(row = 5, column = 0, pady = 5)
         self.change_font_size_label6.grid(row = 6, column = 0, pady = 5)
         self.change_emphasis_label7.grid(row = 7, column = 0, pady = 5)
+        self.change_script_label8.grid(row = 8, column = 0, pady = 5)
 
 
 class UserInput(ttk.Frame):
@@ -138,13 +145,14 @@ class UserInput(ttk.Frame):
         ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 3, column = 0, sticky = "nsew")
 
         self.grid(row = 1, column = 0, sticky = "nsew")
+        self.grid_propagate(False)
 
         # Create the widgets
         self.create_input_display()
         self.layout_user_input_display()
 
     def create_input_display(self):
-        self.input_history_label1 = ttk.Label(self, text = "user input history",
+        self.input_history_label1 = ttk.Label(self, text = "Input history",
                                             font = ("Franklin Gothic Medium", 12),
                                             background = "azure3",
                                             anchor = "s",
@@ -158,12 +166,11 @@ class UserInput(ttk.Frame):
                                                     anchor = "center",
                                                     justify = "center"
                                                     )
-        #self.user_instruction_label2.configure(padding = "20 60")
         
     def layout_user_input_display(self):
 
         # Create the grid
-        self.grid_rowconfigure((0, 1), weight = 3)
+        self.grid_rowconfigure((0, 1), weight = 2)
         self.grid_rowconfigure(2, weight = 1)
         self.grid_columnconfigure(0, weight = 1)
 
