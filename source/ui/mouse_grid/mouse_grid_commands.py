@@ -62,7 +62,7 @@ def enterTextInput(mouseGrid, textInput):
     time.sleep(0.2)
 
     # Type!
-    pyautogui.leftClick()
+    pyautogui.doubleClick()
     pyautogui.write(textInput, interval = 0.05)
 
     # Exit the mouse grid

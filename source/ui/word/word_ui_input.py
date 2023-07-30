@@ -20,9 +20,10 @@ class WordInputValidator(WordWindow):
         self.command_handler = WordCommandHandler(self)
 
         self.valid_commands = {
-            "insert text": self.command_handler.real_time_text_input,
+            "insert text": self.handle_insert_text,
+            "make real time transcription": self.command_handler.real_time_text_input,
 
-            "save file as": self.command_handler.save_file_as,
+            "save and name file": self.command_handler.save_and_name_file,
             "save file": self.command_handler.save_file,
 
             "tab in": self.command_handler.tab_text, 
@@ -30,29 +31,38 @@ class WordInputValidator(WordWindow):
             "enter new line": self.command_handler.new_line,
             "make new page": self.command_handler.new_page,
 
-            "change font": self.validate_font_name,
-            "increase font size": self.command_handler.increase_font_size,
-            "decrease font size": self.command_handler.decrease_font_size,
-            "turn on bold": self.validate_font_emphasis,
-            "turn on italic": self.validate_font_emphasis,
-            "turn on underline": self.validate_font_emphasis,
+            "change font": self.handle_change_font,
+            "increase font size": self.command_handler.increase_font_size,      # Justification, lists (bullet and numbered)
+            "decrease font size": self.command_handler.decrease_font_size,      # highlight, change font color
+            "make my text bold": self.command_handler.make_font_bold,
+            "make my text italicised": self.command_handler.make_font_italic,
+            "make my text underlined": self.command_handler.make_font_underline,
+            "change to title style": self.command_handler.make_title_style,
+            "change to heading one style": self.command_handler.make_heading1_style,
+            "change to heading two style": self.command_handler.make_heading2_style,
+            "change to normal style": self.command_handler.make_normal_style,
+            "make my text subscript": self.command_handler.make_subscript,
+            "make my text superscript": self.command_handler.make_superscript,
 
             "mouse control": self.command_handler.mouse_control
                                }  # used in listenForCommands
         
         self.startListeningThread()
   
-
-    # This function is used when we need to prompt the user for additional voice inputs
-    # If removePunctuation is true when you call it, it removes trailing punctuation.
-    # If makeLowerCase is true when you call it, it makes the output string lowercase
     def promptUser(self, recordDuration, removePunctuation, makeLowerCase):
+        #####
+        # This function is used when we need to prompt the user for additional voice inputs
+        # If removePunctuation is true when you call it, it removes trailing punctuation.
+        # If makeLowerCase is true when you call it, it makes the output string lowercase
+        #####
         try:
             self.setLabel(self.feedback_msg.listening_processing_label1, "Listening...")
             microphone.record(recordDuration)
             self.setLabel(self.feedback_msg.listening_processing_label1, "Processing...")
             self.userInput = whisper.use_model(RECORD_PATH)
             self.setLabel(self.feedback_msg.listening_processing_label1, "Waiting...")
+            
+            
 
             if removePunctuation:
                 self.userInput = self.userInput.rstrip(string.punctuation)
@@ -60,51 +70,65 @@ class WordInputValidator(WordWindow):
             if makeLowerCase:
                 self.userInput = self.userInput.lower()
 
+            # I've found the default if there is no sound is to predict "you"
+            # In this case, I think it's best to interpret the input as silence and not update the user input history
+            if self.userInput != "you":
+                self.appendNewUserInputHistory(self.userInput)
+
             return self.userInput
         
         except Exception as e:
             print("Error occured during recording: ", str(e))
             return False
         
-    # This function will specifically wait for the user to reply "yes" or "no"
-    def confirmUserInput(self, userInput):
+    def confirmUserInput(self, user_input, long_text = False):
+        #####
+        # This function will specifically wait for the user to reply "yes" or "no"
+        #####
         while True:
-            self.setLabel(self.userInstruction_label, f"Is {userInput} correct?")
-            time.sleep(2)
-            self.confirmation = self.promptUser(2, True, True)
+            if long_text:
+                self.appendNewUserInputHistory(user_input)
+                self.setLabel(self.user_inputs.user_instruction_label2, "Is above correct?")
+            else:
+                self.setLabel(self.user_inputs.user_instruction_label2, f"Is {user_input} correct?")
 
-            if self.confirmation == "yes":  # User confirmed the input
+            time.sleep(self.instruction_sleep_time)
+            confirmation = self.promptUser(2, True, True)
+
+            if confirmation == "yes":  # User confirmed the input
                 return True
             
-            elif self.confirmation == "no":  # User did not confirm input
+            elif confirmation == "no":  # User did not confirm input
                 return None
             
             else:
                 pass
 
-    # This function is a general input validator
-    # Can be called with a user input, if no user input is passed, it moves directly to getting a user input
-    # Pass an instruction to the user with 'message' for the input we're trying to gather
-    # Pass a valid list to the function with 'valid_input', this list is what the input will be checked against
-    def validate_general_input(self, message, invalid_input_message, valid_input, user_input = None):
+    def validate_general_input(self, instruction, invalid_input_message, valid_input, user_input = None):
+        #####
+        # This function is a general input validator
+        # Can be called with a user input, if no user input is passed, it moves directly to getting a user input
+        # Pass an instruction to the user with 'instruction' for the input we're trying to gather
+        # Pass a valid list to the function with 'valid_input', this list is what the input will be checked against
+        #####
         try:
             while True:
                 if user_input in valid_input:
-                    return self.user_inputs
+                    return user_input
                 
                 elif user_input is not None:
-                    self.setLabel(self.user_instruction_label2, f"{invalid_input_message}: {user_input}")
+                    self.setLabel(self.user_inputs.user_instruction_label2, f"{invalid_input_message}: {user_input}")
                 
-                self.setLabel(self.user_instruction_label2, message)
+                self.setLabel(self.user_inputs.user_instruction_label2, instruction)
                 time.sleep(self.instruction_sleep_time)
-                self.user_input = self.promptUser(5, True, True)
+                user_input = self.promptUser(5, True, True)
 
         except Exception as e:
             print(f"Error while validating/getting user input: {e}")
 
-    # This function will get the user input once they've entered the subgrid phase
-    # They will choose a color -> choose a subgrid -> and then be prompted with these options
     def getUserAction(self):
+        # This function will get the user input once they've entered the subgrid phase
+        # They will choose a color -> choose a subgrid -> and then be prompted with these options
         try:
             while True:
                 self.setLabel(self.userInstruction_label, "What would you like to do now?")
@@ -121,9 +145,9 @@ class WordInputValidator(WordWindow):
         except Exception as e:
             print(f"Error while gathering user selection: {e}")
 
-    # This function takes an input for what the user wants to do
-    # and maps it to a function call
     def handleAction(self, userAction):
+        # This function takes an input for what the user wants to do
+        # and maps it to a function call
         # First, check if they want to click anything, as these are easier to deal with
         try:
             clickChoices = {
@@ -163,43 +187,51 @@ class WordInputValidator(WordWindow):
         except Exception as e:
             print(f"Error in handling action: {e}")
 
-            
+    def handle_insert_text(self):
+        record_duration = self.getRecordDuration()
+        text_input = self.getUserTextInput(record_duration)
 
-    # This function will continuously prompt the user until they provide a number
+        self.command_handler.insert_text(text_input)
+
     def getRecordDuration(self):
+        # This function will continuously prompt the user until they provide a number
         try:
             while True:
-                self.setLabel(self.userInstruction_label, "How long would you like to record for (in seconds)?")
-                time.sleep(2)
-                self.recordDuration = self.promptUser(2, True, True)
-                self.recordDuration = Commands.convertToInt(self.recordDuration)
+                self.setLabel(self.user_inputs.user_instruction_label2, "How long would you like to record for (in seconds)?")
+                time.sleep(self.instruction_sleep_time)
+                record_duration = self.promptUser(2, True, True)
+                record_duration = Commands.convertToInt(record_duration)
 
-                if isinstance(self.recordDuration, int):
-                    self.confirmation = self.confirmUserInput(self.recordDuration)
+                if isinstance(record_duration, int):
+                    confirmation = self.confirmUserInput(record_duration)
 
-                    if self.confirmation:
-                        return self.recordDuration
+                    if confirmation:
+                        return record_duration
 
                 else:
-                    print(f"You must say a number. You said: {self.recordDuration}")
-                    self.setLabel(self.userInputError_label, f"You must say a number. You said: {self.innerGridPosition}")
+                    print(f"You must say a number. You said: {record_duration}")
+                    self.setLabel(self.feedback_msg.error_label2, f"You must say a number. You said: {record_duration}")
 
         except Exception as e:
             print(f"Error while gathering record duration: {e}")
 
-    # This function will prompt the user for text based off their record duration
-    # It will then confirm the user's text with them
-    def getUserTextInput(self, recordDuration):
+    def getUserTextInput(self, record_duration):
+        # This function will prompt the user for text based off their record duration
+        # It will then confirm the user's text with them
         try:
             while True:
-                self.setLabel(self.userInstruction_label, "What would you like to type?")
-                time.sleep(2)
-                self.userTextInput = self.promptUser(recordDuration, True, True)
+                self.setLabel(self.user_inputs.user_instruction_label2, "What would you like to type?")
+                time.sleep(self.instruction_sleep_time)
+                text_input = self.promptUser(record_duration, True, True)
 
-                self.confirmation = self.confirmUserInput(self.userTextInput)
+                if record_duration > 5:
+                    confirmation = self.confirmUserInput(text_input, long_text = True)
+                
+                else:
+                    confirmation = self.confirmUserInput(text_input)
 
-                if self.confirmation:
-                    return self.userTextInput
+                if confirmation:
+                    return text_input
 
         except Exception as e:
             print(f"Error while gathering text input: {e}")
@@ -252,18 +284,29 @@ class WordInputValidator(WordWindow):
         except Exception as e:
             print(f"Error while getting cursor movement direction: {e}")
 
-    def validate_font_name(self):
-        print("validating font name")
+    def handle_change_font(self):
+        print("get font name, check against valid inputs, run change font function")
+        valid_fonts = ["times new roman", "calibri", "arial"]
+        instruction = "What font would you like to set to?"
+        invalid_input_message = "Invalid font"
 
-    def validate_font_emphasis(self):
-        print("validating font emphasis")
+        self.setLabel("What font would you like to set to?")
+        font_input = self.promptUser(5, True, True)
 
-    # This function should be called as soon as the word ui is launched
-    # First, it updates the userInstruction label to let the users know we're first waiting for a command
-    #   It will continuously listen until it hears a command
-    #   When a command is heard:
-    #       return command name
+        font_input = self.validate_general_input(self,
+                                                instruction,
+                                                invalid_input_message,
+                                                valid_fonts,
+                                                font_input)
+        
+        self.command_handler.change_font(font_input)
+        
     def listenForCommands(self):
+        # This function should be called as soon as the word ui is launched
+        # First, it updates the userInstruction label to let the users know we're first waiting for a command
+        #   It will continuously listen until it hears a command
+        #   When a command is heard:
+        #       return command name
         time.sleep(1)
         try:
             while True:
@@ -278,9 +321,6 @@ class WordInputValidator(WordWindow):
                     # Call the selected command
                     selected_command()
 
-                elif self.command_choice != "you":
-                    self.appendNewUserInputHistory(self.command_choice)
-
                 elif (self.command_choice == "exit"):
                     self.destroy()
                     break
@@ -291,7 +331,7 @@ class WordInputValidator(WordWindow):
             print(f"Error while listening for word commands: {e}")
 
     # Function to start the keyword listening thread
-    # This function is called within the __init__ method of the MouseGridInputValidator class, allowing it to run concurrently with the GUI.
+    # This function is called within the __init__ method of the WordInputValidator class, allowing it to run concurrently with the GUI.
     def startListeningThread(self):
         thread = threading.Thread(target = self.listenForCommands)
         thread.daemon = True  # Set the thread as a daemon thread

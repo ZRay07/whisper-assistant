@@ -10,13 +10,19 @@ from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
 
 import speech_recognition as sr
 import pyautogui
-    # Ctrl+End is a keyboard shortcut that moves the cursor to the end of a document.
+
 class WordCommandHandler():
     def __init__(self, ui):
         self.word_ui = ui
+
         self.ribbon_popup_delay = 0.75
         self.sequential_key_delay = 0.1
+        self.hotkey_delay = 0.2
+
         self.initial_save = False
+
+        self.x_center_screen = self.word_ui.winfo_screenwidth() / 2
+        self.y_center_screen = self.word_ui.winfo_screenheight() / 2
 
     def window_back_and_forth(word_command):
         # This is a decorator function
@@ -27,19 +33,34 @@ class WordCommandHandler():
             self = args[0]
 
             # Push the UI window back
-            self.word_ui.lower()
-    
+            #self.word_ui.lower()
+        
             # Click on the Word window
-            pyautogui.click()
+            #pyautogui.doubleClick(self.x_center_screen, self.y_center_screen)
+
+            pyautogui.hotkey("alt", "tab")
 
             result = word_command(*args, **kwargs)
 
             # Lift the UI window upfront
-            self.word_ui.focus_force()
+            #self.word_ui.focus_force()
+
+            pyautogui.hotkey("alt", "tab")
 
             return result
         
         return wrapper
+    
+    @window_back_and_forth
+    def insert_text(self, textInput):
+        print("text insert")
+
+        # First, move to the end of the docoment
+        pyautogui.hotkey("ctrl", "end")
+        sleep(self.hotkey_delay)
+
+        pyautogui.write(textInput, interval = 0.1)
+        return f"Successfully typed: {textInput}"
 
     @window_back_and_forth
     def save_file(self):
@@ -53,7 +74,7 @@ class WordCommandHandler():
             self.word_ui.setLabel(self.word_ui.feedback_msg.error_label2, "You must perform 'save file as' first")
 
     @window_back_and_forth
-    def save_file_as(self):
+    def save_and_name_file(self):
         print("save file as")
         file_name = self.word_ui.document_name
         key_stream = ["f", "a", "c", "y", "3"]
@@ -80,8 +101,6 @@ class WordCommandHandler():
 
         self.initial_save = True
 
-
-
     @window_back_and_forth
     def tab_text(self):
         print("tab text")
@@ -98,6 +117,20 @@ class WordCommandHandler():
         pyautogui.hotkey("ctrl", "enter")
 
     @window_back_and_forth
+    def change_font(self, font):
+        print("change font")
+        key_stream = ["down", "right", "right"]
+
+        pyautogui.press("alt")
+        sleep(self.ribbon_popup_delay)
+
+        for key in key_stream:
+            pyautogui.press(key)
+            sleep(self.sequential_key_delay)
+
+        pyautogui.typewrite(font)
+
+    @window_back_and_forth
     def increase_font_size(self):
         print("increase font size")
         pyautogui.hotkey("ctrl", "]")
@@ -106,6 +139,47 @@ class WordCommandHandler():
     def decrease_font_size(self):
         print("decrease font size")
         pyautogui.hotkey("ctrl", "[")
+
+    @window_back_and_forth
+    def make_font_bold(self):
+        print("make font bold")
+        pyautogui.hotkey("ctrl", "b")
+
+    @window_back_and_forth
+    def make_font_italic(self):
+        print("make font bold")
+        pyautogui.hotkey("ctrl", "i")
+
+    @window_back_and_forth
+    def make_font_underline(self):
+        print("make font bold")
+        pyautogui.hotkey("ctrl", "u")
+
+    @window_back_and_forth
+    def make_title_style(self):
+        print("title style")
+
+    @window_back_and_forth
+    def make_heading1_style(self):
+        print("heading 1")
+
+    @window_back_and_forth
+    def make_heading2_style(self):
+        print("heading 2")
+
+    @window_back_and_forth
+    def make_normal_style(self):
+        print("normal")
+
+    @window_back_and_forth
+    def make_subscript(self):
+        print("subscript")
+        pyautogui.hotkey("ctrl", "=")
+
+    @window_back_and_forth
+    def make_superscript(self):
+        print("superscript")
+        pyautogui.hotkey("ctrl", "shift", "+")
 
     @window_back_and_forth
     def mouse_control(self):
@@ -223,6 +297,7 @@ class WordCommandHandler():
 
                     if transcription_changed:
                         numberOfBackSpaces = []     # This nifty little bit of code: https://www.reddit.com/r/learnpython/comments/117j3ou/question_with_pyautogui_delete_text_and_replace/
+                        print(f"number_of_back_spaces: {numberOfBackSpaces}")
                         for line in transcription:
                             for char in range(0, len(line) + 1): 
                                 numberOfBackSpaces.append('backspace')
