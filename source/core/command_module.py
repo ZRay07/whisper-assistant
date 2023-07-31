@@ -152,7 +152,7 @@ class operations:   #audio beep functions
         except Exception as e:
             print(f"Error adding {name} to contact list: {e}")
 
-    def pull_contact( string):
+    def pull_contact(self, string):
         found = 0
         count = 0
         space = " "

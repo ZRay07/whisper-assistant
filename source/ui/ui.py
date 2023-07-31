@@ -20,7 +20,7 @@ class mainScreen(operations):
         # Create root window
         self.root = Tk()
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
-        self.root.minsize(1600, 900)          # set a min size of 200 x 200 pixels
+        self.root.minsize(1600, 700)          # set a min size of 200 x 200 pixels
         self.root.config(bg = "AntiqueWhite3")     # set the background color
         # Set the starting size of the window and its location
         #self.root.geometry("1100x700+480+200")
@@ -138,10 +138,10 @@ class mainScreen(operations):
         self.userInstruction_label.grid(row = 2, column = 0, sticky = "ew")
 
         self.listeningProcessing_label = Label(self.center_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 36), width = 16, height = 1, bg = "slate gray")
-        self.listeningProcessing_label.grid(row = 1, column = 0, sticky = "ew")
+        self.listeningProcessing_label.grid(row = 1, column = 0, columnspan = 2, sticky = "ew")
 
         self.userInputError_label = Label(self.center_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 60, height = 5, bg = "slate gray", wraplength = 400, fg = "#710505", anchor = "center")
-        self.userInputError_label.grid(row = 2, column = 0, columnspan = 2)
+        self.userInputError_label.grid(row = 2, column = 0)
 
         # Configure the 4th row of the center frame(which contains error messages), to stretch to the bottom of the frame
         self.center_frame.rowconfigure(4, weight = 1)
@@ -1029,7 +1029,6 @@ class InputValidation(mainScreen):
 
     #validate the info needed to write an email
     def validate_new_email(self):
-        time.sleep(1)
         try:
              while True:
                 address = self.validate_contact_inp()
@@ -1042,18 +1041,17 @@ class InputValidation(mainScreen):
             
     #Function to validate the contact user wishes to email
     def validate_contact_inp(self):
-        #
-        time.sleep(1)
         try: 
             while True: 
                 self.setLabel(self.userInstruction_label, "We are listening for the person you wish to contact.")
+                time.sleep(1)
                 contactName = self.promptUser(3,True,False)
 
                 #check if the name is in our file if not loop
                 #pull var of email
                 # if name is in file exe the below
                 self.setLabel(self.userInstruction_label, f"You wish to contact {contactName} ?\n Say yes if correct:")
-
+                time.sleep(1)
                 if_yes = self.promptUser(3,True,True)
                 
                 if (if_yes == "yes"):
@@ -1083,12 +1081,13 @@ class InputValidation(mainScreen):
 
     #function to validate the subject user wishes to write about
     def validate_subject_inp(self) :
-        time.sleep(1)
         try:
             while True: 
                 self.setLabel(self.userInstruction_label, "We are listening for the subject of your email.")
+                time.sleep(1)
                 subject = self.promptUser(3,True,False)
                 self.setLabel(self.userInstruction_label, f"{subject} is the subect of your email?\n Say yes if correct:")
+                time.sleep(1)
                 if_yes = self.promptUser(3,True,True)
                 if (if_yes == "yes"):
                     return subject
@@ -1097,12 +1096,13 @@ class InputValidation(mainScreen):
 
 
     def validate_body_inp(self) :
-        time.sleep(1)
         try:
             while True: 
                 self.setLabel(self.userInstruction_label, "We are listening for the body of your email.")
+                time.sleep(1)
                 body = self.promptUser(10,True,False)
                 self.setLabel(self.userInstruction_label, f"{body} \n is the body of your email?\n Say yes if correct:")
+                time.sleep(1)
                 if_yes = self.promptUser(3,True,True)
                 if (if_yes == "yes"):
                     return body
