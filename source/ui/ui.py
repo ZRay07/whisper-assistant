@@ -20,11 +20,11 @@ class mainScreen(operations):
         # Create root window
         self.root = Tk()
         self.root.title("Super Helpful Engine Recognizing Peoples Audio")    # title of the window
-        self.root.minsize(200, 200)          # set a min size of 200 x 200 pixels
+        self.root.minsize(1600, 900)          # set a min size of 200 x 200 pixels
         self.root.config(bg = "AntiqueWhite3")     # set the background color
         # Set the starting size of the window and its location
         #self.root.geometry("1100x700+480+200")
-        self.root.geometry("1600x800+200+50")
+        self.root.geometry("1900x1000+0+0")
         self.drawLeftFrame()
         self.drawCenterFrame()
         self.drawRightFrame()
@@ -32,7 +32,7 @@ class mainScreen(operations):
         self.root.grid_columnconfigure(0, weight = 1)   # Allow the first column (left frame) to expand horizontally
         self.root.grid_columnconfigure(1, minsize = 550, weight = 1)   # Allow the second column (center frame) to expand horizontally
         self.root.grid_columnconfigure(2, weight = 1)   # Allow the third column (right frame) to expand horizontally
-        self.root = mainloop()
+        
 
 
     # This frame contains:
@@ -75,19 +75,21 @@ class mainScreen(operations):
 
         self.buttonFont = font.Font(family = "Franklin Gothic Medium", size = 12)
 
-        self.openApp_button =       Button(self.cmd_bar, text = "Open Application",     font = self.buttonFont, command = lambda: [self.handleApplicationAction(self.validateAppInput("app", "open"), "open")],  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.closeApp_button =      Button(self.cmd_bar, text = "Close Application",    font = self.buttonFont, command = lambda: [self.handleApplicationAction(self.validateAppInput("app", "close"), "close")],bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.scrollDown_button =    Button(self.cmd_bar, text = "Scroll Down",          font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("down"), "down")],           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [self.setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [MouseGridInputValidator()],                                                   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.emailSignIn_button =   Button(self.cmd_bar, text = "Email sign-in",        font = self.buttonFont, command = lambda: [self.sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.addContact_button =    Button(self.cmd_bar, text = "Add Contact",          font = self.buttonFont, command = lambda: [self.addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)        
-        self.createDocument_button= Button(self.cmd_bar, text = "Create Document",      font = self.buttonFont, command = lambda: [],                                                                            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.docSearch_button =     Button(self.cmd_bar, text = "Open Document",        font = self.buttonFont, command = lambda: [self.searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.record_button =        Button(self.cmd_bar, text = "Record",               font = self.buttonFont, command = lambda: [self.commandExec(self.promptUser(5, True, True))],                            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
-        self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 14)
+        self.openApp_button =       Button(self.cmd_bar, text = "Open Application",     font = self.buttonFont, command = lambda: [self.handleApplicationAction(self.validateAppInput("app", "open"), "open")],  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.closeApp_button =      Button(self.cmd_bar, text = "Close Application",    font = self.buttonFont, command = lambda: [self.handleApplicationAction(self.validateAppInput("app", "close"), "close")],bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.scrollUp_button =      Button(self.cmd_bar, text = "Scroll Up",            font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("up"), "up")],               bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.scrollDown_button =    Button(self.cmd_bar, text = "Scroll Down",          font = self.buttonFont, command = lambda: [self.handleScrollAction(self.validateScrollInput("down"), "down")],           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.setVol_button =        Button(self.cmd_bar, text = "Set Volume",           font = self.buttonFont, command = lambda: [self.setVolume(*self.validateVolumeInput("volume"))],                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.mouseControl_button =  Button(self.cmd_bar, text = "Mouse Control",        font = self.buttonFont, command = lambda: [MouseGridInputValidator()],                                                   bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.emailSignIn_button =   Button(self.cmd_bar, text = "Email Sign-in",        font = self.buttonFont, command = lambda: [self.sign_in, self.bring_to_front],                                           bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.newEmail_button =      Button(self.cmd_bar, text = "New Email",            font = self.buttonFont, command = lambda: [],                                                                            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.createAcc_button =     Button(self.cmd_bar, text = "Create Account",       font = self.buttonFont, command = lambda: [self.create_account],                                                         bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.addContact_button =    Button(self.cmd_bar, text = "Add Contact to My List",font = self.buttonFont, command = lambda: [self.addContact(*self.validateAllContactInputs("contact"))],                  bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)        
+        self.createDocument_button= Button(self.cmd_bar, text = "Create Document",      font = self.buttonFont, command = lambda: [],                                                                            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.docSearch_button =     Button(self.cmd_bar, text = "Search for a Document",font = self.buttonFont, command = lambda: [self.searchForDocument(self.validateDocumentInput("document"))],              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.googleSearch_button =  Button(self.cmd_bar, text = "Google Search",        font = self.buttonFont, command = lambda: [],                                                                            bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.record_button =        Button(self.cmd_bar, text = "Record",               font = self.buttonFont, command = lambda: [self.startListeningThread()],                                                 bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
+        self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
         
         # Place the buttons in the frame
         self.openApp_button.grid(row = 0, column = 0, pady = 5)
@@ -97,13 +99,15 @@ class mainScreen(operations):
         self.setVol_button.grid(row = 4, column = 0, pady = 5)
         self.mouseControl_button.grid(row = 5, column = 0, pady = 5)
         self.emailSignIn_button.grid(row = 6, column = 0, pady = 5)
-        self.createAcc_button.grid(row = 7, column = 0, pady = 5)
-        self.addContact_button.grid(row = 8, column = 0, pady = 5)
-        self.createDocument_button.grid(row = 9, column = 0, pady = 5)
-        self.docSearch_button.grid(row = 10, column = 0, pady = 5)
+        self.newEmail_button.grid(row = 7, column = 0, pady = 5)
+        self.createAcc_button.grid(row = 8, column = 0, pady = 5)
+        self.addContact_button.grid(row = 9, column = 0, pady = 5)
+        self.createDocument_button.grid(row = 10, column = 0, pady = 5)
+        self.docSearch_button.grid(row = 11, column = 0, pady = 5)
+        self.googleSearch_button.grid(row = 12, column = 0, pady = 5)
 
-        self.record_button.grid(row = 11, column = 0, pady = (30, 5))
-        self.exit_button.grid(row = 12, column = 0, pady = 5)
+        self.record_button.grid(row = 13, column = 0, pady = (30, 5))
+        self.exit_button.grid(row = 14, column = 0, pady = 5)
 
     # This frame contains:
     # Record button
@@ -127,7 +131,7 @@ class mainScreen(operations):
         self.userInputHistoryTitle_label = Label(self.userInputHistory_frame, text = "User input history will appear here", font = ("Franklin Gothic Medium", 12), width = 45, height = 1, bg = "azure3")
         self.userInputHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
 
-        self.userInputHistory_label = Label(self.userInputHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 45, height = 20, bg = "azure3", wraplength = 500, anchor = "s")
+        self.userInputHistory_label = Label(self.userInputHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 45, height = 20, bg = "azure3", wraplength = 450 - 10, anchor = "s")
         self.userInputHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
         self.userInstruction_label = Label(self.userInputHistory_frame, text = f"Say \"{self.keyword}\" and we'll listen for a command", font = ("Franklin Gothic Medium", 24), width = 38, height = 3, bg = "AntiqueWhite3", wraplength = 500)
@@ -136,8 +140,8 @@ class mainScreen(operations):
         self.listeningProcessing_label = Label(self.center_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 36), width = 16, height = 1, bg = "slate gray")
         self.listeningProcessing_label.grid(row = 1, column = 0, sticky = "ew")
 
-        self.userInputError_label = Label(self.center_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "slate gray", wraplength = 500, fg = "#710505", anchor = "center")
-        self.userInputError_label.grid(row = 2, column = 0)
+        self.userInputError_label = Label(self.center_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 60, height = 5, bg = "slate gray", wraplength = 400, fg = "#710505", anchor = "center")
+        self.userInputError_label.grid(row = 2, column = 0, columnspan = 2)
 
         # Configure the 4th row of the center frame(which contains error messages), to stretch to the bottom of the frame
         self.center_frame.rowconfigure(4, weight = 1)
@@ -363,7 +367,7 @@ class mainScreen(operations):
         self.cmdHistoryTitle_label = Label(self.cmdHistory_frame, text = "Command history will appear here", font = ("Franklin Gothic Medium", 12), width = 40, height = 1, bg = "azure3")
         self.cmdHistoryTitle_label.grid(row = 0, column = 0, sticky = "ew")
 
-        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 40, height = 10, bg = "azure3", wraplength = 400, anchor = "s")
+        self.cmdHistory_label = Label(self.cmdHistory_frame, text = " ", font = ("Franklin Gothic Medium", 12), width = 40, height = 10, bg = "azure3", wraplength = 380, anchor = "s")
         self.cmdHistory_label.grid(row = 1, column = 0, sticky = "ew")
 
 
@@ -371,11 +375,12 @@ class mainScreen(operations):
 # Input validation should always occur before passing the argument to the function in command_module
 class InputValidation(mainScreen):
     def __init__(self):
+        super().__init__()
         # Call startListeningThread to start listening for keywords in a separate thread
         if not args.disable:
             self.startListeningThread()
-            
-        super().__init__()
+
+        self.root = mainloop()
         
 
     # This function takes in an input string
@@ -390,16 +395,14 @@ class InputValidation(mainScreen):
         
         if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "open") > 0.85):        # Open application
             print("\n***Open Application***")
-            self.appName = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
-            print(f"self.appName: {self.appName}")
+            self.appName = self.userChoiceSplit[-1]
             self.appName = self.validateAppInput(self.appName, "open")
-            print(f"self.appName: {self.appName}")
             self.commandUpdate = self.handleApplicationAction(self.appName, "open")
             self.appendNewCommandHistory(str(self.commandUpdate))
 
         elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "close") > 0.85):      # Close application
             print("\n***Close Application***")
-            self.appName = self.userChoiceSplit[-1].rstrip(string.punctuation).lower()
+            self.appName = self.userChoiceSplit[-1]
             self.appName = self.validateAppInput(self.appName, "close")
             self.commandUpdate = self.handleApplicationAction(self.appName, "close")
             self.appendNewCommandHistory(str(self.commandUpdate))
@@ -531,9 +534,11 @@ class InputValidation(mainScreen):
         elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
             address, subject, body = self.validate_new_email()
             self.start_new_mail(self.current_window,self.driver, address,subject,body)
-        elif (jellyfish.jaro_winkler_similarity(userChoice, "Exit") > 0.85):    # Exit
+
+        elif (userChoice == "exit"):    # Exit
             self.beepgood()
             print("***Exiting***")
+            self.root.quit()
 
         else:
             self.beepbad()
@@ -976,13 +981,18 @@ class InputValidation(mainScreen):
 
                     time.sleep(1)
                     self.commandRequest = self.promptUser(5, True, True)
-                    self.appendNewUserInputHistory(self.userInputHistory_label, self.commandRequest)
                     self.commandExec(self.commandRequest)
 
                 elif (self.keywordCheck == "you"):   # I found the model defaults to you if there is no sound passed
                     pass                                                                # In this case, do nothing
 
+                elif (self.keywordCheck == "stop listening"):
+                    self.setLabel(self.listeningProcessing_label, "")
+                    self.setLabel(self.userInstruction_label, "Use the Record button to start listening again")
+                    break
+
                 elif (self.keywordCheck == "exit"):
+                    self.root.quit()
                     break
 
                 # Let the processor breathe a bit
