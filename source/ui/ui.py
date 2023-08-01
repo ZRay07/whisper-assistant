@@ -396,15 +396,15 @@ class InputValidation(mainScreen):
         if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "open") > 0.85):        # Open application
             print("\n***Open Application***")
             self.appName = self.userChoiceSplit[-1]
-            self.appName = self.validateAppInput(self.appName, "open")
-            self.commandUpdate = self.handleApplicationAction(self.appName, "open")
+            self.appName = self.validateAppInput(self.appName, "open", self.valid_apps)
+            self.commandUpdate = self.handleApplicationAction(self.appName, "open", self.valid_apps)
             self.appendNewCommandHistory(str(self.commandUpdate))
 
         elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "close") > 0.85):      # Close application
             print("\n***Close Application***")
             self.appName = self.userChoiceSplit[-1]
-            self.appName = self.validateAppInput(self.appName, "close")
-            self.commandUpdate = self.handleApplicationAction(self.appName, "close")
+            self.appName = self.validateAppInput(self.appName, "close", self.valid_apps)
+            self.commandUpdate = self.handleApplicationAction(self.appName, "close", self.valid_apps)
             self.appendNewCommandHistory(str(self.commandUpdate))
 
         # There was an index error being caused here. 
@@ -579,14 +579,14 @@ class InputValidation(mainScreen):
         
     # This function verifies the application name which the user intends to open
     # It also is used to update the GUI
-    def validateAppInput(self, appName, action):
+    def validateAppInput(self, appName, action, VALID_APPS):
         if (appName not in VALID_APPS and appName not in {"application", "app"}):
             # Graphical UI Update
             self.setLabel(self.userInputError_label, f"Invalid application name \"{appName}\".")
 
         # Remove essential services from VALID_APPS list so they aren't accessible to close
         if action == "close":
-            removeEssentialServices(ESSENTIAL_SERVICES)
+            removeEssentialServices(ESSENTIAL_SERVICES, self.valid_apps)
 
         # Either an appname can be passed, or the user can simply say "open application"
         #   If the user specifies a valid app, the if statement will never be entered and while true loop will be skipped 

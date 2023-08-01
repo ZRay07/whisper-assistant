@@ -29,6 +29,14 @@ class operations:   #audio beep functions
         self.current_window =" "
         self.session_id = " "
         #self.driver = webdriver.Firefox()
+
+        # This if statement executes if apps are not already saved to a file
+        if os.path.exists("data/app_data.json"):
+            self.valid_apps = loadValidApps()
+        else:
+            app_opener_mklist(path = "data")
+            self.valid_apps = loadValidApps()
+        
     def beepgood(self):
         winsound.Beep(1000, 250)
         winsound.Beep(1500, 250)
@@ -47,7 +55,7 @@ class operations:   #audio beep functions
     # User voice input has been split by word
     # If user says "open application" -> the if statement will be entered which will prompt for an app name
     #   else if user says "open application spotify" or "open spotify" -> the command will run with appName being last word spoken
-    def handleApplicationAction(self, appName, action):
+    def handleApplicationAction(self, appName, action, VALID_APPS):
         try:
             if appName in VALID_APPS:
                 if action == "open":
@@ -56,16 +64,22 @@ class operations:   #audio beep functions
                     app_opener_close(appName, throw_error = True)
                 else:
                     print("Invalid action: ", action)
-                    return False
+                    #raise InvalidActionError
+                    raise ValueError
+
                 return f"{action} {appName} successful."
             
             else:
                 print("Invalid application name: ", appName)
-                return f"{action} {appName} NOT successful"
+                raise ValueError
+                #raise InvalidAppNameError
+
+        except ValueError as ve:
+            return f"{action} {appName} NOT successful."
             
         except Exception as e:
             print(f"Error occured while {action}ing the application: ", str(e))
-            return f"{action} {appName} NOT successful"
+            return f"An exception occured while {action}ing {appName}"
 
 
     def convertToInt(self,stringValue):
@@ -100,7 +114,10 @@ class operations:   #audio beep functions
             return None
 
     def handleScrollAction(self, scrollAmount, direction):
-        try:        
+        try:
+            if isinstance(scrollAmount, str):
+                raise TypeError
+            
             if direction == "up":
                 print(f"Scrolling up by {scrollAmount} clicks")
                 pyautogui.scroll(scrollAmount)
@@ -108,13 +125,19 @@ class operations:   #audio beep functions
                 print(f"Scrolling down by {scrollAmount} clicks")
                 pyautogui.scroll(-scrollAmount)
             else:
-                raise ValueError(f"Invalid scroll direction: {direction}")
+                raise ValueError
             
             return f"Scrolled {direction} by {scrollAmount} click(s)"
+        
+        except ValueError as ve:
+            return f"Invalid scroll direction: {direction}"
+        
+        except TypeError as te:
+            return f"Invalid scroll amount: {scrollAmount}"
 
         except Exception as e:
             print(f"Error occured during scrolling: {e}")
-            return False
+            return f"An exception occured while scrolling {direction} by {scrollAmount} clicks."
 
     # The input to this function [volChoice] can be a number, or it can simply be volume
     #   The input comes from the output of the Whisper speech recognition module
@@ -124,14 +147,14 @@ class operations:   #audio beep functions
     def setVolume(self, volChoice, decibel):
         try:
             print(f"decibel: {decibel}")
-            print(f"volume: {volume}")
+            print(f"volume: {volChoice}")
             volume.SetMasterVolumeLevel(decibel, None)
             print(f"Setting volume to {volChoice}")
             return f"Successfully set volume to {volChoice}"
 
         except Exception as e:
             print(f"Error occured while setting volume: {str(e)}")
-            return False
+            return f"An exception occured while setting volume to {volChoice}"
 
 
     # The inputs to this function are: [fname lname], [email], and [domain]
@@ -303,7 +326,11 @@ class operations:   #audio beep functions
 
     def searchForDocument(self, docChoice):
         try:
-            docChoice = "Document: " + docChoice
+            if isinstance(docChoice, str):
+                docChoice = "Document: " + docChoice
+
+            else:
+                raise TypeError
 
             # Move cursor to search bar
             pyautogui.click(120, 1065, duration = 1)
@@ -313,6 +340,9 @@ class operations:   #audio beep functions
             pyautogui.typewrite(docChoice, interval = 0.2)
             pyautogui.press('enter')
             return f"Successful search for {docChoice}"
+        
+        except TypeError:
+            return f"Invalid document: {docChoice}"
         
         except Exception as e:
             print(f"Error occured while searching for document: {e}")
@@ -345,7 +375,7 @@ ESSENTIAL_SERVICES = ["event viewer", "task scheduler", "windows powershell ise"
                         "control panel", "windows memory diagnostic", "system information", "file explorer",
                         "windows powershell ise x", "iscsi initiator", "component services", "services", "this pc"]
 
-def removeEssentialServices(essentialServices):
+def removeEssentialServices(essentialServices, VALID_APPS):
     removedApps = []
     for essentialService in essentialServices:
         try:
@@ -371,14 +401,6 @@ def loadValidApps():
     except Exception as e:
         print("Error occured while loading valid app names: ", str(e))
         return False
-    
-
-# This if statement executes if apps are not already saved to a file
-if os.path.exists("data/app_data.json"):
-    VALID_APPS = loadValidApps()
-else:
-    app_opener_mklist(path = "data")
-    VALID_APPS = loadValidApps()
 
 if __name__ == "__main__":
     # For testing purposes
