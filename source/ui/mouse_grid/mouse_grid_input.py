@@ -11,9 +11,13 @@ Commands = operations()
 
 class MouseGridInputValidator(MouseGrid):
     def __init__(self):
+        self.drag_to = False
+
         self.colors = {"red", "purple", "black", "green", "yellow", "orange", "blue", "white", "pink"}  # used in listenForColors
         self.validInnerGridPosition = {1, 2, 3, 4, 5, 6, 7, 8, 9}   # used in getInnerGridPosition
-        self.validUserOptions = {"left click", "right click", "double click", "type something", "enter key press", "continue moving cursor"} # used in getUserAction
+        self.validUserOptions = {"left click", "right click", "double click",
+                                 "type something", "enter key press",
+                                 "continue moving cursor", "drag to another location"} # used in getUserAction
         self.validMovementDirections = {"right", "left", "up", "down", "i'm done"}
         
         # This array is from PyAutoGui (it's a list of available special keys), used in getUserKeyInput
@@ -160,8 +164,15 @@ class MouseGridInputValidator(MouseGrid):
 
                     moveCursorSlightly(self.moveCursorDirection)
             
-            elif (userAction == "drag to"):
+            elif (userAction == "drag to another location"):
                 print("drag to")
+                self.drag_to = True
+                starting_pos = pyautogui.position()
+                print(f"starting x: {starting_pos[0]}")
+                print(f"starting y: {starting_pos[1]}")
+
+                # Get new location to move the cursor to
+                self.final_position = self.get_final_drag_to_position()        
 
         except Exception as e:
             print(f"Error in handling action: {e}")
@@ -255,6 +266,11 @@ class MouseGridInputValidator(MouseGrid):
         except Exception as e:
             print(f"Error while getting cursor movement direction: {e}")
 
+    def get_final_drag_to_position(self):
+        print("getting final 'drag to' position")
+        '''
+
+        '''
     # This function should be called as soon as the mouse window is launched
     # First, it updates the userInstruction label to let the users know we're first waiting for a color
     #   It will continuously listen until it hears a color
