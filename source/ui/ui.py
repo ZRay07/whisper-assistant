@@ -393,14 +393,48 @@ class InputValidation(mainScreen):
         for index, element in enumerate(self.userChoiceSplit):
             print(f"self.userChoiceSplit[{index}]: {element}")
         
-        if (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "open") > 0.85):        # Open application
+        if (self.userChoiceSplit[0] ==  "open"):        # Open application
             print("\n***Open Application***")
             self.appName = self.userChoiceSplit[-1]
             self.appName = self.validateAppInput(self.appName, "open", self.valid_apps)
             self.commandUpdate = self.handleApplicationAction(self.appName, "open", self.valid_apps)
             self.appendNewCommandHistory(str(self.commandUpdate))
 
-        elif (jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "close") > 0.85):      # Close application
+            # Give the window plenty of time to open
+            time.sleep(3)
+                
+            if self.appName == "word":
+                # Pressing enter after Word launches creates a new blank document
+                pyautogui.press("enter")
+
+                # Maximize the window
+                # The keyboard shortcut for maximizing a window is: alt + space, then x
+                pyautogui.hotkey("alt", "space")
+                pyautogui.press("x")
+
+                # Launch the UI for interacting with word
+                self.word_window = WordInputValidator("Microsoft Word Menu", (300, 1000))
+                self.word_window.attributes("-topmost", True)
+                self.word_window.mainloop()
+
+            else:
+                self.mouseGrid = MouseGridInputValidator()
+                self.mouseGrid.MouseGridWindow.attributes("-topmost", True)
+            
+            # Bring back the main screen window
+            if self.mouseGrid.typeSomething:    # If we type something, we wanna wait for longer
+                time.sleep(self.mouseGrid.recordDuration / 10)
+            else:
+                time.sleep(1)
+
+            if (self.root.wm_state() == "iconic"):  # if the window is minimized
+                    self.root.deiconify()        # bring it back to full size
+            time.sleep(0.1)
+            self.appendNewCommandHistory(str(self.mouseGrid.commandUpdate))
+
+
+
+        elif (self.userChoiceSplit[0] == "close"):      # Close application
             print("\n***Close Application***")
             self.appName = self.userChoiceSplit[-1]
             self.appName = self.validateAppInput(self.appName, "close", self.valid_apps)
