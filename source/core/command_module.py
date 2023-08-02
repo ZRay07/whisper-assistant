@@ -136,7 +136,7 @@ class operations:   #audio beep functions
 
     # The inputs to this function are: [fname lname], [email], and [domain]
     def addContact(self,name, email, domain):
-
+            
         # TO-DO: Create error handling to ensure a proper domain name is passed (gmail, outlook, etc.)
         try:
             account = {

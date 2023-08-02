@@ -3,7 +3,7 @@ import threading
 import string
 from tkinter import *
 from tkinter import font
-
+from selenium.webdriver.support.ui import WebDriverWait
 from source.core.command_module import *
 from source.core.model_interface import *
 from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
@@ -458,11 +458,12 @@ class InputValidation(mainScreen):
             time.sleep(0.1)
             self.appendNewCommandHistory(str(self.mouseGrid.commandUpdate))
 
-        elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85 or jellyfish.jaro_winkler_similarity(userChoice, "Send an email") > 0.85):    # Email sign in
+        elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85):    # Email sign in
             print("\n***Email sign-in***")
             self.beepgood()
             self.current_window = self.sign_in()
             print("\nMade it")
+            self.root.attributes('-topmost',1)
 
 
         elif(jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "add") > 0.85):     # Add contact
@@ -532,8 +533,16 @@ class InputValidation(mainScreen):
                     self.appendNewCommandHistory(str(self.commandUpdate))
 
         elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):
+            
             address, subject, body = self.validate_new_email()
-            self.start_new_mail(self.current_window,self.driver, address,subject,body)
+            time.sleep(1)
+            self.root.iconify()
+            self.driver = self.start_new_mail(self.current_window,self.driver, address,subject,body)
+            time.sleep(2)
+            self.root.deiconify()
+
+        elif(jellyfish.jaro_winkler_similarity(userChoice, "Send email") > 0.85):
+            self.send_email(self.current_window, self.driver)
 
         elif (userChoice == "exit"):    # Exit
             self.beepgood()
@@ -823,6 +832,61 @@ class InputValidation(mainScreen):
     #       The user is prompted for a contact name
     #   Otherwise:
     #       it waits for the user to say "yes" before returning a name
+  
+    def validate_email_address(self):
+        email_address =""
+        while True:
+            self.setLabel(self.userInstruction_label,"")
+            self.setLabel(self.userInstruction_label, "One character at a time.\n Exclude the domain.\nSay 'Done' when done")
+            time.sleep(2)
+            letter_or_num = self.promptUser(2,True,True)
+            if (letter_or_num == "done"):
+                return email_address
+            letter_or_num = self.letterornum(letter_or_num)
+            self.setLabel(self.userInstruction_label, f"I heard: {letter_or_num}?\nSay yes if correct.")
+            time.sleep(2)
+
+            self.userConfirmation = self.promptUser(2, True, True)
+
+            if (self.userConfirmation == "yes"):
+                    email_address= f"{email_address}{letter_or_num}"
+
+    def Turn_to_letter(self,meta):
+        homophones = ["why", "are", "sea", "eye", "you"]
+        
+        if (meta == homophones[0]):
+            meta = "y"
+            return meta
+        elif(meta ==  homophones[1]):
+            meta = "r"
+            return meta
+        elif(meta ==  homophones[2]):
+            meta = "c"
+            return meta
+        elif(meta ==  homophones[3]):
+            meta = "i"
+            return meta
+        elif(meta ==  homophones[4]):
+            meta = "u"
+            return meta
+        if (len(meta) > 1):
+                meta = meta[0]
+        return meta
+    def letterornum(self, char):
+        count = 0
+        str_nums = ["zero","one", "two", "three","four","five","six","seven","eight","nine","ten"]
+        nums = ["0","1","2","3","4","5","6","7","8","9","10"]
+        
+        for i in range(len(str_nums)):
+            count += 1
+            if (char == str_nums[i]):
+                return nums[i]
+            elif (count == 11):
+                char = self.Turn_to_letter(char)
+                return char
+            
+        
+
     def validateContactNameInput(self, contactName):
         self.userConfirmation = " "
         while True:
@@ -887,7 +951,7 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, "What domain does their email belong to?\ngmail, outlook, proton, etc.")
                 time.sleep(2)
 
-                self.contactEmailDomain = self.promptUser(3, True, False)
+                self.contactEmailDomain = self.promptUser(3, True, True)
 
             try:
                 self.setLabel(self.userInstruction_label, f"Is {self.contactEmailDomain} the correct domain?")
@@ -906,7 +970,7 @@ class InputValidation(mainScreen):
         contactName = self.validateContactNameInput(contactName)
         self.appendNewCommandHistory(f"Got name: {contactName}")
 
-        self.contactEmail = self.validateContactEmailInput()
+        self.contactEmail = self.validate_email_address()
         self.appendNewCommandHistory(f"Got email: {self.contactEmail}")
 
         self.contactEmailDomain = self.validateContactEmailDomainInput()
@@ -1021,11 +1085,20 @@ class InputValidation(mainScreen):
                 ele3.send_keys(subject)
                 ele4 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "dFCbN")))
                 ele4.send_keys(body)
+                return self.driver
                 #print(id_num+"\n")
         except Exception as e:
                  print(f"Error during clicking. \nError: {e}")
 
-
+    def send_email(self, current_window, driver):
+        driver.switch_to.window(current_window)
+        wait =  WebDriverWait(self.driver, 5)
+        try:
+            print("handsfree baby\n")
+            ele1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-Button--primary")))
+            ele1.click()
+        except Exception as e:
+            print("Could not find button\n")
 
     #validate the info needed to write an email
     def validate_new_email(self):
@@ -1057,18 +1130,23 @@ class InputValidation(mainScreen):
                 if (if_yes == "yes"):
                     #Using this we can see if the user has this person in their contacts
                     email,domain = self.pull_contact(contactName)
-                    
+                    print(f"{domain}")
                     #If they do then return their email address
                     if (email != "None"):
-                        address = f"{email}@{domain}.com"
-                        print(f"{email}@{domain}.com")
-                        return address
+                        if (jellyfish.jaro_winkler_similarity(domain, "wit") > 0.75):
+                            address = f"{email}@{domain}.edu"
+                            print(address)
+                            return address
+                        else:
+                        
+                            address = f"{email}@{domain}.com"
+                            print(address)
+                            return address
                     #if they don't prompt for their addy
                     else:
                         self.setLabel(self.userInstruction_label, f"{contactName} is not in your contacts\n Please tell me their information.")
                         time.sleep(2)
-                        new_email = self.validateContactEmailInput()
-                        
+                        new_email = self.validate_email_address()
                         new_domain = self.validateContactEmailDomainInput()
                         address = f"{new_email}@{new_domain}.com"
                         return address

@@ -17,8 +17,8 @@ from source.core.model_interface import microphone, whisper, RECORD_PATH
 #def Alreadyrunning():
 #     try
 def sign_in():
-        name, email, domain, password = account_info_in()
-        #driver = webdriver.Firefox()
+        email, domain, password = account_info_in()
+        driver = webdriver.Firefox()
 
         #so the pages have time to load 
         wait = WebDriverWait(driver, 30)
@@ -86,14 +86,14 @@ def sign_in():
     #       it searches for a document with the document name being whatever comes after 'document' in the string
         current_window = driver.current_window_handle
         print(current_window)
-        return current_window
+        return current_window, driver
 
 
-def new_email(current_window, contact, subject, body):
+def new_email(current_window, driver, contact, subject, body):
      # driver = webdriver.Firefox()
       driver.switch_to.window(current_window)
       wait = WebDriverWait(driver, 30)
-      wait1 = WebDriverWait(driver, 1)
+      wait1 = WebDriverWait(driver, 3)
       #element 1 is the 'New email' button
      # //*[@id="id__130"]
       try:
@@ -104,11 +104,12 @@ def new_email(current_window, contact, subject, body):
                 el1.click()
                 print("\n Found the 1st")
                 ele2 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "Z4n09")))
-                ele2.sendkeys(contact)
+                ele2.send_keys(contact)
                 ele3 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-TextField-field")))
                 ele3.send_keys(subject)
                 ele4 = wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "dFCbN")))
                 ele4.send_keys(body)
+                return current_window, driver
                 #print(id_num+"\n")
       except Exception as e:
                  print(f"Error during clicking. \nError: {e}")
@@ -219,7 +220,7 @@ def account_info_in():
                     'domain' : domain,
                     'password' : password
                 }
-    return contact.get('name'), contact.get('email'), contact.get('domain')
+    return contact.get('email'), contact.get('domain'), contact.get('password')
 #Make two functions 'write email' will take contact info and dictation
 #'Full Send' will send the info gathered from write email if user confirms
 def Full_send():
@@ -378,7 +379,34 @@ def pull_contact1( string):
         #    return found, "None", "None"
 
 
+def Turn_to_letter(meta):
+            if (len(meta) > 1):
+                meta = meta[0]
+            return meta
 
-
-email, domain = pull_contact1("Tyler Cohen")
-print(f" email:{email}\ndomain:{domain}")
+def letterornum( char):
+    count = 0
+    str_nums = ["zero","one", "two", "three","four","five","six","seven","eight","nine","ten"]
+    nums = ["0","1","2","3","4","5","6","7","8","9","10"]
+    for i in range(len(str_nums)):
+        count += 1
+        if (char == str_nums[i]):
+            return nums[i]
+        elif (count == 11):
+            char = Turn_to_letter(char)
+            return char
+def send_email(current_window, driver):
+     driver.switch_to.window(current_window)
+     wait = WebDriverWait(driver, 3)
+     print("Got this far\n")
+     ele1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-Button--primary")))
+     ele1.click()
+     print("done been clicked")
+#out = letterornum("ten")
+#print(out)
+#label-175
+#email, domain = pull_contact1("Tyler Cohen")
+#print(f" email:{email}\ndomain:{domain}")
+current_window, driver = sign_in()
+current_window, driver = new_email(current_window, driver,"tcohenwest@gmail.com","Does it work?", "Yes.")
+send_email(current_window,driver)
