@@ -8,6 +8,7 @@ class MouseGrid():
         
         # Open a new window
         self.MouseGridWindow = Tk()
+        self.MouseGridWindow.attributes("-topmost", True)
 
         # Make this window transparent
         self.MouseGridWindow.attributes("-alpha", 0.3, "-fullscreen", TRUE)
