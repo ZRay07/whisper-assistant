@@ -910,14 +910,26 @@ class InputValidation(mainScreen):
         count = 0
         str_nums = ["zero","one", "two", "three","four","five","six","seven","eight","nine","ten"]
         nums = ["0","1","2","3","4","5","6","7","8","9","10"]
-        
+        punc_list = ["dot","exclamation","comma","question mark","next line"]
+        punc_out = [".","!",",","?","\n"]
+
         for i in range(len(str_nums)):
             count += 1
-            if (char == str_nums[i]):
+
+            if(char == punc_list[i]):
+                char = punc_out[i]
+                return char
+            elif (char == str_nums[i]):
                 return nums[i]
             elif (count == 11):
                 char = self.Turn_to_letter(char)
                 return char
+   # def turn_to_punc(self, char):
+   #     punc_list = ["dot","exclamation","comma","question mark","next line"]
+   #     punc_out = [".","!",",","?","\n"]
+   ###       if (char == punc_list[i]):
+      #          char = punc_out[i]
+       #         return char
             
         
 
