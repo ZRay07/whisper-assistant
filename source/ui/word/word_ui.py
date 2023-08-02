@@ -44,11 +44,20 @@ class WordWindow(tk.Tk):
     def setLabel(self, label, message):
         try:
             label.config(text = message)
+
+            # If the label is the error label, schedule a function to clear it after 5000 milliseconds (5 seconds)
+            if label == self.feedback_msg.error_label2:
+                self.after(5000, lambda: self.clear_error_label())
+
             return True
 
         except Exception as e:
             print(f"Error updating {label} with \"{message}\": {e}")
             return False
+        
+    def clear_error_label(self):
+        # Clear the error label text
+        self.feedback_msg.error_label2.config(text = "")
         
     def appendNewUserInputHistory(self, message):
         # This function updates the user input history
