@@ -130,9 +130,9 @@ class MouseGridInputValidator(MouseGrid):
         # First, check if they want to click anything, as these are easier to deal with
         try:
             clickChoices = {
-                "left click": ["left"],
-                "right click": ["right"],
-                "double click": ["double"]
+                "left click": "left",
+                "right click": "right",
+                "double click": "double"
             }
 
             if userAction in clickChoices:      # if user says "right click", the dictionary's values will be pulled by providing the "right click" key

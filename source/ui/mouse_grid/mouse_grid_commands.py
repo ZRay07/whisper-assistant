@@ -38,9 +38,11 @@ def moveToInnerPosition(mouseGrid, innerGridChoice):
         print(f"Error occured while selecting inner grid: {e}")
 
 def performClick(mouseGrid, clickType):
+    print(f"clicktype: {clickType}")
     # Minimize the mouse grid so we can click on the windows behind it
     mouseGrid.MouseGridWindow.iconify()
-    time.sleep(0.1)
+    #pyautogui.hotkey("alt", "tab")
+    time.sleep(0.2)
 
     if clickType == "left":
         pyautogui.leftClick()

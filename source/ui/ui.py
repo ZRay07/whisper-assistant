@@ -422,7 +422,7 @@ class InputValidation(mainScreen):
 
             else:
                 self.mouseGrid = MouseGridInputValidator()
-                self.mouseGrid.MouseGridWindow.attributes("-topmost", True)
+                
             
             # Bring back the main screen window
             if self.mouseGrid.typeSomething:    # If we type something, we wanna wait for longer
@@ -430,8 +430,11 @@ class InputValidation(mainScreen):
             else:
                 time.sleep(1)
 
+            time.sleep(0.5)
+
             if (self.root.wm_state() == "iconic"):  # if the window is minimized
-                    self.root.deiconify()        # bring it back to full size
+                print("after iconic")
+                self.root.wm_state("zoomed")        # bring it back to full size
             time.sleep(0.1)
             self.appendNewCommandHistory(str(self.mouseGrid.commandUpdate))
 
@@ -490,7 +493,9 @@ class InputValidation(mainScreen):
             else:
                 time.sleep(1)
 
+            print("before wm state")
             if (self.root.wm_state() == "iconic"):  # if the window is minimized
+                    print("after wm state")
                     self.root.wm_state("zoomed")        # bring it back to full size
             time.sleep(0.1)
             self.appendNewCommandHistory(str(self.mouseGrid.commandUpdate))
@@ -539,7 +544,7 @@ class InputValidation(mainScreen):
             self.root.iconify()
 
             # Open word
-            self.handleApplicationAction("word", "open", self.valid_apps)
+            self.windows_search("Word")
 
             # Give the window plenty of time to open
             time.sleep(3)
@@ -566,7 +571,7 @@ class InputValidation(mainScreen):
                     print("\n***Search for a document***")
                     self.docChoice = userChoice
                     self.docChoice = self.validateDocumentInput(self.docChoice)
-                    self.commandUpdate = self.searchForDocument(self.docChoice)
+                    self.commandUpdate = self.windows_search(self.docChoice, document = True)
                     self.appendNewCommandHistory(str(self.commandUpdate))
 
         elif(jellyfish.jaro_winkler_similarity(userChoice, "New email") > 0.85):

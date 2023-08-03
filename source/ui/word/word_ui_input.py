@@ -314,7 +314,7 @@ class WordInputValidator(WordWindow):
         instruction = "What font would you like to set to?"
         invalid_input_message = "Invalid font"
 
-        self.setLabel("What font would you like to set to?")
+        self.setLabel(self.user_inputs.user_instruction_label2, "What font would you like?")
         font_input = self.promptUser(5, True, True)
 
         font_input = self.validate_general_input(self,
@@ -326,6 +326,8 @@ class WordInputValidator(WordWindow):
         self.command_handler.change_font(font_input)
 
     def handle_real_time_transcription(self):
+        self.setLabel(self.feedback_msg.listening_processing_label1, "Listening...")
+
         self.text_input = TextInputWindow(self)
         self.text_input.attributes('-topmost', 1)
         transcription = self.command_handler.real_time_text_input()

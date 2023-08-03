@@ -324,22 +324,24 @@ class operations:   #audio beep functions
         return self.current_window
     
 
-    def searchForDocument(self, docChoice):
+    def windows_search(self, search_name, document = None):
         try:
-            if isinstance(docChoice, str):
-                docChoice = "Document: " + docChoice
 
-            else:
-                raise TypeError
+            if document is not None:
+                if isinstance(search_name, str):
+                    search_name = "Document: " + search_name
+
+                else:
+                    raise TypeError
 
             # Move cursor to search bar
             pyautogui.click(120, 1065, duration = 1)
             time.sleep(0.2)
 
             # Type in document name and press enter
-            pyautogui.typewrite(docChoice, interval = 0.2)
+            pyautogui.typewrite(search_name, interval = 0.2)
             pyautogui.press('enter')
-            return f"Successful search for {docChoice}"
+            return f"Successful search for {search_name}"
         
         except TypeError:
             return f"Invalid document: {docChoice}"
