@@ -1036,8 +1036,16 @@ class InputValidation(mainScreen):
             self.label = label
             self.label.config(text = self.message)
 
+            # If the label is the error label, schedule a function to clear it after 5000 milliseconds (5 seconds)
+            if label == self.userInputError_label:
+                self.root.after(5000, lambda: self.clearErrorLabel())
+
         except Exception as e:
             print(f"Error updating {label} with \"{message}\": {e}")
+
+    def clearErrorLabel(self):
+        # Clear the error label text
+        self.userInputError_label.config(text = "")
 
     # This function updates the cmdHistory_label which is the center text box of the program
     # It's meant to be used after a function has been called, to notify the user of
