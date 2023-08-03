@@ -8,7 +8,7 @@ import time
 import pyautogui
 from tkinter import*
 from source.core.model_interface import microphone, whisper, RECORD_PATH
-
+import string
 
 
 #def getDriver():
@@ -402,11 +402,23 @@ def send_email(current_window, driver):
      ele1 = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "ms-Button--primary")))
      ele1.click()
      print("done been clicked")
-out = letterornum("bee")
-print(out)
+def remove_all_punc(input):
+ for i in range(len(string.punctuation)):
+   
+    for  j in range(len(input)):
+        
+         if (input[j] == string.punctuation[i]):
+             print(input)
+             input = input.replace(string.punctuation[i],"")
+             return input
+
+#out = letterornum("bee")
+#print(out)
 #label-175
 #email, domain = pull_contact1("Tyler Cohen")
 #print(f" email:{email}\ndomain:{domain}")
 #current_window, driver = sign_in()
 ##current_window, driver = new_email(current_window, driver,"tcohenwest@gmail.com","Does it work?", "Yes.")
 #send_email(current_window,driver)
+out = remove_all_punc("g-mail")
+print(out)

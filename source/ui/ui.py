@@ -594,7 +594,7 @@ class InputValidation(mainScreen):
     # Used for getting application names, scroll amounts, volume levels, etc.
     # If removePunctuation is true when you call it, it removes trailing punctuation.
     # If makeLowerCase is true when you call it, it makes the output string lowercase
-    def promptUser(self, recordDuration, removePunctuation, makeLowerCase):
+    def promptUser(self, recordDuration, removePunctuation, makeLowerCase, removeALLpunctuation):
         try:
             self.setLabel(self.listeningProcessing_label, "Listening...")
             microphone.record(recordDuration)
@@ -613,6 +613,15 @@ class InputValidation(mainScreen):
 
             if makeLowerCase:
                 self.userInput = self.userInput.lower()
+            if removeALLpunctuation:
+               for i in range(len(string.punctuation)):
+   
+                    for  j in range(len(self.userinput)):
+                        
+                        if (self.userinput[j] == string.punctuation[i]):
+                            #print(input)
+                            self.userinput = self.userinput.replace(string.punctuation[i],"")
+                            
 
             return self.userInput
         
@@ -648,7 +657,7 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, f"Which application would you like to {action}?")
                 time.sleep(2)
 
-                appName = self.promptUser(3, True, True)
+                appName = self.promptUser(3, True, True,False)
 
                 if appName in VALID_APPS:
                     break   # Valid app name provided, exit the while loop
@@ -690,7 +699,7 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, f"What amount would you like to scroll by (in clicks)?")
                 time.sleep(2)
 
-                scrollAmount = self.promptUser(2, removePunctuation = True, makeLowerCase = True)
+                scrollAmount = self.promptUser(2, removePunctuation = True, makeLowerCase = True, removeALLpunctuation=False)
 
         
     # The input to this function [volChoice] can be a number, or it can simply be volume
@@ -725,7 +734,7 @@ class InputValidation(mainScreen):
                     
                     time.sleep(2)
 
-                    volChoice = self.promptUser(3, True, True)
+                    volChoice = self.promptUser(3, True, True, False)
 
                 volChoice = self.convertToInt(volChoice) # Convert string representation of number to integer
                 
@@ -740,7 +749,7 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, "What volume would you like to set to?")
                 time.sleep(2)
 
-                volChoice = self.promptUser(3, removePunctuation = True, makeLowerCase = True)
+                volChoice = self.promptUser(3, removePunctuation = True, makeLowerCase = True, removeALLpunctuation=False)
 
         except Exception as e:
             print(f"Error occured while getting valid volume: {e}")
@@ -764,7 +773,7 @@ class InputValidation(mainScreen):
             
                 time.sleep(2)
 
-                docChoice = self.promptUser(3, True, False)
+                docChoice = self.promptUser(3, True, False,False)
 
             else:
                 try:
@@ -784,7 +793,7 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, f"Would you like to format {docChoice}?")
                 time.sleep(2)
 
-                self.userConfirmation = self.promptUser(2, True, True)
+                self.userConfirmation = self.promptUser(2, True, True,False)
 
                 if (self.userConfirmation == "no"):
                     return docChoice
@@ -805,13 +814,13 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, "What name would you like to save your document as?")
                 time.sleep(2)
 
-                self.saveDocumentName = self.promptUser(3, True, True)
+                self.saveDocumentName = self.promptUser(3, True, True, False)
 
             try:
                 self.setLabel(self.userInstruction_label, f"Would you like to format {self.saveDocumentName}?")
                 time.sleep(2)
 
-                self.userConfirmation = self.promptUser(2, True, True)
+                self.userConfirmation = self.promptUser(2, True, True, False)
 
                 if (self.userConfirmation == "no"):
                     return self.saveDocumentName
@@ -840,7 +849,7 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, "Remove spaces or replace spaces with underscores/hyphens?")
                 time.sleep(2)
 
-                self.formatChoice = self.promptUser(3, True, True)
+                self.formatChoice = self.promptUser(3, True, True, False)
 
                 if self.formatChoice in self.valid_format_options:
                     self.formattedUserInput = self.formatString(user_input, self.formatChoice)
@@ -852,7 +861,7 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, f"Is {self.formattedUserInput} the correct format?")
                 time.sleep(2)
 
-                self.userConfirmation = self.promptUser(2, True, True)
+                self.userConfirmation = self.promptUser(2, True, True, False)
 
                 if (self.userConfirmation == "yes"):
                     return self.formattedUserInput
@@ -873,7 +882,7 @@ class InputValidation(mainScreen):
             self.setLabel(self.userInstruction_label,"")
             self.setLabel(self.userInstruction_label, "One character at a time.\n Exclude the domain.\nSay 'Done' when done")
             time.sleep(2)
-            letter_or_num = self.promptUser(2,True,True)
+            letter_or_num = self.promptUser(2,True,True, False)
             print(f"I heard:{letter_or_num}\n")
             if (letter_or_num == "done"):
                 return email_address
@@ -882,7 +891,7 @@ class InputValidation(mainScreen):
             self.setLabel(self.userInstruction_label, f"I heard: {letter_or_num}?\nSay yes if correct.")
             time.sleep(2)
 
-            self.userConfirmation = self.promptUser(2, True, True)
+            self.userConfirmation = self.promptUser(2, True, True,False)
 
             if (self.userConfirmation == "yes"):
                     email_address= f"{email_address}{letter_or_num}"
@@ -947,14 +956,14 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, "Who would you like to add?")
                 time.sleep(2)
 
-                contactName = self.promptUser(3, True, False)
+                contactName = self.promptUser(3, True, False, False)
 
             # Whether or not the second word is "contact", we will check if the name is correct
             try:
                 self.setLabel(self.userInstruction_label, f"Add {contactName} to your list?\nSay yes if correct.")
                 time.sleep(2)
 
-                self.userConfirmation = self.promptUser(2, True, True)
+                self.userConfirmation = self.promptUser(2, True, True,False)
 
                 if (self.userConfirmation == "yes"):
                     return contactName
@@ -975,14 +984,14 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInputError_label, "DO NOT include domain")
                 time.sleep(2)
 
-                self.contactEmail = self.promptUser(3, True, True)
+                self.contactEmail = self.promptUser(3, True, True,True)
                 self.contactEmail = self.contactEmail.replace(" ", "")
             try:
                 self.setLabel(self.userInputError_label, "")
                 self.setLabel(self.userInstruction_label, f"Is their email {self.contactEmail}?\nSay yes if correct.")
                 time.sleep(2)
 
-                self.userConfirmation = self.promptUser(2, True, True)
+                self.userConfirmation = self.promptUser(2, True, True, False)
 
                 if (self.userConfirmation == "yes"):
                     return self.contactEmail
@@ -1003,13 +1012,13 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, "What domain does their email belong to?\ngmail, outlook, proton, etc.")
                 time.sleep(2)
 
-                self.contactEmailDomain = self.promptUser(3, True, True)
+                self.contactEmailDomain = self.promptUser(3, True, True, False)
 
             try:
                 self.setLabel(self.userInstruction_label, f"Is {self.contactEmailDomain} the correct domain?")
                 time.sleep(2)
 
-                self.userConfirmation = self.promptUser(2, True, True)
+                self.userConfirmation = self.promptUser(2, True, True, False)
 
                 if (self.userConfirmation == "yes"):
                     return self.contactEmailDomain
@@ -1094,7 +1103,7 @@ class InputValidation(mainScreen):
             while True:
 
                 self.setLabel(self.userInstruction_label, f"Say \"{self.keyword}\" and we'll listen for a command")
-                self.keywordCheck = self.promptUser(2, True, True)
+                self.keywordCheck = self.promptUser(2, True, True, False)
                 
 
                 if (self.keywordCheck == self.keyword):
@@ -1104,7 +1113,7 @@ class InputValidation(mainScreen):
                     self.setLabel(self.userInstruction_label, "Speak a command")
 
                     time.sleep(1)
-                    self.commandRequest = self.promptUser(5, True, True)
+                    self.commandRequest = self.promptUser(5, True, True, False)
                     self.commandExec(self.commandRequest)
 
                 elif (self.keywordCheck == "you"):   # I found the model defaults to you if there is no sound passed
@@ -1178,14 +1187,14 @@ class InputValidation(mainScreen):
             while True: 
                 self.setLabel(self.userInstruction_label, "We are listening for the person you wish to contact.")
                 time.sleep(1)
-                contactName = self.promptUser(3,True,False)
+                contactName = self.promptUser(3,True,False, False)
 
                 #check if the name is in our file if not loop
                 #pull var of email
                 # if name is in file exe the below
                 self.setLabel(self.userInstruction_label, f"You wish to contact {contactName} ?\n Say yes if correct:")
                 time.sleep(1)
-                if_yes = self.promptUser(3,True,True)
+                if_yes = self.promptUser(3,True,True, True)
                 
                 if (if_yes == "yes"):
                     #Using this we can see if the user has this person in their contacts
@@ -1223,10 +1232,10 @@ class InputValidation(mainScreen):
             while True: 
                 self.setLabel(self.userInstruction_label, "We are listening for the subject of your email.")
                 time.sleep(1)
-                subject = self.promptUser(3,True,False)
+                subject = self.promptUser(3,True,False, False)
                 self.setLabel(self.userInstruction_label, f"{subject} is the subect of your email?\n Say yes if correct:")
                 time.sleep(1)
-                if_yes = self.promptUser(3,True,True)
+                if_yes = self.promptUser(3,True,True, False)
                 if (if_yes == "yes"):
                     return subject
         except Exception as e:
@@ -1238,10 +1247,10 @@ class InputValidation(mainScreen):
             while True: 
                 self.setLabel(self.userInstruction_label, "We are listening for the body of your email.")
                 time.sleep(1)
-                body = self.promptUser(10,True,False)
+                body = self.promptUser(10,True,False, False)
                 self.setLabel(self.userInstruction_label, f"{body} \n is the body of your email?\n Say yes if correct:")
                 time.sleep(1)
-                if_yes = self.promptUser(3,True,True)
+                if_yes = self.promptUser(3,True,True,False)
                 if (if_yes == "yes"):
                     return body
         except Exception as e:
