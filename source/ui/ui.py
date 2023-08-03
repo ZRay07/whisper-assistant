@@ -874,9 +874,11 @@ class InputValidation(mainScreen):
             self.setLabel(self.userInstruction_label, "One character at a time.\n Exclude the domain.\nSay 'Done' when done")
             time.sleep(2)
             letter_or_num = self.promptUser(2,True,True)
+            print(f"I heard:{letter_or_num}\n")
             if (letter_or_num == "done"):
                 return email_address
             letter_or_num = self.letterornum(letter_or_num)
+            print(letter_or_num)
             self.setLabel(self.userInstruction_label, f"I heard: {letter_or_num}?\nSay yes if correct.")
             time.sleep(2)
 
@@ -909,16 +911,24 @@ class InputValidation(mainScreen):
         return meta
     def letterornum(self, char):
         count = 0
+        punc_list = ["dot","exclamation","comma","question mark","next line"]
+        punc_out = [".","!",",","?","\n"]
         str_nums = ["zero","one", "two", "three","four","five","six","seven","eight","nine","ten"]
         nums = ["0","1","2","3","4","5","6","7","8","9","10"]
         for i in range(len(str_nums)):
+            count +=1
             if (char == str_nums[i]):
                 char = nums[i]
-                print(f"Char is:{char}\n")
+                print(f"Char is: {char}\n")
                 return char
+            elif(count < 5):
+                if (char == punc_list[i]):
+                    char = punc_out[i]
+                    return char
+
             elif (count == 11):
                 char = self.Turn_to_letter(char)
-                print(f"Char is:{char}\n")
+                print(f"Char is: {char}\n")
                 return char
    # def turn_to_punc(self, char):
    #     punc_list = ["dot","exclamation","comma","question mark","next line"]
