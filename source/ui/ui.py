@@ -92,22 +92,25 @@ class mainScreen(operations):
         self.exit_button =          Button(self.cmd_bar, text = "Exit",                 font = self.buttonFont, command = lambda: [self.root.quit],                                                              bg = "SlateGray3", activebackground = "green", relief = FLAT, width = 20)
         
         # Place the buttons in the frame
-        self.openApp_button.grid(row = 0, column = 0, pady = 5)
-        self.closeApp_button.grid(row = 1, column = 0, pady = 5)
-        self.scrollUp_button.grid(row = 2, column = 0, pady = 5)
-        self.scrollDown_button.grid(row = 3, column = 0, pady = 5)
-        self.setVol_button.grid(row = 4, column = 0, pady = 5)
-        self.mouseControl_button.grid(row = 5, column = 0, pady = 5)
-        self.emailSignIn_button.grid(row = 6, column = 0, pady = 5)
-        self.newEmail_button.grid(row = 7, column = 0, pady = 5)
-        self.createAcc_button.grid(row = 8, column = 0, pady = 5)
-        self.addContact_button.grid(row = 9, column = 0, pady = 5)
-        self.createDocument_button.grid(row = 10, column = 0, pady = 5)
-        self.docSearch_button.grid(row = 11, column = 0, pady = 5)
-        self.googleSearch_button.grid(row = 12, column = 0, pady = 5)
+        self.openApp_button.grid(row = 0, column = 0, pady = 5, padx = 5)
+        self.closeApp_button.grid(row = 0, column = 1, pady = 5, padx = 5)
+        self.scrollUp_button.grid(row = 1, column = 0, pady = 5, padx = 5)
+        self.scrollDown_button.grid(row = 1, column = 1, pady = 5, padx = 5)
+        self.emailSignIn_button.grid(row = 2, column = 0, pady = 5, padx = 5)
+        self.newEmail_button.grid(row = 2, column = 1, pady = 5, padx = 5)
+        self.createDocument_button.grid(row = 3, column = 0, pady = 5, padx = 5)
+        self.docSearch_button.grid(row = 3, column = 1, pady = 5, padx = 5)
 
-        self.record_button.grid(row = 13, column = 0, pady = (30, 5))
-        self.exit_button.grid(row = 14, column = 0, pady = 5)
+        self.setVol_button.grid(row = 4, column = 0, columnspan = 2, pady = 5)
+        self.mouseControl_button.grid(row = 5, column = 0, columnspan = 2, pady = 5)
+
+        self.createAcc_button.grid(row = 6, column = 0, columnspan = 2, pady = 5)
+        self.addContact_button.grid(row = 7, column = 0, columnspan = 2, pady = 5)
+        
+        self.googleSearch_button.grid(row = 8, column = 0, columnspan = 2, pady = 5)
+
+        self.record_button.grid(row = 9, column = 0, pady = (30, 5), padx = 5)
+        self.exit_button.grid(row = 9, column = 1, pady = (30, 5), padx = 5)
 
     # This frame contains:
     # Record button
@@ -399,7 +402,7 @@ class InputValidation(mainScreen):
             self.appName = self.validateAppInput(self.appName, "open", self.valid_apps)
             self.commandUpdate = self.handleApplicationAction(self.appName, "open", self.valid_apps)
             self.appendNewCommandHistory(str(self.commandUpdate))
-
+            self.root.iconify()
             # Give the window plenty of time to open
             time.sleep(3)
                 

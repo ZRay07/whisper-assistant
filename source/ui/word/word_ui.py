@@ -140,6 +140,11 @@ class UserOptions(ttk.Frame):
                                                     font = ("Franklin Gothic Medium", 12),
                                                     background = "slate gray")
         
+        self.delete_word_label9 = ttk.Label(self,
+                                                    text = "Delete a word",
+                                                    font = ("Franklin Gothic Medium", 12),
+                                                    background = "slate gray")
+        
     # This function will grid the text labels created above onto the frame
     def layout_text_options(self):
 
@@ -157,6 +162,7 @@ class UserOptions(ttk.Frame):
         self.change_font_size_label6.grid(row = 6, column = 0, pady = 5)
         self.change_emphasis_label7.grid(row = 7, column = 0, pady = 5)
         self.change_script_label8.grid(row = 8, column = 0, pady = 5)
+        self.delete_word_label9.grid(row = 9, column = 0, pady = 5)
 
 
 class UserInput(ttk.Frame):

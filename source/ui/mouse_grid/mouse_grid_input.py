@@ -267,6 +267,7 @@ class MouseGridInputValidator(MouseGrid):
                 self.setLabel(self.userInstruction_label, "Say a color and we'll move the cursor there")
 
                 self.colorChoice = self.promptUser(2, True, True)
+                print(f"self.colorchoice {self.colorChoice}")
                 
                 if (self.colorChoice in self.colors):
                     self.setLabel(self.listeningProcessing_label, "Waiting...")
@@ -287,6 +288,8 @@ class MouseGridInputValidator(MouseGrid):
                 elif (self.colorChoice == "exit"):
                     self.MouseGridWindow.destroy()
                     break
+
+                time.sleep(0.25)
 
         except Exception as e:
             print(f"Error while listening for colors: {e}")
