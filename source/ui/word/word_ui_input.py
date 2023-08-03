@@ -3,6 +3,7 @@ import time
 import threading
 import tkinter as tk
 
+
 from source.ui.word.word_ui import WordWindow
 from source.ui.word.word_ui_commands import WordCommandHandler
 
