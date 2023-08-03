@@ -1,6 +1,7 @@
 import string
 import time
 import threading
+import tkinter as tk
 
 from source.ui.word.word_ui import WordWindow
 from source.ui.word.word_ui_commands import WordCommandHandler
@@ -21,7 +22,8 @@ class WordInputValidator(WordWindow):
 
         self.valid_commands = {
             "insert text": self.handle_insert_text,
-            "make real time transcription": self.command_handler.real_time_text_input,
+            "make real time transcription": self.handle_real_time_transcription,#command_handler.real_time_text_input,
+            "make real-time transcription": self.handle_real_time_transcription,#self.command_handler.real_time_text_input,
 
             "save and name file": self.command_handler.save_and_name_file,
             "save file": self.command_handler.save_file,
@@ -300,6 +302,17 @@ class WordInputValidator(WordWindow):
                                                 font_input)
         
         self.command_handler.change_font(font_input)
+
+    def handle_real_time_transcription(self):
+        self.text_input = TextInputWindow(self)
+        self.text_input.attributes('-topmost', 1)
+        transcription = self.command_handler.real_time_text_input()
+        self.text_input.destroy()
+
+        time.sleep(2)
+        for line in transcription:
+            self.command_handler.insert_text(line)
+        
         
     def listenForCommands(self):
         # This function should be called as soon as the word ui is launched
@@ -336,6 +349,42 @@ class WordInputValidator(WordWindow):
         thread = threading.Thread(target = self.listenForCommands)
         thread.daemon = True  # Set the thread as a daemon thread
         thread.start()
+
+class TextInputWindow(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Text Entry Box")
+        self.width = 800
+        self.height = 450
+        self.center_window(self.width, self.height)
+        
+        
+
+        self.grid_rowconfigure(0, weight = 10)
+        self.grid_rowconfigure(1, weight = 1)
+
+        self.grid_columnconfigure(0, weight = 1)
+
+        self.background_color = tk.Label(self, background = "slate gray")
+        self.background_color.grid(row = 0, rowspan = 2, column = 0, sticky = "nsew")
+        
+        self.text_entry = tk.Entry(self)
+        self.text_entry["justify"] = "center"
+        self.text_entry.grid(row = 0, column = 0, sticky = "nsew")
+
+        
+        self.exit_label = tk.Label(self, text = "Say 'exit' when you're done")
+        self.exit_label.grid(row = 1, column = 0)
+
+
+    def center_window(self, width, height):
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+        
+        self.geometry(f"{width}x{height}+{x}+{y}")
 
 if __name__ == "__main__":
     word_window = WordInputValidator("Microsoft Word Menu", (300, 1000))

@@ -536,7 +536,7 @@ class InputValidation(mainScreen):
             self.root.iconify()
 
             # Open word
-            self.handleApplicationAction("word", "open")
+            self.handleApplicationAction("word", "open", self.valid_apps)
 
             # Give the window plenty of time to open
             time.sleep(3)

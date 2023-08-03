@@ -12,8 +12,9 @@ import speech_recognition as sr
 import pyautogui
 
 class WordCommandHandler():
-    def __init__(self, ui):
+    def __init__(self, ui, input_window = None):
         self.word_ui = ui
+        self.input_window = input_window
 
         self.ribbon_popup_delay = 0.75
         self.sequential_key_delay = 0.1
@@ -53,6 +54,16 @@ class WordCommandHandler():
     
     @window_back_and_forth
     def insert_text(self, textInput):
+        print("text insert")
+
+        # First, move to the end of the docoment
+        pyautogui.hotkey("ctrl", "end")
+        sleep(self.hotkey_delay)
+
+        pyautogui.write(textInput, interval = 0.1)
+        return f"Successfully typed: {textInput}"
+    
+    def insert_transcript(self, textInput):
         print("text insert")
 
         # First, move to the end of the docoment
@@ -192,8 +203,9 @@ class WordCommandHandler():
         else:
             sleep(1)
 
-    @window_back_and_forth
+    
     def real_time_text_input(self): # from https://github.com/davabase/whisper_real_time
+        pyautogui.click(self.x_center_screen, self.y_center_screen)
         audio_model = whisper
 
         # Energy level for mic to detect
@@ -276,7 +288,7 @@ class WordCommandHandler():
 
                     # If we detect exit as the last word, exit the loop
                     exit_keywords = {"Exit.", " Exit", " exit"}
-                    print(f"text[-1]: {text[-5:]}")
+                    print(f"text[-5:]: {text[-5:]}")
                     if text[-5:] in exit_keywords:
                         break
 
@@ -296,20 +308,21 @@ class WordCommandHandler():
                         transcription_changed = False
 
                     if transcription_changed:
-                        numberOfBackSpaces = []     # This nifty little bit of code: https://www.reddit.com/r/learnpython/comments/117j3ou/question_with_pyautogui_delete_text_and_replace/
+                        numberOfBackSpaces = 0     # This nifty little bit of code: https://www.reddit.com/r/learnpython/comments/117j3ou/question_with_pyautogui_delete_text_and_replace/
                         print(f"number_of_back_spaces: {numberOfBackSpaces}")
                         for line in transcription:
-                            for char in range(0, len(line) + 1): 
-                                numberOfBackSpaces.append('backspace')
+                            for char in range(0, len(line)):
+                                print(f"number_of_back_spaces: {numberOfBackSpaces}")
+                                numberOfBackSpaces += 1;
                         
-                        pyautogui.press(numberOfBackSpaces)
+                        pyautogui.press("backspace", presses = numberOfBackSpaces)
 
                         for line in transcription:
                             pyautogui.write(line)
 
 
                     # Clear the console to reprint the updated transcription.
-                    os.system('cls')
+                    #os.system('cls')
                     for line in transcription:
                         print(line)
 
@@ -326,6 +339,8 @@ class WordCommandHandler():
         for line in transcription:
             print(line)
             #pyautogui.write(line)
+
+        return transcription
 
 if __name__ == "__main__":
     command_handler = WordCommandHandler()
