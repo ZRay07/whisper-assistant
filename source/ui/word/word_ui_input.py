@@ -47,6 +47,8 @@ class WordInputValidator(WordWindow):
             "make my text subscript": self.command_handler.make_subscript,
             "make my text superscript": self.command_handler.make_superscript,
 
+            "delete a word": self.handle_delete_word,
+
             "mouse control": self.command_handler.mouse_control
                                }  # used in listenForCommands
         
@@ -195,6 +197,25 @@ class WordInputValidator(WordWindow):
         text_input = self.getUserTextInput(record_duration)
 
         self.command_handler.insert_text(text_input)
+
+    def handle_delete_word(self):
+        try:
+            while True:
+                self.setLabel(self.user_inputs.user_instruction_label2, "What word would you like to delete?")
+                time.sleep(self.instruction_sleep_time)
+
+                delete_word = self.promptUser(3, True, True)
+
+                confirmation = self.confirmUserInput(delete_word)
+
+                if confirmation is True:
+                    self.command_handler.delete_word(delete_word)
+                else:
+                    pass
+
+        except Exception as e:
+            print(f"Error while getting word to delete: {e}")
+
 
     def getRecordDuration(self):
         # This function will continuously prompt the user until they provide a number

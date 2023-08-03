@@ -16,9 +16,9 @@ class WordCommandHandler():
         self.word_ui = ui
         self.input_window = input_window
 
-        self.ribbon_popup_delay = 0.75
-        self.sequential_key_delay = 0.1
-        self.hotkey_delay = 0.2
+        self.ribbon_popup_delay = 0.85
+        self.sequential_key_delay = 0.2
+        self.hotkey_delay = 0.25
 
         self.initial_save = False
 
@@ -191,6 +191,40 @@ class WordCommandHandler():
     def make_superscript(self):
         print("superscript")
         pyautogui.hotkey("ctrl", "shift", "+")
+
+    @window_back_and_forth
+    def delete_word(self, textInput):
+        print("word delete")
+
+        # First, move to the end of the docoment
+        pyautogui.hotkey("ctrl", "h")
+        sleep(self.hotkey_delay)
+
+        pyautogui.write(textInput, interval = 0.1)
+
+        sleep(self.sequential_key_delay)
+
+        pyautogui.press("enter")
+
+        pyautogui.hotkey("shift", "tab")
+        
+        sleep(self.sequential_key_delay)
+
+        pyautogui.hotkey("shift", "tab")
+
+        sleep(self.sequential_key_delay)
+
+        pyautogui.press("enter")
+
+        sleep(self.sequential_key_delay)
+
+        pyautogui.press("tab")
+
+        sleep(self.sequential_key_delay)
+
+        pyautogui.press("enter")
+
+        return f"Successfully deleted: {textInput}"
 
     @window_back_and_forth
     def mouse_control(self):
