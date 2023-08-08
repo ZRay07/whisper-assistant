@@ -503,9 +503,10 @@ class InputValidation(mainScreen):
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Email sign in") > 0.85):    # Email sign in
             print("\n***Email sign-in***")
             self.beepgood()
+            self.root.iconify()
             self.current_window = self.sign_in()
             print("\nMade it")
-            self.root.attributes('-topmost',1)
+            self.root.deiconify()
 
 
         elif(jellyfish.jaro_winkler_similarity(self.userChoiceSplit[0], "add") > 0.85):     # Add contact
@@ -532,7 +533,13 @@ class InputValidation(mainScreen):
         elif (jellyfish.jaro_winkler_similarity(userChoice, "Google search") > 0.85):
             print("\nSearching now...\n")
             self.beepgood()
-            self.google_search()
+            self.root.iconify()
+            self.setLabel(self.userInstruction_label, f"what would you like to search for?")
+            time.sleep(1)
+            user_in = self.promptUser(5, True, False, True)
+            self.google_search(user_in)
+            time.sleep(3)
+            self.root.deiconify()
 
         elif (jellyfish.jaro_winkler_similarity(userChoice, "create document") > 0.85):
             print("\n***Create a document***")
@@ -544,7 +551,7 @@ class InputValidation(mainScreen):
             self.root.iconify()
 
             # Open word
-            self.windows_search("Word")
+            self.handleApplicationAction("Word","open", self.valid_apps)
 
             # Give the window plenty of time to open
             time.sleep(5)

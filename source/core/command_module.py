@@ -237,19 +237,20 @@ class operations:   #audio beep functions
                     }
         return contact.get('name'), contact.get('email'), contact.get('domain'), contact.get('password')
 
-    def google_search(self):
-        microphone.record(10)
-        prediction = whisper.use_model(RECORD_PATH)
+    def google_search(self, user_in):
+       # microphone.record(10)
+        #prediction = whisper.use_model(RECORD_PATH)
         driver = webdriver.Firefox()
 
         #so the pages have time to load 
         wait = WebDriverWait(driver, 30)
         #Go to google
         driver.get("https://www.google.com/")
+        self.driver.maximize_window()
         
         #Find the search bar and enter what the user wants to search
         ele = wait.until(EC.element_to_be_clickable((By.ID, "APjFqb")))
-        ele.send_keys(prediction)
+        ele.send_keys(user_in)
         ele.send_keys(Keys.RETURN)
         time.sleep(2)
         #ele.click()
