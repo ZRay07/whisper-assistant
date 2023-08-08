@@ -38,9 +38,11 @@ def moveToInnerPosition(mouseGrid, innerGridChoice):
         print(f"Error occured while selecting inner grid: {e}")
 
 def performClick(mouseGrid, clickType):
+    print(f"clicktype: {clickType}")
     # Minimize the mouse grid so we can click on the windows behind it
     mouseGrid.MouseGridWindow.iconify()
-    time.sleep(0.1)
+    #pyautogui.hotkey("alt", "tab")
+    time.sleep(0.2)
 
     if clickType == "left":
         pyautogui.leftClick()
@@ -51,8 +53,9 @@ def performClick(mouseGrid, clickType):
     elif clickType == "double":
         pyautogui.doubleClick()
 
-    # Destroy the window
-    mouseGrid.MouseGridWindow.destroy()
+    # Bring the grid back
+    mouseGrid.MouseGridWindow.deiconify()
+    mouseGrid.MouseGridWindow.attributes("-fullscreen", True)
 
     return f"Successfully {clickType} clicked"
 
@@ -65,8 +68,9 @@ def enterTextInput(mouseGrid, textInput):
     pyautogui.doubleClick()
     pyautogui.write(textInput, interval = 0.05)
 
-    # Exit the mouse grid
-    mouseGrid.MouseGridWindow.destroy()
+    # Bring the grid back
+    mouseGrid.MouseGridWindow.deiconify()
+    mouseGrid.MouseGridWindow.attributes("-fullscreen", True)
 
     return f"Successfully typed: {textInput}"
 
@@ -79,8 +83,9 @@ def enterKeypressInput(mouseGrid, keyInput):
     pyautogui.leftClick()
     pyautogui.press(keyInput)
 
-    # Exit the mouse grid
-    mouseGrid.MouseGridWindow.iconify()
+    # Bring the grid back
+    mouseGrid.MouseGridWindow.deiconify()
+    mouseGrid.MouseGridWindow.attributes("-fullscreen", True)
 
     return f"Successfully pressed {keyInput}"
 

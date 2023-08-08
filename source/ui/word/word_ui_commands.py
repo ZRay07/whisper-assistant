@@ -60,7 +60,9 @@ class WordCommandHandler():
         pyautogui.hotkey("ctrl", "end")
         sleep(self.hotkey_delay)
 
-        pyautogui.write(textInput, interval = 0.1)
+        for line in textInput:
+            pyautogui.write(line, interval = 0.1)
+
         return f"Successfully typed: {textInput}"
     
     def insert_transcript(self, textInput):
@@ -120,7 +122,7 @@ class WordCommandHandler():
     @window_back_and_forth 
     def new_line(self):
         print("new line")
-        pyautogui.press("enter")
+        pyautogui.hotkey("enter")
         
     @window_back_and_forth
     def new_page(self):
@@ -222,13 +224,17 @@ class WordCommandHandler():
 
         sleep(self.sequential_key_delay)
 
+        pyautogui.press("tab")
+
+        sleep(self.sequential_key_delay)
+
         pyautogui.press("enter")
 
         return f"Successfully deleted: {textInput}"
 
     @window_back_and_forth
     def mouse_control(self):
-        print("mouse_control")
+        print("mouse control")
         self.mouseGrid = MouseGridInputValidator()
             
         # Bring back the main screen window
@@ -321,9 +327,11 @@ class WordCommandHandler():
                     text = result
 
                     # If we detect exit as the last word, exit the loop
-                    exit_keywords = {"Exit.", " Exit", " exit"}
+                    exit_keywords = {"Exit.", " Exit", " exit", "exit.", "exit"}
                     print(f"text[-5:]: {text[-5:]}")
                     if text[-5:] in exit_keywords:
+                        break
+                    elif text[-4:] in exit_keywords:
                         break
 
                     # If we detected a pause between recordings, add a new item to our transcripion.
@@ -341,18 +349,22 @@ class WordCommandHandler():
                     else:
                         transcription_changed = False
 
-                    if transcription_changed:
-                        numberOfBackSpaces = 0     # This nifty little bit of code: https://www.reddit.com/r/learnpython/comments/117j3ou/question_with_pyautogui_delete_text_and_replace/
-                        print(f"number_of_back_spaces: {numberOfBackSpaces}")
-                        for line in transcription:
-                            for char in range(0, len(line)):
-                                print(f"number_of_back_spaces: {numberOfBackSpaces}")
-                                numberOfBackSpaces += 1;
+                    #if transcription_changed:
+                        #numberOfBackSpaces = 0     # This nifty little bit of code: https://www.reddit.com/r/learnpython/comments/117j3ou/question_with_pyautogui_delete_text_and_replace/
+                        #print(f"number_of_back_spaces: {numberOfBackSpaces}")
+                        #for line in transcription:
+                            #for char in range(0, len(line)):
+                                #print(f"number_of_back_spaces: {numberOfBackSpaces}")
+                                #numberOfBackSpaces += 1;
                         
-                        pyautogui.press("backspace", presses = numberOfBackSpaces)
+                        #pyautogui.press("backspace", presses = numberOfBackSpaces)
 
-                        for line in transcription:
-                            pyautogui.write(line)
+                        #for line in transcription:
+                            #pyautogui.write(line)
+
+                    if transcription_changed:
+                        input_text = " ".join(transcription)
+                        self.word_ui.setLabel(self.word_ui.text_input.user_text, input_text)
 
 
                     # Clear the console to reprint the updated transcription.
