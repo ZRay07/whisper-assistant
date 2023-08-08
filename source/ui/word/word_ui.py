@@ -45,9 +45,9 @@ class WordWindow(tk.Tk):
         try:
             label.config(text = message)
 
-            # If the label is the error label, schedule a function to clear it after 5000 milliseconds (5 seconds)
+            # If the label is the error label, schedule a function to clear it after 10000 milliseconds (10 seconds)
             if label == self.feedback_msg.error_label2:
-                self.after(5000, lambda: self.clear_error_label())
+                self.after(10000, lambda: self.clear_error_label())
 
             return True
 

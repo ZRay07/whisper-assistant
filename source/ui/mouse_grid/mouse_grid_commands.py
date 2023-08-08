@@ -53,8 +53,9 @@ def performClick(mouseGrid, clickType):
     elif clickType == "double":
         pyautogui.doubleClick()
 
-    # Destroy the window
-    mouseGrid.MouseGridWindow.destroy()
+    # Bring the grid back
+    mouseGrid.MouseGridWindow.deiconify()
+    mouseGrid.MouseGridWindow.attributes("-fullscreen", True)
 
     return f"Successfully {clickType} clicked"
 
@@ -67,8 +68,9 @@ def enterTextInput(mouseGrid, textInput):
     pyautogui.doubleClick()
     pyautogui.write(textInput, interval = 0.05)
 
-    # Exit the mouse grid
-    mouseGrid.MouseGridWindow.destroy()
+    # Bring the grid back
+    mouseGrid.MouseGridWindow.deiconify()
+    mouseGrid.MouseGridWindow.attributes("-fullscreen", True)
 
     return f"Successfully typed: {textInput}"
 
@@ -81,8 +83,9 @@ def enterKeypressInput(mouseGrid, keyInput):
     pyautogui.leftClick()
     pyautogui.press(keyInput)
 
-    # Exit the mouse grid
-    mouseGrid.MouseGridWindow.iconify()
+    # Bring the grid back
+    mouseGrid.MouseGridWindow.deiconify()
+    mouseGrid.MouseGridWindow.attributes("-fullscreen", True)
 
     return f"Successfully pressed {keyInput}"
 

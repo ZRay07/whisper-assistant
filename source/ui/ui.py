@@ -1059,9 +1059,9 @@ class InputValidation(mainScreen):
             self.label = label
             self.label.config(text = self.message)
 
-            # If the label is the error label, schedule a function to clear it after 5000 milliseconds (5 seconds)
+            # If the label is the error label, schedule a function to clear it after 10000 milliseconds (10 seconds)
             if label == self.userInputError_label:
-                self.root.after(5000, lambda: self.clearErrorLabel())
+                self.root.after(10000, lambda: self.clearErrorLabel())
 
         except Exception as e:
             print(f"Error updating {label} with \"{message}\": {e}")

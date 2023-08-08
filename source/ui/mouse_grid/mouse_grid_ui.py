@@ -77,7 +77,7 @@ class MouseGrid():
         self.listeningProcessing_label = Label(self.userInteraction_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 24, "bold"), width = 16, height = 1, bg = "lime green")
         self.listeningProcessing_label.grid(row = 0, column = 0)
 
-        self.userInstruction_label = Label(self.userInteraction_frame, text = "Say a color and we'll move the cursor there", font = ("Franklin Gothic Medium", 12, "bold"), width = 38, height = 5, bg = "lime green", wraplength = 500)
+        self.userInstruction_label = Label(self.userInteraction_frame, text = "Say a color and we'll move the cursor there\nOR you can say exit to return to main window", font = ("Franklin Gothic Medium", 12, "bold"), width = 70, height = 5, bg = "lime green", wraplength = 400)
         self.userInstruction_label.grid(row = 1, column = 0)
 
         self.userInputError_label = Label(self.userInteraction_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "lime green", wraplength = 500, fg = "#710505", anchor = "center")
@@ -139,7 +139,7 @@ class MouseGrid():
                 pyautogui.moveTo(self.yellowCenter[0], self.yellowCenter[1], self.yellowCenter[2])
                 self.displayFlag = 1
 
-            elif (colorChoice == "white"):  # bottom center
+            elif (colorChoice == "white" or colorChoice == "why" or colorChoice == "wait"):  # bottom center
                 self.subgrid = Canvas(self.whiteFrame, width = self.screenWidth / 3, height = self.screenHeight / 3)
                 print(f"Moving to {colorChoice} center")
                 pyautogui.moveTo(self.whiteCenter[0], self.whiteCenter[1], self.whiteCenter[2])
@@ -163,6 +163,25 @@ class MouseGrid():
                 pyautogui.moveTo(self.pinkCenter[0], self.pinkCenter[1], self.pinkCenter[2])
                 self.displayFlag = 1
 
+                self.userInteraction_frame = Frame(self.orangeFrame, height = 400, width = self.screenWidth / 3, bg = "blue")
+                self.userInteraction_frame.grid(row = 1, column = 1, sticky = "se")
+
+                self.listeningProcessing_label = Label(self.userInteraction_frame, text = "Getting ready...", font = ("Franklin Gothic Medium", 24, "bold"), width = 16, height = 1, bg = "blue")
+                self.listeningProcessing_label.grid(row = 0, column = 0)
+
+                self.userInstruction_label = Label(self.userInteraction_frame, text = "Say an inner grid position (1-9)", font = ("Franklin Gothic Medium", 12, "bold"), width = 38, height = 5, bg = "blue", wraplength = 500)
+                self.userInstruction_label.grid(row = 1, column = 0)
+
+                self.userInputError_label = Label(self.userInteraction_frame, text = " ", font = ("Franklin Gothic Medium", 12, "bold"), width = 45, height = 2, bg = "blue", wraplength = 500, fg = "#710505", anchor = "center")
+                self.userInputError_label.grid(row = 2, column = 0)
+
+                self.SpaceHolder_frame = Frame(self.userInteraction_frame, height = 36, width = self.screenWidth / 3, bg = "blue")
+                self.SpaceHolder_frame.grid(row = 3, column = 0, sticky = "se")
+
+                # Configure the row and column weights of the pinkFrame
+                self.orangeFrame.grid_rowconfigure(1, weight = 1)
+                self.orangeFrame.grid_columnconfigure(1, weight = 1)
+
             else:
                 raise ValueError(print(f"Color error: {e}"))
             
@@ -182,6 +201,52 @@ class MouseGrid():
         except Exception as e:
             print(f"Error displaying subgrid: {e}")
 
+
+    def displayOptions(self, colorChoice):
+        if (colorChoice == "pink"):   # bottom right
+            self.userOptions_frame = Frame(self.orangeFrame, height = self.screenHeight / 3 - 400, width = self.screenWidth / 3, bg = "blue")
+            self.userOptions_frame.grid(row = 0, column = 1, sticky = "nsew")
+
+            self.lbl_click_options = Label(self.userOptions_frame, text = "Left click, right click, double click", font = ("Franklin Gothic Medium", 12, "bold"), bg = "blue")
+            self.lbl_click_options.grid(row = 0, column = 0, columnspan = 2, sticky = "ew")
+
+            self.lbl_type = Label(self.userOptions_frame, text = "Type something", font = ("Franklin Gothic Medium", 12, "bold"), bg = "blue")
+            self.lbl_type.grid(row = 1, column = 0, padx = 5, sticky = "e")
+
+            self.lbl_key_press = Label(self.userOptions_frame, text = "Enter key press", font = ("Franklin Gothic Medium", 12, "bold"), bg = "blue")
+            self.lbl_key_press.grid(row = 1, column = 1, padx = 5, sticky = "w")
+
+            self.lbl_cursor_movement = Label(self.userOptions_frame, text = "Continue moving cursor", font = ("Franklin Gothic Medium", 12, "bold"), bg = "blue")
+            self.lbl_cursor_movement.grid(row = 2, column = 0, columnspan = 2, sticky = "ew")
+
+            # Configure the row and column weights of the pinkFrame
+            self.orangeFrame.grid_rowconfigure((0, 1), weight = 1)
+            self.orangeFrame.grid_columnconfigure(1, weight = 1)
+
+        else:
+            self.userOptions_frame = Frame(self.pinkFrame, height = self.screenHeight / 3 - 400, width = self.screenWidth / 3, bg = "lime green")
+            self.userOptions_frame.grid(row = 0, column = 1, sticky = "nsew")
+
+            self.lbl_click_options = Label(self.userOptions_frame, text = "Left click, right click, double click", font = ("Franklin Gothic Medium", 12, "bold"), bg = "lime green")
+            self.lbl_click_options.grid(row = 0, column = 0, columnspan = 2, sticky = "ew")
+
+            self.lbl_type = Label(self.userOptions_frame, text = "Type something,", font = ("Franklin Gothic Medium", 12, "bold"), bg = "lime green")
+            self.lbl_type.grid(row = 1, column = 0, padx = 5, sticky = "e")
+
+            self.lbl_key_press = Label(self.userOptions_frame, text = "Enter key press", font = ("Franklin Gothic Medium", 12, "bold"), bg = "lime green")
+            self.lbl_key_press.grid(row = 1, column = 1, padx = 5, sticky = "w")
+
+            self.lbl_cursor_movement = Label(self.userOptions_frame, text = "Continue moving cursor", font = ("Franklin Gothic Medium", 12, "bold"), bg = "lime green")
+            self.lbl_cursor_movement.grid(row = 2, column = 0, columnspan = 2, sticky = "ew")
+
+            # Configure the row and column weights of the pinkFrame
+            self.pinkFrame.grid_rowconfigure((0, 1), weight = 1)
+            self.pinkFrame.grid_columnconfigure(1, weight = 1)
+
+        # Configure row and column weights of user options
+        self.userOptions_frame.grid_rowconfigure((0, 1, 2), weight = 1)
+        self.userOptions_frame.grid_columnconfigure((0, 1), weight = 1)
+
     # This function is used to update GUI labels
     # Simply pass a label name such as:
     #   userInstruction_label, or
@@ -191,8 +256,17 @@ class MouseGrid():
     def setLabel(self, label, message):
         try:
             label.config(text = message)
+
+            # If the label is the error label, schedule a function to clear it after 5000 milliseconds (5 seconds)
+            if label == self.userInputError_label:
+                self.after(10000, lambda: self.clear_error_label())
+
             return True
 
         except Exception as e:
             print(f"Error updating {label} with \"{message}\": {e}")
             return False
+        
+    def clear_error_label(self):
+        # Clear the error label text
+        self.userInputError_label.config(text = "")
