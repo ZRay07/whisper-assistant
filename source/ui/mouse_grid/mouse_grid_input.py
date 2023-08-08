@@ -11,8 +11,8 @@ Commands = operations()
 
 class MouseGridInputValidator(MouseGrid):
     def __init__(self):
-        self.colors = {"red", "purple", "black", "green", "yellow", "orange", "blue", "white", "pink"}  # used in listenForColors
-        self.validInnerGridPosition = {1, 2, 3, 4, 5, 6, 7, 8, 9}   # used in getInnerGridPosition
+        self.colors = {"red", "purple", "black", "green", "yellow", "orange", "blue", "white", "why", "wait", "pink", "make an action"}  # used in listenForColors
+        self.validInnerGridPosition = {1, 2, 3, 4, 5, 6, 7, 8, "heat", "e", 9}   # used in getInnerGridPosition
         self.validUserOptions = {"left click", "right click", "double click", "type something", "enter key press", "continue moving cursor"} # used in getUserAction
         self.validMovementDirections = {"right", "left", "up", "down", "i'm done"}
         
@@ -93,6 +93,10 @@ class MouseGridInputValidator(MouseGrid):
 
                 # Get the input
                 self.innerGridPosition = self.promptUser(2, True, True)
+
+                if self.innerGridPosition == "e" or self.innerGridPosition == "heat":
+                    self.innerGridPosition = 8
+
                 self.innerGridPosition = Commands.convertToInt(self.innerGridPosition)
 
                 if self.innerGridPosition in self.validInnerGridPosition:
@@ -130,9 +134,9 @@ class MouseGridInputValidator(MouseGrid):
         # First, check if they want to click anything, as these are easier to deal with
         try:
             clickChoices = {
-                "left click": ["left"],
-                "right click": ["right"],
-                "double click": ["double"]
+                "left click": "left",
+                "right click": "right",
+                "double click": "double"
             }
 
             if userAction in clickChoices:      # if user says "right click", the dictionary's values will be pulled by providing the "right click" key
@@ -264,10 +268,26 @@ class MouseGridInputValidator(MouseGrid):
         time.sleep(1)
         try:
             while True:
-                self.setLabel(self.userInstruction_label, "Say a color and we'll move the cursor there")
+                self.colorChoice = None
+                self.typeSomething = None
+                self.commandUpdate = None
+                self.innerGridChoice = None
+                self.userAction = None
+                
+                self.setLabel(self.userInstruction_label, "Say a color and we'll move the cursor there\nOR you can say exit to return to main window")
 
                 self.colorChoice = self.promptUser(2, True, True)
                 print(f"self.colorchoice {self.colorChoice}")
+
+                if self.colorChoice == "make an action":
+                    while self.commandUpdate is None:
+                        self.displayOptions(" ")
+                        self.userAction = self.getUserAction()
+                        self.commandUpdate = self.handleAction(self.userAction)
+                        self.deleteColorGrid()
+                        self.drawColorGrid()
+
+                    continue
                 
                 if (self.colorChoice in self.colors):
                     self.setLabel(self.listeningProcessing_label, "Waiting...")
@@ -280,10 +300,13 @@ class MouseGridInputValidator(MouseGrid):
                         moveToInnerPosition(self, self.innerGridChoice)
 
                     while self.commandUpdate is None:
+                        self.displayOptions(self.colorChoice)
                         self.userAction = self.getUserAction()
                         self.commandUpdate = self.handleAction(self.userAction)
+                        self.deleteColorGrid()
+                        self.drawColorGrid()
 
-                    break
+                    continue
 
                 elif (self.colorChoice == "exit"):
                     self.MouseGridWindow.destroy()

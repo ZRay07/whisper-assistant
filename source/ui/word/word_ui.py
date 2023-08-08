@@ -45,9 +45,9 @@ class WordWindow(tk.Tk):
         try:
             label.config(text = message)
 
-            # If the label is the error label, schedule a function to clear it after 5000 milliseconds (5 seconds)
+            # If the label is the error label, schedule a function to clear it after 10000 milliseconds (10 seconds)
             if label == self.feedback_msg.error_label2:
-                self.after(5000, lambda: self.clear_error_label())
+                self.after(10000, lambda: self.clear_error_label())
 
             return True
 
@@ -91,7 +91,7 @@ class UserOptions(ttk.Frame):
         super().__init__(parent)
 
         # This label stores no text, simply the background color
-        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 9, column = 0, sticky = "nsew")
+        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 10, column = 0, sticky = "nsew")
 
         # Places the frame onto the window
         self.grid(row = 0, column = 0, sticky = "nsew")
