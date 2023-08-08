@@ -91,7 +91,7 @@ class UserOptions(ttk.Frame):
         super().__init__(parent)
 
         # This label stores no text, simply the background color
-        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 9, column = 0, sticky = "nsew")
+        ttk.Label(self, background = "slate gray").grid(row = 0, rowspan = 10, column = 0, sticky = "nsew")
 
         # Places the frame onto the window
         self.grid(row = 0, column = 0, sticky = "nsew")

@@ -542,7 +542,7 @@ class InputValidation(mainScreen):
             self.handleApplicationAction("word", "open", self.valid_apps)
 
             # Give the window plenty of time to open
-            time.sleep(3)
+            time.sleep(5)
 
             # Pressing enter after Word launches creates a new blank document
             pyautogui.press("enter")
@@ -551,10 +551,13 @@ class InputValidation(mainScreen):
             # The keyboard shortcut for maximizing a window is: alt + space, then x
             pyautogui.hotkey("alt", "space")
             pyautogui.press("x")
-
+            time.sleep(1)
             # Launch the UI for interacting with word
             self.word_window = WordInputValidator("Microsoft Word Menu", (300, 1000), docChoice)
             self.word_window.mainloop()
+
+            self.handleApplicationAction("word", "close", self.valid_apps)
+            
 
 
             
@@ -619,11 +622,11 @@ class InputValidation(mainScreen):
             if removeALLpunctuation:
                for i in range(len(string.punctuation)):
    
-                    for  j in range(len(self.userinput)):
+                    for  j in range(len(self.userInput)):
                         
-                        if (self.userinput[j] == string.punctuation[i]):
+                        if (self.userInput[j] == string.punctuation[i]):
                             #print(input)
-                            self.userinput = self.userinput.replace(string.punctuation[i],"")
+                            self.userInput = self.userInput.replace(string.punctuation[i],"")
                             
 
             return self.userInput
@@ -852,7 +855,7 @@ class InputValidation(mainScreen):
                 self.setLabel(self.userInstruction_label, "Remove spaces or replace spaces with underscores/hyphens?")
                 time.sleep(2)
 
-                self.formatChoice = self.promptUser(3, True, True, False)
+                self.formatChoice = self.promptUser(4, True, True, False)
 
                 if self.formatChoice in self.valid_format_options:
                     self.formattedUserInput = self.formatString(user_input, self.formatChoice)
@@ -901,7 +904,7 @@ class InputValidation(mainScreen):
                     
 
     def Turn_to_letter(self,meta):
-        homophones = ["why", "are", "sea", "eye", "you"]
+        homophones = ["why", "are", "sea", "eye", "you", "see"]
         
         if (meta == homophones[0]):
             meta = "y"
@@ -909,7 +912,7 @@ class InputValidation(mainScreen):
         elif(meta ==  homophones[1]):
             meta = "r"
             return meta
-        elif(meta ==  homophones[2]):
+        elif(meta ==  homophones[2] or meta == homophones[5]):
             meta = "c"
             return meta
         elif(meta ==  homophones[3]):
@@ -1197,7 +1200,7 @@ class InputValidation(mainScreen):
                 # if name is in file exe the below
                 self.setLabel(self.userInstruction_label, f"You wish to contact {contactName} ?\n Say yes if correct:")
                 time.sleep(1)
-                if_yes = self.promptUser(3,True,True, True)
+                if_yes = self.promptUser(3,True,True, False)
                 
                 if (if_yes == "yes"):
                     #Using this we can see if the user has this person in their contacts

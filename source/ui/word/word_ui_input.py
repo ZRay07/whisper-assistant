@@ -51,9 +51,9 @@ class WordInputValidator(WordWindow):
 
             "mouse control": self.command_handler.mouse_control
                                }  # used in listenForCommands
-        
+        self.attributes("-topmost", True)
         self.startListeningThread()
-  
+        
     def promptUser(self, recordDuration, removePunctuation, makeLowerCase):
         #####
         # This function is used when we need to prompt the user for additional voice inputs
@@ -326,6 +326,8 @@ class WordInputValidator(WordWindow):
         self.command_handler.change_font(font_input)
 
     def handle_real_time_transcription(self):
+
+        self.setLabel(self.feedback_msg.listening_processing_label1, "Listening...")
         self.text_input = TextInputWindow(self)
         self.text_input.attributes('-topmost', 1)
         transcription = self.command_handler.real_time_text_input()
