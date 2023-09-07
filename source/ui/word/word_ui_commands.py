@@ -1,5 +1,4 @@
 import io
-import os
 from datetime import datetime, timedelta
 from queue import Queue
 from tempfile import NamedTemporaryFile
@@ -11,8 +10,9 @@ from source.ui.mouse_grid.mouse_grid_input import MouseGridInputValidator
 import speech_recognition as sr
 import pyautogui
 
-class WordCommandHandler():
-    def __init__(self, ui, input_window = None):
+
+class WordCommandHandler:
+    def __init__(self, ui, input_window=None):
         self.word_ui = ui
         self.input_window = input_window
 
@@ -34,24 +34,24 @@ class WordCommandHandler():
             self = args[0]
 
             # Push the UI window back
-            #self.word_ui.lower()
-        
+            # self.word_ui.lower()
+
             # Click on the Word window
-            #pyautogui.doubleClick(self.x_center_screen, self.y_center_screen)
+            # pyautogui.doubleClick(self.x_center_screen, self.y_center_screen)
 
             pyautogui.hotkey("alt", "tab")
 
             result = word_command(*args, **kwargs)
 
             # Lift the UI window upfront
-            #self.word_ui.focus_force()
+            # self.word_ui.focus_force()
 
             pyautogui.hotkey("alt", "tab")
 
             return result
-        
+
         return wrapper
-    
+
     @window_back_and_forth
     def insert_text(self, textInput):
         print("text insert")
@@ -61,10 +61,10 @@ class WordCommandHandler():
         sleep(self.hotkey_delay)
 
         for line in textInput:
-            pyautogui.write(line, interval = 0.1)
+            pyautogui.write(line, interval=0.1)
 
         return f"Successfully typed: {textInput}"
-    
+
     def insert_transcript(self, textInput):
         print("text insert")
 
@@ -72,7 +72,7 @@ class WordCommandHandler():
         pyautogui.hotkey("ctrl", "end")
         sleep(self.hotkey_delay)
 
-        pyautogui.write(textInput, interval = 0.1)
+        pyautogui.write(textInput, interval=0.1)
         return f"Successfully typed: {textInput}"
 
     @window_back_and_forth
@@ -84,7 +84,10 @@ class WordCommandHandler():
             pyautogui.hotkey("ctrl", "s")
 
         else:
-            self.word_ui.setLabel(self.word_ui.feedback_msg.error_label2, "You must perform 'save file as' first")
+            self.word_ui.set_label(
+                self.word_ui.feedback_msg.error_label2,
+                "You must perform 'save file as' first",
+            )
 
     @window_back_and_forth
     def save_and_name_file(self):
@@ -104,10 +107,10 @@ class WordCommandHandler():
             sleep(self.sequential_key_delay)
 
         # Type in the file name
-        pyautogui.typewrite(file_name, interval = 0.1)
+        pyautogui.typewrite(file_name, interval=0.1)
 
         # Tab over to save button
-        pyautogui.press("tab", presses = 2)
+        pyautogui.press("tab", presses=2)
 
         # Press the save button
         pyautogui.press("enter")
@@ -119,11 +122,11 @@ class WordCommandHandler():
         print("tab text")
         pyautogui.press("tab")
 
-    @window_back_and_forth 
+    @window_back_and_forth
     def new_line(self):
         print("new line")
         pyautogui.hotkey("enter")
-        
+
     @window_back_and_forth
     def new_page(self):
         print("new page")
@@ -160,12 +163,12 @@ class WordCommandHandler():
 
     @window_back_and_forth
     def make_font_italic(self):
-        print("make font bold")
+        print("make font italic")
         pyautogui.hotkey("ctrl", "i")
 
     @window_back_and_forth
     def make_font_underline(self):
-        print("make font bold")
+        print("make font underline")
         pyautogui.hotkey("ctrl", "u")
 
     @window_back_and_forth
@@ -202,14 +205,14 @@ class WordCommandHandler():
         pyautogui.hotkey("ctrl", "h")
         sleep(self.hotkey_delay)
 
-        pyautogui.write(textInput, interval = 0.1)
+        pyautogui.write(textInput, interval=0.1)
 
         sleep(self.sequential_key_delay)
 
         pyautogui.press("enter")
 
         pyautogui.hotkey("shift", "tab")
-        
+
         sleep(self.sequential_key_delay)
 
         pyautogui.hotkey("shift", "tab")
@@ -229,22 +232,23 @@ class WordCommandHandler():
         sleep(self.sequential_key_delay)
 
         pyautogui.press("enter")
-
-        return f"Successfully deleted: {textInput}"
 
     @window_back_and_forth
     def mouse_control(self):
         print("mouse control")
-        self.mouseGrid = MouseGridInputValidator()
-            
+        self.mouse_grid = MouseGridInputValidator()
+
         # Bring back the main screen window
-        if self.mouseGrid.typeSomething:    # If we type something, we wanna wait for longer
-            sleep(self.mouseGrid.recordDuration / 10)
+        if (
+            self.mouse_grid.typeSomething
+        ):  # If we type something, we wanna wait for longer
+            sleep(self.mouse_grid.recordDuration / 10)
         else:
             sleep(1)
 
-    
-    def real_time_text_input(self): # from https://github.com/davabase/whisper_real_time
+    def real_time_text_input(
+        self,
+    ):  # from https://github.com/davabase/whisper_real_time
         pyautogui.click(self.x_center_screen, self.y_center_screen)
         audio_model = whisper
 
@@ -258,8 +262,8 @@ class WordCommandHandler():
         phrase_timeout = 3
 
         temp_file = NamedTemporaryFile().name
-        transcription = ['']
-        previous_transcription = ['']
+        transcription = [""]
+        previous_transcription = [""]
         transcription_changed = False
 
         # The last time a recording was retreived from the queue.
@@ -279,7 +283,7 @@ class WordCommandHandler():
         with source:
             recorder.adjust_for_ambient_noise(source)
 
-        def record_callback(_, audio:sr.AudioData) -> None:
+        def record_callback(_, audio: sr.AudioData) -> None:
             """
             Threaded callback function to recieve audio data when recordings finish.
             audio: An AudioData containing the recorded bytes.
@@ -290,7 +294,9 @@ class WordCommandHandler():
 
         # Create a background thread that will pass us raw audio bytes.
         # We could do this manually but SpeechRecognizer provides a nice helper.
-        recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)
+        recorder.listen_in_background(
+            source, record_callback, phrase_time_limit=record_timeout
+        )
 
         # Cue the user that we're ready to go.
         print("Model loaded.\n")
@@ -303,7 +309,9 @@ class WordCommandHandler():
                     phrase_complete = False
                     # If enough time has passed between recordings, consider the phrase complete.
                     # Clear the current working audio buffer to start over with the new data.
-                    if phrase_time and now - phrase_time > timedelta(seconds=phrase_timeout):
+                    if phrase_time and now - phrase_time > timedelta(
+                        seconds=phrase_timeout
+                    ):
                         last_sample = bytes()
                         phrase_complete = True
                     # This is the last time we received new audio data from the queue.
@@ -315,11 +323,13 @@ class WordCommandHandler():
                         last_sample += data
 
                     # Use AudioData to convert the raw data to wav data.
-                    audio_data = sr.AudioData(last_sample, source.SAMPLE_RATE, source.SAMPLE_WIDTH)
+                    audio_data = sr.AudioData(
+                        last_sample, source.SAMPLE_RATE, source.SAMPLE_WIDTH
+                    )
                     wav_data = io.BytesIO(audio_data.get_wav_data())
 
                     # Write wav data to the temporary file as bytes.
-                    with open(temp_file, 'w+b') as f:
+                    with open(temp_file, "w+b") as f:
                         f.write(wav_data.read())
 
                     # Read the transcription.
@@ -338,7 +348,7 @@ class WordCommandHandler():
                     # Otherwise edit the existing one.
                     if phrase_complete:
                         transcription.append(text)
-                        
+
                     else:
                         transcription[-1] = text
 
@@ -349,32 +359,17 @@ class WordCommandHandler():
                     else:
                         transcription_changed = False
 
-                    #if transcription_changed:
-                        #numberOfBackSpaces = 0     # This nifty little bit of code: https://www.reddit.com/r/learnpython/comments/117j3ou/question_with_pyautogui_delete_text_and_replace/
-                        #print(f"number_of_back_spaces: {numberOfBackSpaces}")
-                        #for line in transcription:
-                            #for char in range(0, len(line)):
-                                #print(f"number_of_back_spaces: {numberOfBackSpaces}")
-                                #numberOfBackSpaces += 1;
-                        
-                        #pyautogui.press("backspace", presses = numberOfBackSpaces)
-
-                        #for line in transcription:
-                            #pyautogui.write(line)
-
                     if transcription_changed:
                         input_text = " ".join(transcription)
-                        self.word_ui.setLabel(self.word_ui.text_input.user_text, input_text)
+                        self.word_ui.set_label(
+                            self.word_ui.text_input.user_text, input_text
+                        )
 
-
-                    # Clear the console to reprint the updated transcription.
-                    #os.system('cls')
                     for line in transcription:
                         print(line)
 
                     # Flush stdout.
-                    print('', end='', flush=True)
-                    
+                    print("", end="", flush=True)
 
                     # Infinite loops are bad for processors, must sleep.
                     sleep(0.25)
@@ -384,9 +379,9 @@ class WordCommandHandler():
         print("\n\nTranscription:")
         for line in transcription:
             print(line)
-            #pyautogui.write(line)
 
         return transcription
+
 
 if __name__ == "__main__":
     command_handler = WordCommandHandler()

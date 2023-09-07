@@ -1,15 +1,12 @@
 import time
-
-from source.core.model_interface import *
-
 import tkinter as tk
 from tkinter import ttk
 
-import pyautogui
+from source.core.model_interface import *
 
 
-# This class creates the window, and creates objects which create the frames that store widgets
 class WordWindow(tk.Tk):
+    # This class creates the window, and creates objects which create the frames that store widgets
     def __init__(self, title, size):
         super().__init__()
 
@@ -31,8 +28,8 @@ class WordWindow(tk.Tk):
 
         # Create the user input box, user instruction label
         self.user_inputs = UserInput(self)
-        self.user_inputs.input_history_label1["wraplength"] = size[0] - 12
-        self.user_inputs.user_instruction_label2["wraplength"] = size[0] - 12
+        self.user_inputs.lbl_input_history["wraplength"] = size[0] - 12
+        self.user_inputs.lbl_user_instruction["wraplength"] = size[0] - 12
 
         # Create the listening label, and error message label
         self.feedback_msg = FeedbackMessages(self)
@@ -43,12 +40,12 @@ class WordWindow(tk.Tk):
         self.grid_rowconfigure(2, weight=1, minsize=self.feedback_msg.winfo_height())
         self.grid_columnconfigure(0, weight=1)
 
-    def setLabel(self, label, message):
+    def set_label(self, label, message):
         try:
             label.config(text=message)
 
             # If the label is the error label, schedule a function to clear it after 10000 milliseconds (10 seconds)
-            if label == self.feedback_msg.error_label2:
+            if label == self.feedback_msg.lbl_error:
                 self.after(10000, lambda: self.clear_error_label())
 
             return True
@@ -59,9 +56,9 @@ class WordWindow(tk.Tk):
 
     def clear_error_label(self):
         # Clear the error label text
-        self.feedback_msg.error_label2.config(text="")
+        self.feedback_msg.lbl_error.config(text="")
 
-    def appendNewUserInputHistory(self, message):
+    def append_user_input_history(self, message):
         # This function updates the user input history
         # It's meant to be used after every recording, to display what the model has transcripted
         def count_lines(label_text):
@@ -69,19 +66,19 @@ class WordWindow(tk.Tk):
             return len(lines)
 
         try:
-            self.newText = message
-            self.currentText = self.user_inputs.input_history_label1.cget("text")
-            self.updatedText = self.currentText + "\n" + self.newText
-            self.updatedText.capitalize()
+            self.new_text = message
+            self.current_text = self.user_inputs.lbl_input_history.cget("text")
+            self.updated_text = self.current_text + "\n" + self.new_text
+            self.updated_text.capitalize()
 
-            line_count = count_lines(self.updatedText)
+            line_count = count_lines(self.updated_text)
 
             if line_count > 12:
-                lines = self.updatedText.split("\n")
+                lines = self.updated_text.split("\n")
                 new_lines = lines[1:]
-                self.updatedText = "\n".join(new_lines)
+                self.updated_text = "\n".join(new_lines)
 
-            self.user_inputs.input_history_label1.config(text=self.updatedText)
+            self.user_inputs.lbl_input_history.config(text=self.updated_text)
 
         except Exception as e:
             print(f'Error updating user input history with "{message}": {e}')
@@ -105,70 +102,70 @@ class UserOptions(ttk.Frame):
 
     # This function will create the labels which store the command keywords
     def create_text_options(self):
-        self.user_options_label0 = ttk.Label(
+        self.lbl_user_options = ttk.Label(
             self,
             text="Options",
             font=("Franklin Gothic Medium", 24),
             background="slate gray",
         )
 
-        self.insert_text_label1 = ttk.Label(
+        self.lbl_insert_text = ttk.Label(
             self,
             text="Insert text",
             font=("Franklin Gothic Medium", 12),
             background="slate gray",
         )
 
-        self.save_file_label2 = ttk.Label(
+        self.lbl_save_file = ttk.Label(
             self,
             text="Save and name file / save file",
             font=("Franklin Gothic Medium", 12),
             background="slate gray",
         )
 
-        self.tab_label3 = ttk.Label(
+        self.lbl_tab = ttk.Label(
             self,
             text="Tab in / indent",
             font=("Franklin Gothic Medium", 12),
             background="slate gray",
         )
 
-        self.new_line_label4 = ttk.Label(
+        self.lbl_new_line = ttk.Label(
             self,
             text="Make new line / new page",
             font=("Franklin Gothic Medium", 12),
             background="slate gray",
         )
 
-        self.change_font_label5 = ttk.Label(
+        self.lbl_change_font = ttk.Label(
             self,
             text="Change font",
             font=("Franklin Gothic Medium", 12),
             background="slate gray",
         )
 
-        self.change_font_size_label6 = ttk.Label(
+        self.lbl_change_font_size = ttk.Label(
             self,
             text="Increase / decrease font size",
             font=("Franklin Gothic Medium", 12),
             background="slate gray",
         )
 
-        self.change_emphasis_label7 = ttk.Label(
+        self.lbl_change_emphasis = ttk.Label(
             self,
             text="Make my text bold / italic / underlined",
             font=("Franklin Gothic Medium", 12),
             background="slate gray",
         )
 
-        self.change_script_label8 = ttk.Label(
+        self.lbl_change_script = ttk.Label(
             self,
             text="Make my text subscript / superscript",
             font=("Franklin Gothic Medium", 12),
             background="slate gray",
         )
 
-        self.delete_word_label9 = ttk.Label(
+        self.lbl_delete_word = ttk.Label(
             self,
             text="Delete a word",
             font=("Franklin Gothic Medium", 12),
@@ -182,16 +179,16 @@ class UserOptions(ttk.Frame):
         self.grid_rowconfigure((2, 3, 4, 5, 6, 7, 8), weight=2)
         self.grid_columnconfigure(0, weight=1)
 
-        self.user_options_label0.grid(row=0, column=0, padx=10, pady=(10, 0))
-        self.insert_text_label1.grid(row=1, column=0, pady=(10, 5))
-        self.save_file_label2.grid(row=2, column=0, pady=5)
-        self.tab_label3.grid(row=3, column=0, pady=5)
-        self.new_line_label4.grid(row=4, column=0, pady=5)
-        self.change_font_label5.grid(row=5, column=0, pady=5)
-        self.change_font_size_label6.grid(row=6, column=0, pady=5)
-        self.change_emphasis_label7.grid(row=7, column=0, pady=5)
-        self.change_script_label8.grid(row=8, column=0, pady=5)
-        self.delete_word_label9.grid(row=9, column=0, pady=5)
+        self.lbl_user_options.grid(row=0, column=0, padx=10, pady=(10, 0))
+        self.lbl_insert_text.grid(row=1, column=0, pady=(10, 5))
+        self.lbl_save_file.grid(row=2, column=0, pady=5)
+        self.lbl_tab.grid(row=3, column=0, pady=5)
+        self.lbl_new_line.grid(row=4, column=0, pady=5)
+        self.lbl_change_font.grid(row=5, column=0, pady=5)
+        self.lbl_change_font_size.grid(row=6, column=0, pady=5)
+        self.lbl_change_emphasis.grid(row=7, column=0, pady=5)
+        self.lbl_change_script.grid(row=8, column=0, pady=5)
+        self.lbl_delete_word.grid(row=9, column=0, pady=5)
 
 
 class UserInput(ttk.Frame):
@@ -211,7 +208,7 @@ class UserInput(ttk.Frame):
         self.layout_user_input_display()
 
     def create_input_display(self):
-        self.input_history_label1 = ttk.Label(
+        self.lbl_input_history = ttk.Label(
             self,
             text="Input history",
             font=("Franklin Gothic Medium", 12),
@@ -220,7 +217,7 @@ class UserInput(ttk.Frame):
             justify="center",
         )
 
-        self.user_instruction_label2 = ttk.Label(
+        self.lbl_user_instruction = ttk.Label(
             self,
             text="Say a command",
             font=("Franklin Gothic Medium", 12),
@@ -233,12 +230,12 @@ class UserInput(ttk.Frame):
         # Create the grid
         self.grid_rowconfigure(0, weight=3)
         self.grid_rowconfigure(
-            1, weight=1, minsize=self.user_instruction_label2.winfo_height()
+            1, weight=1, minsize=self.lbl_user_instruction.winfo_height()
         )
         self.grid_columnconfigure(0, weight=1)
 
-        self.input_history_label1.grid(row=0, column=0, sticky="sew", padx=10)
-        self.user_instruction_label2.grid(row=1, column=0, sticky="nsew", padx=10)
+        self.lbl_input_history.grid(row=0, column=0, sticky="sew", padx=10)
+        self.lbl_user_instruction.grid(row=1, column=0, sticky="nsew", padx=10)
 
 
 class FeedbackMessages(ttk.Frame):
@@ -257,14 +254,14 @@ class FeedbackMessages(ttk.Frame):
         self.layout_feedback_messages()
 
     def create_feedback_messages(self):
-        self.listening_processing_label1 = ttk.Label(
+        self.lbl_listening_processing = ttk.Label(
             self,
             text="Waiting",
             font=("Franklin Gothic Medium", 24),
             background="slate gray",
         )
 
-        self.error_label2 = ttk.Label(
+        self.lbl_error = ttk.Label(
             self,
             text="",
             font=("Franklin Gothic Medium", 12),
@@ -275,9 +272,9 @@ class FeedbackMessages(ttk.Frame):
     def layout_feedback_messages(self):
         # Create the grid
         self.grid_rowconfigure(
-            (0, 1), weight=1, minsize=self.listening_processing_label1.winfo_height()
+            (0, 1), weight=1, minsize=self.lbl_listening_processing.winfo_height()
         )
         self.grid_columnconfigure(0, weight=1)
 
-        self.listening_processing_label1.grid(row=0, column=0)
-        self.error_label2.grid(row=1, column=0)
+        self.lbl_listening_processing.grid(row=0, column=0)
+        self.lbl_error.grid(row=1, column=0)
